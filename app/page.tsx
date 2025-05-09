@@ -2,16 +2,16 @@
 import Header from "./components/landing/header";
 import HeroSection from "./components/landing/HeroSection";
 import ServicesSection from "./components/landing/ServiceSection";
-import varadero from '../public/varadero.jpg';
 import PricingPage from "./components/landing/pricing";
 import ContactPage from "./components/landing/contact";
+import varad from '../public/varadero.jpg'
 
 const Inicio = () => {
   return (
     <main className="flex flex-col min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
       <Header/>
       <HeroSection 
-        imageSrc={varadero}
+        imageSrc={varad}
         imageAlt="Instalaciones del varadero"
         title="Varar aquí es fácil y seguro"
         description="Tecnología y experiencia para el mejor cuidado de tu embarcación."

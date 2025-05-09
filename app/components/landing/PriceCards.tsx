@@ -1,6 +1,6 @@
 import ExchangePage from "@/app/lib/conversorapi";
 import { HTMLAttributes, ReactNode } from "react";
-import CardContainer from "../card";
+import CardContainer from "../../ui/card";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
     icon: ReactNode,

@@ -4,8 +4,8 @@ import { GiKnifeFork, GiSpeedBoat } from "react-icons/gi";
 import { FaMotorcycle } from "react-icons/fa";
 import { BiSolidHotel } from "react-icons/bi";
 import { MdAddLocation } from "react-icons/md";
-import CardContainer from "../card";
-import PrimaryButton from "../buttons";
+import CardContainer from "../../ui/card";
+import PrimaryButton from "../../ui/buttons";
 
 const PricingPage: React.FC = () => {
   return (

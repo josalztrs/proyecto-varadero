@@ -1,5 +1,5 @@
 import { HTMLAttributes } from "react";
-import CardContainer from "../card";
+import CardContainer from "../../ui/card";
 
 interface ServiceCardProps extends HTMLAttributes<HTMLDivElement>{
   icon: string,

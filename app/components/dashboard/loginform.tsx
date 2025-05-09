@@ -1,8 +1,8 @@
 import { MdPassword } from "react-icons/md";
 import { BiUser } from "react-icons/bi";
 import { FiLock } from "react-icons/fi";
-import CardContainer from "../card"
-import PrimaryButton from "../buttons";
+import CardContainer from "../../ui/card"
+import PrimaryButton from "../../ui/buttons";
 
 export const LoginForm=()=>{
     return(
