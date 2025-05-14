@@ -1,12 +1,12 @@
 'use client'
 import { motion } from "framer-motion";
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import { HTMLAttributes } from 'react';
 import { GiPaperBoat } from 'react-icons/gi';
 import { IoIosArrowDown } from 'react-icons/io';
 
 interface HeroProps extends HTMLAttributes<HTMLDivElement>{
-  imageSrc: string,
+  imageSrc: StaticImageData | string,
   imageAlt: string,
   title: string,
   description: string

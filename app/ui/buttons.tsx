@@ -18,7 +18,7 @@ const overlayAnimation = {
   transition: { duration: 0.3 }
 }
 
-const PrimaryButton = ({ children, href = "#", ...props }) => (
+const PrimaryButton = ({ children, href = "#", ...props }: { children: React.ReactNode; href?: string }) => (
   <motion.div whileHover="hover" whileTap="tap" initial="initial">
     <Link
       href={href}
@@ -39,7 +39,7 @@ const PrimaryButton = ({ children, href = "#", ...props }) => (
   </motion.div>
 )
 
-const SecondaryButton = ({ children, href = "#", ...props }) => (
+const SecondaryButton = ({ children, href = "#", ...props }: { children: React.ReactNode; href?: string }) => (
   <motion.div whileHover="hover" whileTap="tap" initial="initial">
     <Link
       href={href}
@@ -60,7 +60,7 @@ const SecondaryButton = ({ children, href = "#", ...props }) => (
   </motion.div>
 )
 
-const TertiaryButton = ({ children, href = "#", ...props }) => (
+const TertiaryButton = ({ children, href = "#", ...props }: { children: React.ReactNode; href?: string }) => (
   <motion.div whileHover="hover" whileTap="tap" initial="initial">
     <Link
       href={href}
@@ -84,7 +84,7 @@ const TertiaryButton = ({ children, href = "#", ...props }) => (
   </motion.div>
 )
 
-const AcceptButton = ({ children, href = "#", ...props }) => (
+const AcceptButton = ({ children, href = "#", ...props }: { children: React.ReactNode; href?: string }) => (
   <motion.div 
     whileHover="hover" 
     whileTap="tap" 
@@ -114,7 +114,7 @@ const AcceptButton = ({ children, href = "#", ...props }) => (
   </motion.div>
 )
 
-const DenyButton = ({ children, href = "#", ...props }) => (
+const DenyButton = ({ children, href = "#", ...props }: { children: React.ReactNode; href?: string }) => (
   <motion.div 
     whileHover={{ 
       scale: 1.02, 

@@ -1,6 +1,6 @@
 'use client'
-import ServiceCard from "./servicecard";
 
+import ServiceCard from "./ServiceCard";
 interface Service {
   title: string,
   description:string,

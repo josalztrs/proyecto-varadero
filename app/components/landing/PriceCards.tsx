@@ -1,6 +1,6 @@
 import ExchangePage from "@/app/lib/conversorapi";
 import { HTMLAttributes, ReactNode } from "react";
-import CardContainer from "../../ui/card";
+import LandingCard from "../../ui/card";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
     icon: ReactNode,
@@ -12,7 +12,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 export const PriceCard = ({ icon, title, price_atr, price_ama, price_man }: CardProps) => {
   return (
-    <CardContainer>
+    <LandingCard>
       {/* Icon - tamaño reducido */}
       <div className="text-5xl flex justify-center items-center text-gray-800 dark:text-slate-100">
         {icon}
@@ -61,7 +61,7 @@ export const PriceCard = ({ icon, title, price_atr, price_ama, price_man }: Card
           </div>
         </div>
       </div>
-    </CardContainer>
+    </LandingCard>
   );
 };
 
@@ -81,7 +81,7 @@ export const SimplePriceCard: React.FC<SimplePriceCardProps> = ({
   className = '',
 }) => {
   return (
-    <CardContainer className={className}>
+    <LandingCard className={className}>
       {/* Icon - tamaño reducido */}
       <div className="text-5xl flex justify-center items-center text-gray-800 dark:text-slate-100">
         {icon}
@@ -102,6 +102,6 @@ export const SimplePriceCard: React.FC<SimplePriceCardProps> = ({
           className="text-base text-gray-500 dark:text-neutral-400 mt-1"
         />
       </div>
-    </CardContainer>
+    </LandingCard>
   );
 };

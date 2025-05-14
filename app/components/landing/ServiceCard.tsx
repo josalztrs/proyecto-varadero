@@ -1,5 +1,5 @@
 import { HTMLAttributes } from "react";
-import CardContainer from "../../ui/card";
+import LandingCard from "../../ui/card";
 
 interface ServiceCardProps extends HTMLAttributes<HTMLDivElement>{
   icon: string,
@@ -8,7 +8,7 @@ interface ServiceCardProps extends HTMLAttributes<HTMLDivElement>{
 }
 // components/ServiceCard.jsx
 const ServiceCard = ({ title, description, icon, className }: ServiceCardProps) => (
-  <CardContainer className={`relative ${className || ''}`}>
+  <LandingCard className={`relative ${className || ''}`}>
     {/* Contenedor del icono modificado */}
     <div className='text-4xl mb-5 text-cyan-500 dark:text-cyan-400 group-hover:scale-110 transition-transform duration-300'>
       {icon}
@@ -18,7 +18,7 @@ const ServiceCard = ({ title, description, icon, className }: ServiceCardProps) 
     <p className='text-gray-600 dark:text-slate-300/90 leading-relaxed'>{description}</p>
     
     <div className="absolute bottom-4 left-4 w-8 h-0.5 bg-cyan-400/0 group-hover:bg-cyan-400/80 transition-all duration-500"></div>
-  </CardContainer>
+  </LandingCard>
 );
   
   export default ServiceCard;

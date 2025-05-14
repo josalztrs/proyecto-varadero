@@ -4,7 +4,7 @@ import { nunito } from "./ui/fonts";
 const RootLayout: FC<PropsWithChildren> = ({children}) => {
     return (
         <html>
-            <body className={`${nunito.className}  antialiased`}>
+            <body className={`${nunito.className}  antialiased bg-white dark:bg-slate-900 transition-colors duration-300`}>
                 {children}
             </body>
         </html>
