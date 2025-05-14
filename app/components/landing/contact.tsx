@@ -1,39 +1,49 @@
-import { FaFacebook, FaInstagram, FaWhatsapp, FaXTwitter } from "react-icons/fa6";
+'use client'
+import { motion } from "framer-motion"
+import { FaFacebook, FaInstagram, FaWhatsapp, FaXTwitter } from "react-icons/fa6"
 
-const ContactPage: React.FC = () => {
-    return (
-      <div className="py-16 md:py-24 bg-white dark:bg-slate-900 transition-colors duration-500 flex flex-col items-center">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 dark:text-slate-100 mb-8 text-center">
-          Nuestros medios de contacto
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 justify-items-center">
-          <div className="flex flex-col items-center">
-            <a href="#" className="text-4xl text-blue-500 hover:text-blue-600 transition-colors duration-300">
-              <FaXTwitter />
-            </a>
-            <p className="mt-2 text-gray-600 dark:text-slate-300">Síguenos en X</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <a href="#" className="text-4xl text-blue-600 hover:text-blue-700 transition-colors duration-300">
-              <FaFacebook />
-            </a>
-            <p className="mt-2 text-gray-600 dark:text-slate-300">Encuéntranos en Facebook</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <a href="#" className="text-4xl text-pink-500 hover:text-pink-600 transition-colors duration-300">
-              <FaInstagram />
-            </a>
-            <p className="mt-2 text-gray-600 dark:text-slate-300">Visítanos en Instagram</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <a href='#' className="text-4xl text-green-500 hover:text-green-600 transition-colors duration-300">
-              <FaWhatsapp/>
-            </a>
-            <p className="mt-2 text-gray-600 dark:text-slate-300">Contáctanos por WhatsApp</p>
-          </div>
-        </div>
+const Contact = () => {
+  // Animación simplificada y confiable
+  const iconAnimation = {
+    rest: { scale: 1 },
+    hover: { 
+      scale: 1.1,
+      rotate: 10,
+      transition: { type: "spring", stiffness: 300 }
+    }
+  }
+
+  return (
+    <div className="flex flex-row items-center">
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl px-4">
+        {[
+          { icon: <FaXTwitter />, color: "text-blue-500"},
+          { icon: <FaFacebook />, color: "text-blue-600"},
+          { icon: <FaInstagram />, color: "text-pink-500"},
+          { icon: <FaWhatsapp />, color: "text-green-500"}
+        ].map((item, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.5 }}
+            className="flex flex-col items-center"
+          >
+            <motion.a
+              href="#"
+              variants={iconAnimation}
+              initial="rest"
+              whileHover="hover"
+              className={`text-2xl ${item.color} hover:opacity-90`}
+            >
+              {item.icon}
+            </motion.a>
+          </motion.div>
+        ))}
       </div>
-    );
-  };
+    </div>
+  )
+}
 
-export default ContactPage;
+export default Contact

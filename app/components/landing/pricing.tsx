@@ -14,7 +14,7 @@ const PricingPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mt-8 max-w-6xl mx-auto justify-center items-center pb-16">
         {/* Título */}
         <div className="md:col-span-3 flex justify-center mb-4">
-          <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent text-center leading-snug bg-gradient-to-br from-amber-500 to-amber-600 dark:from-yellow-400 dark:to-amber-500">
+          <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent text-center leading-snug bg-gradient-to-br from-amber-500 to-amber-600 dark:from-yellow-200 via-yellow-400 dark:to-amber-500">
             Nuestros precios
           </h1>
         </div>
