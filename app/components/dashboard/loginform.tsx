@@ -3,8 +3,28 @@ import { motion } from "framer-motion";
 import { MdPassword } from "react-icons/md";
 import { BiUser } from "react-icons/bi";
 import PrimaryButton from "../../ui/buttons";
+import { useState } from "react";
+import { redirect } from "next/navigation";
 
 export const LoginForm = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const envUsername = process.env.NEXT_PUBLIC_USERNAME;
+    const envPassword = process.env.NEXT_PUBLIC_PASSWORD;
+
+    if (username === envUsername && password === envPassword) {
+      alert("Login successful!");
+      redirect("/dashboard/main");
+    } else {
+      setError("Invalid username or password");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -12,7 +32,7 @@ export const LoginForm = () => {
       transition={{ delay: 0.4, duration: 0.6 }}
       className="w-full space-y-6"
     >
-      <form className="w-full space-y-6">
+      <form className="w-full space-y-6" onSubmit={handleSubmit}>
         {/* Campo Usuario con animación */}
         <motion.div
           className="space-y-2"
@@ -27,6 +47,8 @@ export const LoginForm = () => {
           <motion.input
             type="text"
             id="user"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full px-4 py-3 bg-white dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-200"
             placeholder="Tu nombre de usuario"
             whileFocus={{
@@ -50,6 +72,8 @@ export const LoginForm = () => {
           <motion.input
             type="password"
             id="pwd"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-3 bg-white dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-200"
             placeholder="••••••••"
             whileFocus={{
@@ -58,6 +82,9 @@ export const LoginForm = () => {
             }}
           />
         </motion.div>
+
+        {/* Error Message */}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
         {/* Botón con animación */}
         <motion.div
@@ -70,9 +97,11 @@ export const LoginForm = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <PrimaryButton href="#">
+            <button type='submit'>
+            <PrimaryButton>
               Iniciar Sesión
             </PrimaryButton>
+            </button>
           </motion.div>
         </motion.div>
       </form>

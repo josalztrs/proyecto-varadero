@@ -1,7 +1,7 @@
 import LocalTime from '@/app/lib/datetime';
 import React from 'react';
 import { IoExit } from 'react-icons/io5';
-import Notification from './notification';
+import Notification from './mainpage/notification';
 
 const Header = () => {
     return (

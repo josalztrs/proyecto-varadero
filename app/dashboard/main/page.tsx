@@ -1,7 +1,7 @@
 import ExchangeCard from "@/app/components/dashboard/mainpage/exchcard";
-import Header from "@/app/components/dashboard/mainpage/header";
+import Header from "@/app/components/dashboard/header";
 import Historial from "@/app/components/dashboard/mainpage/history";
-import DashSidebar from "@/app/components/dashboard/mainpage/sidebar";
+import DashSidebar from "@/app/components/dashboard/sidebar";
 import { DashboardCard } from "@/app/ui/card";
 
 const DashboardPage = () => {
