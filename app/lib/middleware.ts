@@ -32,8 +32,6 @@ export async function updateSession(request: NextRequest){
 }
 
 export async function getUser(request: NextRequest, response: NextResponse){
-    
-
     const supabase = createServerClient(
         process.env.SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,

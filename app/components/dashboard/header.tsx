@@ -2,6 +2,8 @@ import LocalTime from '@/app/lib/datetime';
 import React from 'react';
 import { IoExit } from 'react-icons/io5';
 import Notification from './mainpage/notification';
+import { signOut } from '@/app/lib/auth';
+import Link from 'next/link';
 
 const Header = () => {
     return (
@@ -23,14 +25,15 @@ const Header = () => {
           </div>
   
           <div className="flex items-center space-x-2">
-            <a
+            <Link
               title="Cerrar sesión"
-              href="/logout"
+              onClick={signOut}
+              href="/"
               className="p-2 text-gray-500 dark:text-neutral-400 hover:text-amber-500 dark:hover:text-cyan-400 transition-colors duration-200"
               aria-label="Cerrar sesión"
             >
               <IoExit className="text-xl md:text-2xl" />
-            </a>
+            </Link>
           </div>
         </div>
       </header>
