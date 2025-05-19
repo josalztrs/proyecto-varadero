@@ -3,6 +3,7 @@ import Header from "@/app/components/dashboard/header";
 import Historial from "@/app/components/dashboard/mainpage/history";
 import DashSidebar from "@/app/components/dashboard/sidebar";
 import { DashboardCard } from "@/app/ui/card";
+import CalendarWidget from "@/app/components/dashboard/mainpage/calendar";
 
 const DashboardPage = () => {
     return(
@@ -20,9 +21,15 @@ const DashboardPage = () => {
             </div>
             <div className="flex gap-4 p-4">
                 <div className="w-1/2"><Historial/></div>
-                <div className="w-1/2"><DashboardCard/></div>
+                
+                
             </div>
         </div>
+        <div className="absolute bottom-4 right-4 z-50">
+        <div className="bg-[#1e1e2f] rounded-2xl shadow-xl p-4 text-white max-w-[90vw] sm:max-w-xs">
+            <CalendarWidget/>
+            </  div>
+            </div>
         </div>
     )
 }
