@@ -3,12 +3,12 @@ import Header from "@/app/components/dashboard/header";
 import Historial from "@/app/components/dashboard/mainpage/history";
 import DashSidebar from "@/app/components/dashboard/sidebar";
 import { DashboardCard } from "@/app/ui/card";
-<<<<<<< HEAD
+
 import CalendarWidget from "@/app/components/dashboard/mainpage/calendar";
-=======
+
 import { supabase } from "@/app/lib/supabase/supabaseclient";
 import { NextResponse } from "next/server";
->>>>>>> 5b82739bfca3cd0308b9a9028b9e6d7ee85f5b42
+
 
 const DashboardPage = () => {
     if(!supabase.auth.getUser()){
