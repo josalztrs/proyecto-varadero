@@ -1,27 +1,30 @@
-'use client'
 import { motion } from "framer-motion";
 import { MdPassword } from "react-icons/md";
 import { BiUser } from "react-icons/bi";
 import PrimaryButton from "../../ui/buttons";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/app/lib/supabase/supabaseclient";
 
 export const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
-    const envUsername = process.env.NEXT_PUBLIC_USERNAME;
-    const envPassword = process.env.NEXT_PUBLIC_PASSWORD;
+    const { error } = await supabase.auth.signInWithPassword({
+      email: username,
+      password: password,
+    });
 
-    if (username === envUsername && password === envPassword) {
-      alert("Login successful!");
-      redirect("/dashboard/main");
+    if (error) {
+      setError("Usuario o contraseña incorrectos");
     } else {
-      setError("Invalid username or password");
+      router.push("/dashboard/main");
     }
   };
 
@@ -45,16 +48,18 @@ export const LoginForm = () => {
             Usuario
           </label>
           <motion.input
-            type="text"
+            type="email"
             id="user"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full px-4 py-3 bg-white dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-200"
-            placeholder="Tu nombre de usuario"
+            placeholder="Tu correo electrónico"
             whileFocus={{
-              borderColor: "#f59e0b" /* Amber 500 */,
-              boxShadow: "0 0 0 3px rgba(251, 191, 36, 0.2)" /* Amber 300 con opacidad */,
+              borderColor: "#f59e0b",
+              boxShadow: "0 0 0 3px rgba(251, 191, 36, 0.2)",
             }}
+            autoComplete="username"
+            required
           />
         </motion.div>
 
@@ -77,9 +82,11 @@ export const LoginForm = () => {
             className="w-full px-4 py-3 bg-white dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-slate-500 transition-all duration-200"
             placeholder="••••••••"
             whileFocus={{
-              borderColor: "#f59e0b" /* Amber 500 */,
-              boxShadow: "0 0 0 3px rgba(251, 191, 36, 0.2)" /* Amber 300 con opacidad */,
+              borderColor: "#f59e0b",
+              boxShadow: "0 0 0 3px rgba(251, 191, 36, 0.2)",
             }}
+            autoComplete="current-password"
+            required
           />
         </motion.div>
 
@@ -97,11 +104,9 @@ export const LoginForm = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <button type='submit'>
-            <PrimaryButton>
-              Iniciar Sesión
+            <PrimaryButton type="submit">
+              Iniciar Sesion
             </PrimaryButton>
-            </button>
           </motion.div>
         </motion.div>
       </form>

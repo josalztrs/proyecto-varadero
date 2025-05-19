@@ -23,19 +23,6 @@ const Header = () => {
           </div>
   
           <div className="flex items-center space-x-2">
-            <div className="hidden md:flex flex-col items-end">
-              <span className="text-sm font-medium text-gray-700 dark:text-neutral-200">
-                Admin User
-              </span>
-              <span className="text-xs text-gray-500 dark:text-neutral-400">
-                Administrator
-              </span>
-            </div>
-            
-            <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-cyan-900 flex items-center justify-center text-amber-600 dark:text-cyan-300 font-bold border border-amber-200 dark:border-cyan-700">
-              AU
-            </div>
-  
             <a
               title="Cerrar sesión"
               href="/logout"
