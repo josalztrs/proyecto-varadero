@@ -4,9 +4,10 @@ import { BiUser } from "react-icons/bi";
 import PrimaryButton from "../../ui/buttons";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/app/lib/supabase/supabaseclient";
+import { createClient } from "@/app/lib/supabase/supabaseclient";
 
 export const LoginForm = () => {
+  const supabase = createClient();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,8 +16,7 @@ export const LoginForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = (await supabase).auth.signInWithPassword({
       email: username,
       password: password,
     });

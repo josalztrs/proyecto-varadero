@@ -1,6 +1,6 @@
 'use client'
 import { motion } from "framer-motion";
-import { LoginForm } from "../components/dashboard/loginform";
+import { LoginForm } from "../../components/dashboard/loginform";
 import { GiPaperBoat } from "react-icons/gi";
 import Image from 'next/image';
 import loginimg from '@/public/boat.jpg';

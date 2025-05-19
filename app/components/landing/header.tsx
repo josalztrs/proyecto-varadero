@@ -8,7 +8,7 @@ const Header = () => {
       <div className='flex items-center space-x-6 px-4 p-4'>
         {
         <a
-          href='/dashboard'
+          href='/dashboard/login'
           className='text-base md:text-lg text-gray-700 dark:text-neutral-300 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 font-semibold'
         >
           Iniciar Sesión
