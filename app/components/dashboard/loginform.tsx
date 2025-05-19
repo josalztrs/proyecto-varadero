@@ -4,7 +4,7 @@ import { BiUser } from "react-icons/bi";
 import PrimaryButton from "../../ui/buttons";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/app/lib/supabase/supabase";
+import { supabase } from "@/app/lib/supabase/supabaseclient";
 
 export const LoginForm = () => {
   const [username, setUsername] = useState("");

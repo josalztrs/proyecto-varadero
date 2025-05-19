@@ -3,8 +3,13 @@ import Header from "@/app/components/dashboard/header";
 import Historial from "@/app/components/dashboard/mainpage/history";
 import DashSidebar from "@/app/components/dashboard/sidebar";
 import { DashboardCard } from "@/app/ui/card";
+import { supabase } from "@/app/lib/supabase/supabaseclient";
+import { NextResponse } from "next/server";
 
 const DashboardPage = () => {
+    if(!supabase.auth.getUser()){
+        return NextResponse.redirect('/login');
+    }
     return(
         <div className="flex h-screen">
         <div className="w-1/7 pr-4"><DashSidebar/></div>
