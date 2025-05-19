@@ -3,9 +3,7 @@ import Header from "@/app/components/dashboard/header";
 import Historial from "@/app/components/dashboard/mainpage/history";
 import DashSidebar from "@/app/components/dashboard/sidebar";
 import { DashboardCard } from "@/app/ui/card";
-
 import CalendarWidget from "@/app/components/dashboard/mainpage/calendar";
-
 import { supabase } from "@/app/lib/supabase/supabaseclient";
 import { NextResponse } from "next/server";
 
