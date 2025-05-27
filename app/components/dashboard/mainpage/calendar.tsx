@@ -47,7 +47,8 @@ const CalendarWidget = () => {
           [&_.react-calendar__month-view__weekdays]:uppercase 
           [&_.react-calendar__month-view__weekdays]:text-[9px]
           [&_.react-calendar__month-view__days]:grid 
-          [&_.react-calendar__month-view__days]:grid-rows-7
+          [&_.react-calendar__month-view__days]:grid-rows-2
+          [&_.react-calendar__month-view__days]:grid-flow-col
           [&_.react-calendar__tile]:text-white 
           [&_.react-calendar__tile]:rounded 
           [&_.react-calendar__tile]:h-8 

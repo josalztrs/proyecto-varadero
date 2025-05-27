@@ -4,46 +4,49 @@ import Historial from "@/app/components/dashboard/mainpage/history";
 import DashSidebar from "@/app/components/dashboard/sidebar";
 import { DashboardCard } from "@/app/ui/card";
 import CalendarWidget from "@/app/components/dashboard/mainpage/calendar";
+import PieChart from "@/app/components/dashboard/mainpage/Grafica";
 
 const DashboardPage = () => {
   return (
-    <div className="flex h-screen md:pl-[220px] pb-16 md:pb-0">
+    <div className="flex h-screen md:pl-[220px] pb-16 md:pb-0 bg-gray-50 dark:bg-gray-900">
       <DashSidebar />
       <main className="flex-1 overflow-y-auto">
-        <div className="flex flex-col gap-4">
-          <div>
-            <Header />
-          </div>
+        <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8">
+          <Header />
 
-          <div className="flex gap-4 p-4">
-            <div className="w-1/2">
+          {/* Primera fila: ExchangeCard y Gráfica */}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-3/5">
               <ExchangeCard />
             </div>
 
-            <div className="flex flex-row gap-4 w-1/2">
-              <div className="h-1/2">
-                <DashboardCard />
-              </div>
-              <div className="h-1/2">
-                <DashboardCard />
-              </div>
-              <div className="h-1/2">
-                <DashboardCard />
+            <div className="w-full md:w-2/5 flex flex-col">
+              <div className="rounded-xl overflow-hidden shadow-sm bg-white dark:bg-gray-800 flex flex-col h-full p-4">
+                <div className="bg-gradient-to-r from-amber-400 to-amber-500 dark:from-cyan-600 dark:to-blue-700 px-6 py-4 rounded-xl w-full text-center">
+                  <p className="text-xl font-semibold text-white">Distribución de Gastos</p>
+                </div>
+                <div className="flex-grow flex items-center justify-center w-full pt-6">
+                  <PieChart />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-4 p-4">
-            <div className="w-1/2">
+          {/* Segunda fila: Historial y Calendario */}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-3/5">
               <Historial />
             </div>
-            <div className="w-1/3">
-              <DashboardCard>
-                <div className="bg-gradient-to-r from-amber-400 to-amber-500 dark:from-cyan-600 dark:to-blue-700 px-6 py-4  rounded-xl">
+
+            <div className="w-full md:w-2/5">
+              <div className="rounded-xl overflow-hidden shadow-sm bg-white dark:bg-gray-800 flex flex-col h-full p-4">
+                <div className="bg-gradient-to-r from-amber-400 to-amber-500 dark:from-cyan-600 dark:to-blue-700 px-6 py-4 rounded-xl w-full text-center">
                   <p className="text-xl font-semibold text-white">Calendario de eventos</p>
                 </div>
-                <CalendarWidget />
-              </DashboardCard>
+                <div className="flex-grow flex items-center justify-center w-full pt-6">
+                  <CalendarWidget />
+                </div>
+              </div>
             </div>
           </div>
         </div>
