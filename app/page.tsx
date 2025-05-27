@@ -17,7 +17,7 @@ const Inicio = () => {
         className="snap-start"
       />
       <ServicesSection services={services}/>
-      <PricingPage />
+      <PricingPage/>
     </main>
   );
 };

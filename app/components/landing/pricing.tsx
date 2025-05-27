@@ -6,10 +6,35 @@ import { BiSolidHotel } from "react-icons/bi";
 import { MdAddLocation } from "react-icons/md";
 import CardContainer from "../../ui/card";
 import PrimaryButton from "../../ui/buttons";
+import ModalLayout from "../dashboard/modal";
+import Link from "next/link";
 
 const PricingPage: React.FC = () => {
+
+  async function onClose() {
+    "use server";
+    console.log("Modal closed");
+  }
+  async function onOK() {
+    "use server";
+    console.log("Modal OK clicked");
+  }
+  
   return (
-    <main className='flex flex-col min-h-screen w-full bg-white dark:bg-slate-900 transition-colors duration-500'>
+    <>
+    <ModalLayout
+      title="Resevacion"
+      optionone="Reservar"
+      optiontwo="Cancelar"
+      onclose={onClose}
+      onOK={onOK}>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Corporis expedita dicta eos nostrum inventore molestiae, repudiandae incidunt itaque unde! Quam laudantium exercitationem aperiam nobis eum ullam sunt maxime tempora tempore.
+      </p>
+    </ModalLayout>
+
+
+
+    <main id="reserva" className='flex flex-col min-h-screen w-full bg-white dark:bg-slate-900 transition-colors duration-500'>
       {/* Contenedor principal ajustado */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 mt-8 max-w-6xl mx-auto justify-center items-center pb-16">
         {/* Título */}
@@ -53,9 +78,12 @@ const PricingPage: React.FC = () => {
 
           <CardContainer className="flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-800 rounded-md shadow-md p-6">
             <MdAddLocation className="text-8xl text-gray-800 dark:text-slate-100 gap-4"/>
-            <PrimaryButton>
-              Reserva Ya!
-            </PrimaryButton>
+            <Link
+              href="/?showDialog=y">
+                <PrimaryButton>
+                  Reserva Ya!
+                </PrimaryButton>
+            </Link>
           </CardContainer>
 
           <SimplePriceCard
@@ -66,6 +94,7 @@ const PricingPage: React.FC = () => {
         </div>
       </div>
     </main>
+    </>
   );
 };
 
