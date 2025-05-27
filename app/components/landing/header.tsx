@@ -9,6 +9,7 @@ const Header = () => {
         {
         <a
           href='/dashboard/login'
+          replace
           className='text-base md:text-lg text-gray-700 dark:text-neutral-300 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors duration-200 font-semibold'
         >
           Iniciar Sesión
