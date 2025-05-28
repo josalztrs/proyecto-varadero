@@ -1,19 +1,22 @@
-'use client';
+'use client'; // Indica que este componente se renderiza del lado del cliente (Next.js)
 
 import React, { useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import { CalendarDays, RefreshCcw } from 'lucide-react';
-import { Dialog } from '@headlessui/react';
+import Calendar from 'react-calendar'; // Calendario de terceros
+import 'react-calendar/dist/Calendar.css'; // Estilos por defecto del calendario
+import { CalendarDays, RefreshCcw } from 'lucide-react'; // Íconos
+import { Dialog } from '@headlessui/react'; // Componente para modales accesibles
 
+// Tipo que representa una fecha o un rango de fechas
 type Value = Date | [Date | null, Date | null] | null;
 
+// Eventos importantes predefinidos
 const eventosImportantes = [
   { fecha: new Date(2025, 4, 20), descripcion: 'Inspección del varadero' },
   { fecha: new Date(2025, 4, 25), descripcion: 'Mantenimiento de embarcación' },
   { fecha: new Date(2025, 5, 1), descripcion: 'Reunión con clientes VIP' },
 ];
 
+// Verifica si una fecha específica tiene un evento
 const tieneEvento = (date: Date) =>
   eventosImportantes.some(
     (evento) =>
@@ -22,6 +25,7 @@ const tieneEvento = (date: Date) =>
       evento.fecha.getDate() === date.getDate()
   );
 
+// Obtiene el evento asociado a una fecha (si existe)
 const getEvento = (date: Date) =>
   eventosImportantes.find(
     (evento) =>
@@ -30,35 +34,39 @@ const getEvento = (date: Date) =>
       evento.fecha.getDate() === date.getDate()
   );
 
+// Compara si dos fechas son exactamente el mismo día
 const isSameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() &&
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
 const CalendarWidget = () => {
-  const [value, setValue] = useState<Value>(new Date());
+  const [value, setValue] = useState<Value>(new Date()); // Fecha seleccionada
   const [eventoSeleccionado, setEventoSeleccionado] = useState<{
     fecha: Date;
     descripcion: string;
-  } | null>(null);
-  const [activeDate, setActiveDate] = useState(new Date());
+  } | null>(null); // Evento actual en el modal
+  const [activeDate, setActiveDate] = useState(new Date()); // Mes actual mostrado
 
   const selectedDate = !Array.isArray(value) ? value : null;
 
+  // Cuando se selecciona una fecha
   const handleChange = (val: Value) => {
     if (val && !Array.isArray(val)) {
       setValue(val);
-      const evento = getEvento(val);
-      if (evento) setEventoSeleccionado(evento);
+      const evento = getEvento(val); // Verifica si esa fecha tiene un evento
+      if (evento) setEventoSeleccionado(evento); // Abre el modal si hay evento
     }
   };
 
+  // Al presionar el botón "Hoy", se vuelve al mes actual y lo centra
   const resetToToday = () => {
     const today = new Date();
     setValue(today);
-    setActiveDate(today); // Redirige al mes actual
+    setActiveDate(today); // Redirige visualmente al mes actual
   };
 
+  // Muestra la fecha actual formateada en español
   const todayStr = new Date().toLocaleDateString('es-VE', {
     weekday: 'long',
     day: 'numeric',
@@ -66,8 +74,9 @@ const CalendarWidget = () => {
   });
 
   return (
-    <div className="rounded-3xl shadow-2xl border border-gray-700 p-6 bg-gray-900 shadow -lg w-full max-w-md text-black transition-all duration-300 hover:shadow-blue-900 mx-auto">
-      {/* Encabezado */}
+    <div className="rounded-3xl shadow-2xl border border-gray-700 p-6 bg-gray-900 shadow-lg w-full max-w-md text-black transition-all duration-300 hover:shadow-blue-900 mx-auto">
+      
+      {/* Encabezado con fecha de hoy y botón de "Hoy" */}
       <div className="flex flex-col items-center gap-2 mb-4">
         <div className="flex items-center gap-2 text-blue-300 text-lg font-semibold">
           <CalendarDays className="w-5 h-5" />
@@ -82,29 +91,33 @@ const CalendarWidget = () => {
         </button>
       </div>
 
-      {/* Calendario */}
+      {/* Calendario visual */}
       <div className="flex justify-center">
         <Calendar
           onChange={handleChange}
           value={value}
           locale="es-VE"
           onActiveStartDateChange={({ activeStartDate }) => {
-            if (activeStartDate) setActiveDate(activeStartDate);
+            if (activeStartDate) setActiveDate(activeStartDate); // Captura cambio de mes
           }}
-          activeStartDate={activeDate}
+          activeStartDate={activeDate} // Controla el mes visible
+          
+          // Estilos condicionales para cada día
           tileClassName={({ date, view }) => {
             if (view === 'month') {
               const base = 'relative rounded-lg text-black font-medium';
-              if (tieneEvento(date)) return `${base}`;
+              if (tieneEvento(date)) return `${base}`; // Día con evento
               if (isSameDay(date, new Date()))
-                return `${base} border-2 border-blue-700`;
+                return `${base} border-2 border-blue-700`; // Día actual
               if (selectedDate && isSameDay(date, selectedDate))
-                return `${base} bg-pink-600 text-black shadow-lg`;
+                return `${base} bg-pink-600 text-black shadow-lg`; // Día seleccionado
               if (date.getMonth() !== new Date().getMonth())
-                return `${base} text-black-500`;
+                return `${base} text-black-500`; // Días de otro mes
             }
             return '';
           }}
+
+          // Indicador visual si hay evento
           tileContent={({ date, view }) =>
             view === 'month' && tieneEvento(date) ? (
               <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex items-center justify-center">
@@ -115,6 +128,8 @@ const CalendarWidget = () => {
               </div>
             ) : null
           }
+
+          // Estilos personalizados usando Tailwind y CSS Modules de react-calendar
           className="
             rounded-2xl bg-[#121826] p-2
             [&_.react-calendar__navigation]:flex [&_.react-calendar__navigation]:justify-between [&_.react-calendar__navigation]:mb-3
@@ -128,7 +143,7 @@ const CalendarWidget = () => {
         />
       </div>
 
-      {/* Modal */}
+      {/* Modal para mostrar información del evento */}
       <Dialog
         open={!!eventoSeleccionado}
         onClose={() => setEventoSeleccionado(null)}
