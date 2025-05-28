@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUser, updateSession } from "./lib/middleware";
 
 export async function middleware(request: NextRequest, response: NextResponse) {
-    const ProtectedRoutes = ["/dashboard", "/dashboard/"]
+    const ProtectedRoutes = ["/dashboard", "/dashboard/main"]
     const authroutes = ["/login"]
     const currentPath = new URL(request.url).pathname;
     const {data: { user } } = await getUser(request, response);
