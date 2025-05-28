@@ -43,10 +43,12 @@ const HelpPage = () => {
 
           <div className="text-center">
             <a
-              href="#"
-              className="inline-block px-5 py-2 bg-amber-500 hover:bg-amber-600 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white font-medium rounded-md transition-colors duration-300"
+              href="/help/Manual_Usuario_Varadero.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-cyan-600 text-white px-6 py-2 rounded-md hover:bg-cyan-700 transition duration-300"
             >
-              Descargar Manual del Usuario
+             📘 Descargar Manual del Usuario
             </a>
           </div>
         </div>
