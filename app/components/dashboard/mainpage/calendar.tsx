@@ -74,10 +74,10 @@ const CalendarWidget = () => {
   });
 
   return (
-    <div className="rounded-3xl shadow-2xl border border-gray-700 p-6 bg-gray-900 shadow-lg w-full max-w-md text-black transition-all duration-300 hover:shadow-blue-900 mx-auto">
+    <div>
       
       {/* Encabezado con fecha de hoy y botón de "Hoy" */}
-      <div className="flex flex-col items-center gap-2 mb-4">
+      <div className="flex flex-row items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-blue-300 text-lg font-semibold">
           <CalendarDays className="w-5 h-5" />
           <span>{todayStr.charAt(0).toUpperCase() + todayStr.slice(1)}</span>

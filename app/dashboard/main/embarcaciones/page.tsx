@@ -11,18 +11,14 @@ const initialBoatData = [
 
 const VehicPage = () => {
   return (
-    <div className="grid grid-cols-5 grid-rows-5 gap-4 min-h-screen bg-gray-900 text-black overflow-hidden">
-      {/* Sidebar */}
+    <div className="grid grid-cols-5 grid-rows-5 gap-4 min-h-screen bg-gray-100 dark:bg-gray-950 text-black dark:text-white overflow-hidden">
       <div className="row-span-5">
         <DashSidebar />
       </div>
-
-      {/* Header */}
       <div className="col-span-4">
         <Header />
       </div>
-
-      {/* Mini CRUD centrado */}
+      
       <div className="col-span-4 row-span-3 col-start-2 row-start-2 flex justify-center items-start p-4">
         <div className="w-full max-w-6xl h-full overflow-y-auto">
           <MiniCrudTable initialData={initialBoatData} />

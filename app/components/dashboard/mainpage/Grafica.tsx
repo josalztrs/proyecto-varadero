@@ -65,9 +65,7 @@ const PieChart = () => {
   };
 
   return (
-    <div className="w-64 h-36 mx-auto bg-gray-900 rounded-xl shadow-lg p-2">
-      <Pie data={data} options={options} />
-    </div>
+    <Pie data={data} options={options} />
   );
 };
 

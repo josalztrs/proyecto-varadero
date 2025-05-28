@@ -7,6 +7,7 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
+import { DashboardCard } from "@/app/ui/card";
 
 type CrudItem = { id: number; name: string; description: string };
 
@@ -95,8 +96,8 @@ export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) 
   };
 
   return (
-    <div className="bg-white/90 shadow-xl rounded-2xl p-6 max-w-5xl mx-auto border border-gray-200 mt-6">
-      <h2 className="text-3xl font-bold mb-6 text-slate-800">Mini CRUD</h2>
+    <DashboardCard>
+      <h2 className="text-3xl font-bold mb-6 text-neutral-800 dark:text-white">CRUD</h2>
 
       <form
         onSubmit={handleSubmit}
@@ -107,7 +108,7 @@ export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) 
           placeholder="Nombre"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="border border-gray-300 rounded-xl px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-white transition-colors"
           required
         />
         <input
@@ -115,24 +116,27 @@ export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) 
           placeholder="Descripción"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="border border-gray-300 rounded-xl px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-white transition-colors"
           required
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-blue-700 transition"
+          className="bg-amber-500 hover:bg-amber-600 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white px-4 py-2 rounded-xl font-semibold transition-colors shadow-md"
         >
           {editing ? "Actualizar" : "Agregar"}
         </button>
       </form>
 
-      <div className="max-h-[224px] overflow-y-auto rounded-md border border-gray-300 dark:border-gray-600">
-        <table className="w-full table-auto text-sm text-left bg-white rounded-xl overflow-hidden">
-          <thead className="bg-gray-100 text-slate-700 sticky top-0 z-10">
+      <div className="max-h-[224px] overflow-y-auto rounded-lg border border-gray-300 dark:border-slate-600 shadow-sm">
+        <table className="w-full table-auto text-sm text-left bg-white dark:bg-slate-800 rounded-lg overflow-hidden">
+          <thead className="bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="p-3 font-semibold border-b border-gray-300">
+                  <th 
+                    key={header.id} 
+                    className="p-3 font-semibold border-b border-gray-300 dark:border-slate-600"
+                  >
                     {header.isPlaceholder ? null : flexRender(
                       header.column.columnDef.header,
                       header.getContext()
@@ -146,15 +150,24 @@ export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) 
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="p-4 text-center text-gray-400">
+                <td 
+                  colSpan={columns.length} 
+                  className="p-4 text-center text-gray-400 dark:text-slate-400"
+                >
                   No hay datos aún.
                 </td>
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition">
+                <tr 
+                  key={row.id} 
+                  className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="p-3 border-b border-gray-200">
+                    <td 
+                      key={cell.id} 
+                      className="p-3 border-b border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -164,6 +177,6 @@ export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) 
           </tbody>
         </table>
       </div>
-    </div>
+    </DashboardCard>
   );
 }

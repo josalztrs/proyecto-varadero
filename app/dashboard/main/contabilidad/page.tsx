@@ -12,7 +12,7 @@ const initialAccountingData = [
 
 const ContabPage = () => {
   return (
-    <div className="grid grid-cols-5 grid-rows-5 gap-4 min-h-screen bg-gray-900 text-black">
+    <div className="grid grid-cols-5 grid-rows-5 gap-4 min-h-screen bg-gray-100 dark:bg-gray-950 text-black dark:text-white">
       <div className="row-span-5"><DashSidebar /></div>
       <div className="col-span-4"><Header /></div>
 
