@@ -46,9 +46,10 @@ const ModalLayout = ({ children, title, optionone, optiontwo, onclose, onOK }: M
     }
 
     const Dialog: React.ReactElement | null = showDialog === 'y' ? (
+    <div className='fixed w-full h-full flex backdrop-blur-sm bg-black/50 justify-center items-center z-50 inset-0'>
     <dialog
         ref={dialogRef}
-        className="backdrop:bg-black/40 rounded-xl p-0 border-none shadow-2xl w-full max-w-md mx-auto"
+        className="rounded-xl p-0 border-none shadow-2xl m-auto"
     >
         <div className="relative bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-lg justify-center items-center">
             {/* Header */}
@@ -73,6 +74,7 @@ const ModalLayout = ({ children, title, optionone, optiontwo, onclose, onOK }: M
             </div>
         </div>
     </dialog>
+    </div>
     ) : null;
 
 
