@@ -2,18 +2,57 @@ import Header from '@/app/components/dashboard/header';
 import DashSidebar from '@/app/components/dashboard/sidebar';
 import React from 'react';
 
-const About = () => {
-    return (
-        <div className="grid grid-cols-5 grid-rows-5 gap-4">
-            <div className="row-span-5"><DashSidebar/></div>
-            <div className="col-span-4"><Header/></div>
-            <div className="col-start-2 row-start-2">Boton de agregar</div>
-            <div className="col-span-4 row-span-3 col-start-2 row-start-3">Tabla</div>
-            <div className="col-start-3 row-start-2">Relleno</div>
-            <div className="col-start-4 row-start-2">Relleno</div>
-            <div className="col-start-5 row-start-2">Relleno</div>
+const HelpPage = () => {
+  return (
+    <div className="grid grid-cols-5 grid-rows-[auto_1fr] gap-4 min-h-screen">
+      {/* Sidebar a la izquierda */}
+      <div className="row-span-2"><DashSidebar /></div>
+
+      {/* Header arriba */}
+      <div className="col-span-4"><Header /></div>
+
+      {/* Contenido principal más arriba */}
+      <div className="col-span-4 col-start-2 row-start-2 flex justify-center items-start p-4">
+        <div className="w-full max-w-4xl bg-slate-100 dark:bg-slate-800 text-gray-800 dark:text-white rounded-xl shadow-lg p-8 space-y-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-center text-amber-500 dark:text-cyan-400">
+            Ayuda y Soporte del Proyecto
+          </h1>
+
+          <p>
+            Bienvenido a la sección de ayuda del sistema de gestión para el varadero. Aquí encontrarás información básica sobre el funcionamiento del sistema.
+          </p>
+
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              <strong>Alojamiento:</strong> Registra zonas de descanso y clientes hospedados.
+            </li>
+            <li>
+              <strong>Embarcaciones:</strong> Controla entradas, salidas, reparaciones y custodia.
+            </li>
+            <li>
+              <strong>Contabilidad:</strong> Maneja ingresos, gastos y registros financieros.
+            </li>
+            <li>
+              <strong>Mantenimiento:</strong> Organiza reparaciones, técnicos y herramientas.
+            </li>
+          </ul>
+
+          <p>
+            Para asistencia adicional, contacta al equipo de desarrollo o consulta el manual de usuario.
+          </p>
+
+          <div className="text-center">
+            <a
+              href="#"
+              className="inline-block px-5 py-2 bg-amber-500 hover:bg-amber-600 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white font-medium rounded-md transition-colors duration-300"
+            >
+              Descargar Manual del Usuario
+            </a>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
-export default About;
+export default HelpPage;

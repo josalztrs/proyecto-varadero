@@ -7,10 +7,20 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
-export default function MiniCrudTable() {
-  type CrudItem = { id: number | null; name: string; description: string };
-  const [data, setData] = useState<CrudItem[]>([]);
-  const [form, setForm] = useState<CrudItem>({ id: null, name: "", description: "" });
+type CrudItem = { id: number; name: string; description: string };
+
+interface MiniCrudTableProps {
+  initialData?: CrudItem[];
+}
+
+export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) {
+  const [data, setData] = useState<CrudItem[]>(initialData);
+
+  const [form, setForm] = useState<{ id: number | null; name: string; description: string }>({
+    id: null,
+    name: "",
+    description: "",
+  });
   const [editing, setEditing] = useState(false);
 
   const columns = useMemo(
@@ -27,7 +37,7 @@ export default function MiniCrudTable() {
         id: "actions",
         header: "Acciones",
         cell: ({ row }: { row: any }) => (
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-2 justify-center">
             <button
               onClick={() => {
                 const item = row.original;
@@ -48,7 +58,7 @@ export default function MiniCrudTable() {
                   setEditing(false);
                 }
               }}
-              className="text-red-500 hover:underline"
+              className="text-red-600 hover:underline"
             >
               Eliminar
             </button>
@@ -73,9 +83,7 @@ export default function MiniCrudTable() {
     if (editing) {
       setData((old) =>
         old.map((item) =>
-          item.id === form.id
-            ? { ...form, id: item.id } as CrudItem
-            : item
+          item.id === form.id ? { ...form, id: item.id } : item
         )
       );
     } else {
@@ -87,21 +95,19 @@ export default function MiniCrudTable() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-        Mini CRUD con React Table y Tailwind 4
-      </h2>
+    <div className="bg-gray-100/90 shadow-lg rounded-lg p-6 max-w-4xl mx-auto border border-gray-300">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">Mini CRUD </h2>
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col md:flex-row items-center gap-3 mb-6 bg-white shadow-md rounded-xl p-4"
+        className="flex flex-col md:flex-row gap-2 mb-6"
       >
         <input
           type="text"
           placeholder="Nombre"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border rounded-lg px-4 py-2 w-full"
           required
         />
         <input
@@ -109,62 +115,64 @@ export default function MiniCrudTable() {
           placeholder="Descripción"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border rounded-lg px-4 py-2 w-full"
           required
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition font-semibold"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
         >
           {editing ? "Actualizar" : "Agregar"}
         </button>
       </form>
 
-      <div className="overflow-x-auto bg-white rounded-2xl shadow-md">
-        <table className="w-full table-auto text-sm">
-          <thead className="bg-gray-100 text-gray-700 text-left">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-4 py-3 border-b">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
+      <table className="w-full border rounded-lg overflow-hidden bg-white text-gray-900">
+        <thead className="bg-gray-200">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th
+                  key={header.id}
+                  className="p-3 border-b text-left border-gray-300"
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+
+        <tbody>
+          {data.length === 0 ? (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="p-4 text-center text-gray-500"
+              >
+                No hay datos aún
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="hover:bg-gray-100 transition"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="p-3 border-b border-gray-300">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
                 ))}
               </tr>
-            ))}
-          </thead>
-          <tbody>
-            {data.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-6 text-center text-gray-500"
-                >
-                  No hay datos aún.
-                </td>
-              </tr>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-gray-50 transition-all"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-4 py-3 border-b text-gray-800">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
