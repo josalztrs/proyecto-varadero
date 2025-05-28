@@ -13,22 +13,22 @@ const DashSidebar = () => {
 
   const navItems = [
     {
-      href: '/embarcaciones',
+      href: '/dashboard/main/embarcaciones',
       icon: <PiBoatFill className="text-xl" />,
       label: 'Embarcaciones'
     },
     {
-      href: '/alojamientos',
+      href: '/dashboard/main/alojamientos',
       icon: <HiMiniHomeModern className="text-xl" />,
       label: 'Alojamientos'
     },
     {
-      href: '/mantenimiento',
+      href: '/dashboard/main/mantenimiento',
       icon: <HiWrenchScrewdriver className="text-xl" />,
       label: 'Mantenimiento'
     },
     {
-      href: '/contabilidad',
+      href: '/dashboard/main/contabilidad',
       icon: <FaBook className="text-xl" />,
       label: 'Contabilidad'
     }
@@ -86,7 +86,7 @@ const DashSidebar = () => {
       {/* Botón Ayuda */}
       <div className='w-full flex justify-center mb-2 md:mb-0'>
         <Link
-          href='/ayuda'
+          href='/dashboard/main/ayuda'
           className={`
             p-2 md:p-3 rounded-full transition-all duration-200 flex items-center gap-2
             ${pathname === '/ayuda'

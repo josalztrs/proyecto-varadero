@@ -6,7 +6,7 @@ import { BiSolidHotel } from "react-icons/bi";
 import { MdAddLocation } from "react-icons/md";
 import CardContainer from "../../ui/card";
 import PrimaryButton from "../../ui/buttons";
-import ModalLayout from "../dashboard/modal";
+import ModalLayout from "../../ui/modal";
 import Link from "next/link";
 
 const PricingPage: React.FC = () => {
