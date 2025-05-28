@@ -20,11 +20,11 @@ const PieChart = () => {
         label: 'Gastos en Bs',
         data: [500, 300, 200],
         backgroundColor: [
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
+          'rgba(16, 185, 129, 0.85)',
+          'rgba(236, 72, 153, 0.85)',  
+          'rgba(34, 211, 238, 0.85)',  
         ],
-        borderColor: ['#121212', '#121212', '#121212'],
+        borderColor: ['#111827', '#111827', '#111827'], // dark border
         borderWidth: 2,
       },
     ],
@@ -37,24 +37,25 @@ const PieChart = () => {
       legend: {
         position: 'bottom',
         labels: {
-          boxWidth: 10,
+          boxWidth: 8,
+          padding: 8,
           font: {
-            size: 10,
+            size: 9,
             weight: 600,
             family: "'Inter', sans-serif",
           },
-          color: '#e5e7eb',
+          color: '#d1d5db',
         },
       },
       tooltip: {
         enabled: true,
-        backgroundColor: '#374151',
+        backgroundColor: '#1f2937',
         titleFont: {
-          size: 12,
+          size: 11,
           weight: 'bold',
         },
         bodyFont: {
-          size: 10,
+          size: 9,
           family: "'Inter', sans-serif",
         },
         titleColor: '#f9fafb',
@@ -64,8 +65,8 @@ const PieChart = () => {
   };
 
   return (
-    <div className="w-70 h-34 mx-auto rounded-xl shadow-lg bg-gray-900 p-2">
-      <Pie data={data} options={options} className="w-full h-full" />
+    <div className="w-64 h-36 mx-auto bg-gray-900 rounded-xl shadow-lg p-2">
+      <Pie data={data} options={options} />
     </div>
   );
 };
