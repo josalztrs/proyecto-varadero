@@ -37,167 +37,90 @@ export type Database = {
       cliente: {
         Row: {
           correo: string | null
-          direccion: string | null
-          doc_ident: string | null
+          doc_ident: string
           id: number
           nacionalidad: string | null
           nombre: string
+          telefono: string | null
         }
         Insert: {
           correo?: string | null
-          direccion?: string | null
-          doc_ident?: string | null
+          doc_ident: string
           id?: number
           nacionalidad?: string | null
           nombre: string
+          telefono?: string | null
         }
         Update: {
           correo?: string | null
-          direccion?: string | null
-          doc_ident?: string | null
+          doc_ident?: string
           id?: number
           nacionalidad?: string | null
           nombre?: string
+          telefono?: string | null
         }
         Relationships: []
       }
       datos_pago: {
         Row: {
           conc: string
-          est: string
           id: number
           modo_pago: string
           ref: string
         }
         Insert: {
           conc: string
-          est: string
           id?: number
           modo_pago: string
           ref: string
         }
         Update: {
           conc?: string
-          est?: string
           id?: number
           modo_pago?: string
           ref?: string
         }
         Relationships: []
       }
-      datos_varadero: {
-        Row: {
-          direccion: string | null
-          doc_fisc: string
-          email: string | null
-          nombre: string
-          tlf: string | null
-        }
-        Insert: {
-          direccion?: string | null
-          doc_fisc: string
-          email?: string | null
-          nombre: string
-          tlf?: string | null
-        }
-        Update: {
-          direccion?: string | null
-          doc_fisc?: string
-          email?: string | null
-          nombre?: string
-          tlf?: string | null
-        }
-        Relationships: []
-      }
-      detalles_emb: {
-        Row: {
-          amarres_asign: string | null
-          calado: string | null
-          cant_pasaj: string | null
-          cert_nav: string
-          cuadr_asign: string | null
-          edo_antes: string | null
-          edo_despues: string | null
-          eslora: string | null
-          id: number
-          manga: string | null
-          mat_emb: string
-          num_seguro: string
-          tonelaje: string | null
-        }
-        Insert: {
-          amarres_asign?: string | null
-          calado?: string | null
-          cant_pasaj?: string | null
-          cert_nav: string
-          cuadr_asign?: string | null
-          edo_antes?: string | null
-          edo_despues?: string | null
-          eslora?: string | null
-          id?: number
-          manga?: string | null
-          mat_emb: string
-          num_seguro: string
-          tonelaje?: string | null
-        }
-        Update: {
-          amarres_asign?: string | null
-          calado?: string | null
-          cant_pasaj?: string | null
-          cert_nav?: string
-          cuadr_asign?: string | null
-          edo_antes?: string | null
-          edo_despues?: string | null
-          eslora?: string | null
-          id?: number
-          manga?: string | null
-          mat_emb?: string
-          num_seguro?: string
-          tonelaje?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "datos_emb_mat_emb_fkey"
-            columns: ["mat_emb"]
-            isOneToOne: true
-            referencedRelation: "embarcacion"
-            referencedColumns: ["matricula"]
-          },
-        ]
-      }
       embarcacion: {
         Row: {
-          caracteristicas: string | null
-          id_cliente: number | null
-          marca: string | null
+          amarres_asign: number
+          caracteristicas: string
+          cuadr_asign: number
+          edo_antes: string
+          edo_despues: string
+          id_cliente: number
+          marca: string
           matricula: string
-          modelo: string | null
-          nacionalidad: string | null
-          nombre: string | null
-          tipo: string | null
-          year: string | null
+          modelo: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["tipo_emb"]
         }
         Insert: {
-          caracteristicas?: string | null
-          id_cliente?: number | null
-          marca?: string | null
+          amarres_asign: number
+          caracteristicas: string
+          cuadr_asign: number
+          edo_antes: string
+          edo_despues: string
+          id_cliente: number
+          marca: string
           matricula: string
-          modelo?: string | null
-          nacionalidad?: string | null
-          nombre?: string | null
-          tipo?: string | null
-          year?: string | null
+          modelo: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["tipo_emb"]
         }
         Update: {
-          caracteristicas?: string | null
-          id_cliente?: number | null
-          marca?: string | null
+          amarres_asign?: number
+          caracteristicas?: string
+          cuadr_asign?: number
+          edo_antes?: string
+          edo_despues?: string
+          id_cliente?: number
+          marca?: string
           matricula?: string
-          modelo?: string | null
-          nacionalidad?: string | null
-          nombre?: string | null
-          tipo?: string | null
-          year?: string | null
+          modelo?: string
+          nombre?: string
+          tipo?: Database["public"]["Enums"]["tipo_emb"]
         }
         Relationships: [
           {
@@ -215,8 +138,8 @@ export type Database = {
           email: string
           id: number
           nombre: string
-          ocupacion: string | null
-          salario: number | null
+          oficio_id: number
+          salario: number
           telefono: string
         }
         Insert: {
@@ -224,8 +147,8 @@ export type Database = {
           email: string
           id?: number
           nombre: string
-          ocupacion?: string | null
-          salario?: number | null
+          oficio_id: number
+          salario: number
           telefono: string
         }
         Update: {
@@ -233,46 +156,40 @@ export type Database = {
           email?: string
           id?: number
           nombre?: string
-          ocupacion?: string | null
-          salario?: number | null
+          oficio_id?: number
+          salario?: number
           telefono?: string
-        }
-        Relationships: []
-      }
-      servicios: {
-        Row: {
-          fecha: string | null
-          id: number
-          notas: string | null
-          personal_enc: string | null
-          precio: string | null
-          tipo: string | null
-        }
-        Insert: {
-          fecha?: string | null
-          id?: number
-          notas?: string | null
-          personal_enc?: string | null
-          precio?: string | null
-          tipo?: string | null
-        }
-        Update: {
-          fecha?: string | null
-          id?: number
-          notas?: string | null
-          personal_enc?: string | null
-          precio?: string | null
-          tipo?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "servicios_personal_enc_fkey"
-            columns: ["personal_enc"]
+            foreignKeyName: "personal_oficio_id_fkey"
+            columns: ["oficio_id"]
             isOneToOne: false
-            referencedRelation: "personal"
-            referencedColumns: ["cedula"]
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
           },
         ]
+      }
+      servicios: {
+        Row: {
+          id: number
+          perdidas: number
+          precio: string
+          tipo: string
+        }
+        Insert: {
+          id?: number
+          perdidas: number
+          precio: string
+          tipo: string
+        }
+        Update: {
+          id?: number
+          perdidas?: number
+          precio?: string
+          tipo?: string
+        }
+        Relationships: []
       }
       transacciones: {
         Row: {
@@ -324,13 +241,6 @@ export type Database = {
             referencedRelation: "servicios"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "transacciones_varadero_fkey"
-            columns: ["varadero"]
-            isOneToOne: false
-            referencedRelation: "datos_varadero"
-            referencedColumns: ["doc_fisc"]
-          },
         ]
       }
     }
@@ -341,7 +251,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      tipo_emb: "Lancha" | "Yate" | "Moto Acuatica"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -459,6 +369,8 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      tipo_emb: ["Lancha", "Yate", "Moto Acuatica"],
+    },
   },
 } as const
