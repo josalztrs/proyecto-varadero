@@ -35,12 +35,13 @@ const PieChart = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
+        display: false,
         position: 'bottom',
         labels: {
-          boxWidth: 8,
-          padding: 8,
+          boxWidth: 6,
+          padding: 6,
           font: {
-            size: 9,
+            size: 12,
             weight: 600,
             family: "'Inter', sans-serif",
           },
@@ -55,7 +56,7 @@ const PieChart = () => {
           weight: 'bold',
         },
         bodyFont: {
-          size: 9,
+          size: 12,
           family: "'Inter', sans-serif",
         },
         titleColor: '#f9fafb',
@@ -65,7 +66,7 @@ const PieChart = () => {
   };
 
   return (
-    <Pie data={data} options={options} />
+    <Pie data={data} options={options}/>
   );
 };
 

@@ -63,7 +63,7 @@ const DashSidebar = () => {
       <nav
         className={`
           flex flex-1 w-full
-          md:flex-col flex-row items-center justify-evenly gap-2 text-2xl
+          md:flex-col flex-row items-center gap-8 text-2xl justify-center
         `}
       >
         {navItems.map((item) => (
