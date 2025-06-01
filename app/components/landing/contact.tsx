@@ -3,7 +3,6 @@ import { motion } from "framer-motion"
 import { FaFacebook, FaInstagram, FaWhatsapp, FaXTwitter } from "react-icons/fa6"
 
 const Contact = () => {
-  // Animación simplificada y confiable
   const iconAnimation = {
     rest: { scale: 1 },
     hover: { 
@@ -13,16 +12,33 @@ const Contact = () => {
     }
   }
 
+  const socialLinks = [
+    {
+      icon: <FaXTwitter />,
+      color: "text-blue-500",
+      url: "https://x.com/Varadero_apolly"
+    },
+    {
+      icon: <FaFacebook />,
+      color: "text-blue-600",
+      url: "https://www.facebook.com/profile.php?id=61576706318962"
+    },
+    {
+      icon: <FaInstagram />,
+      color: "text-pink-500",
+      url: "https://www.instagram.com/varadero_apollyon?igsh=enp1cG40Z241Mm50"
+    },
+    {
+      icon: <FaWhatsapp />,
+      color: "text-green-500",
+      url: "https://wa.me/584167998593" // cambia por tu número con código de país
+    }
+  ]
+
   return (
     <div className="flex flex-row items-center">
-
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl px-4">
-        {[
-          { icon: <FaXTwitter />, color: "text-blue-500"},
-          { icon: <FaFacebook />, color: "text-blue-600"},
-          { icon: <FaInstagram />, color: "text-pink-500"},
-          { icon: <FaWhatsapp />, color: "text-green-500"}
-        ].map((item, index) => (
+        {socialLinks.map((item, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
@@ -31,7 +47,9 @@ const Contact = () => {
             className="flex flex-col items-center"
           >
             <motion.a
-              href="#"
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
               variants={iconAnimation}
               initial="rest"
               whileHover="hover"
