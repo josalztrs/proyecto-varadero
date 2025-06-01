@@ -1,0 +1,103 @@
+// components/GenericForm.tsx
+import React, { useState, FormEvent } from 'react';
+
+interface FormField {
+  name: string;
+  label: string;
+  type: string; // e.g., 'text', 'email', 'number'
+  required?: boolean;
+  placeholder?: string;
+}
+
+interface GenericFormProps<T> {
+  fields: FormField[];
+  initialData?: Partial<T> | null; // Data for editing
+  onSubmit: (formData: Partial<T>) => Promise<void>;
+  onCancel?: () => void;
+  loading?: boolean;
+  error?: string | null;
+  submitButtonText?: string;
+  cancelButtonText?: string;
+}
+
+const Form = <T extends Record<string, any>>({
+  fields,
+  initialData,
+  onSubmit,
+  onCancel,
+  loading = false,
+  error = null,
+  submitButtonText = 'Enviar',
+  cancelButtonText = 'Cancelar',
+}: GenericFormProps<T>) => {
+  const [formData, setFormData] = useState<Partial<T>>(initialData || {});
+
+  // Update formData when initialData changes (e.g., when starting to edit a new item)
+  React.useEffect(() => {
+    setFormData(initialData || {});
+  }, [initialData]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value === '' ? null : value, // Treat empty string as null for DB
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    await onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
+        {initialData ? 'Editar' : 'Crear'}
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        {fields.map((field) => (
+          <div key={field.name}>
+            <label htmlFor={field.name} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {field.label} {field.required && <span className="text-red-500">*</span>}
+            </label>
+            <input
+              type={field.type}
+              id={field.name}
+              name={field.name} // Important for handleChange
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              value={(formData[field.name as keyof T] as string) || ''} // Handle null values for controlled input
+              onChange={handleChange}
+              required={field.required}
+              placeholder={field.placeholder}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+          disabled={loading}
+        >
+          {loading ? 'Processing...' : submitButtonText}
+        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+            disabled={loading}
+          >
+            {cancelButtonText}
+          </button>
+        )}
+      </div>
+      {error && (
+        <p className="mt-4 text-red-600 dark:text-red-400 text-sm">{error}</p>
+      )}
+    </form>
+  );
+};
+
+export default Form;

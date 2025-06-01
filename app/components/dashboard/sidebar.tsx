@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
 import { FaHome } from 'react-icons/fa';
-import { FaBook } from 'react-icons/fa6';
+import { FaBook, FaUsers } from 'react-icons/fa6';
 import { GiPaperBoat } from 'react-icons/gi';
 import { HiMiniHomeModern, HiWrenchScrewdriver } from 'react-icons/hi2';
 import { MdHelp } from 'react-icons/md';
@@ -27,6 +27,11 @@ const DashSidebar = () => {
       href: '/dashboard/main/alojamientos',
       icon: <HiMiniHomeModern className="text-xl" />,
       label: 'Alojamientos'
+    },
+    {
+      href: '/dashboard/main/clientes',
+      icon: <FaUsers className='text-xl'/>,
+      label: 'Clientes'
     },
     {
       href: '/dashboard/main/mantenimiento',

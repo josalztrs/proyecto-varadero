@@ -90,9 +90,8 @@ export type Database = {
           edo_antes: string
           edo_despues: string
           id_cliente: number
-          marca: string
+          marcmod: string
           matricula: string
-          modelo: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_emb"]
         }

@@ -1,13 +1,8 @@
 import Header from '@/app/components/dashboard/header';
 import DashSidebar from '@/app/components/dashboard/sidebar';
 import React from 'react';
-import MiniCrudTable from '@/app/components/dashboard/mainpage/tabs/MiniCrud'; // Ajusta la ruta si es necesario
+import EmbarcacionCRUD from '@/app/components/dashboard/mainpage/tabs/embarcacioncrud';
 
-const initialBoatData = [
-  { id: 1, name: 'Yate Prestige 500', description: 'Yate de lujo, 15 metros' },
-  { id: 2, name: 'Lancha Speedster', description: 'Lancha rápida para deportes acuáticos' },
-  { id: 3, name: 'Pesquero Azul', description: 'Barco pesquero de mediano tamaño' },
-];
 
 const VehicPage = () => {
   return (
@@ -20,7 +15,7 @@ const VehicPage = () => {
         {/* Contenedor principal para la tabla y formulario CRUD */}
       <div className="col-span-4 row-span-3 col-start-2 row-start-2 flex justify-center items-start overflow-auto p-4">
         <div className="w-full max-w-6xl p-8">
-          <MiniCrudTable initialData={initialBoatData} />
+          <EmbarcacionCRUD/>
         </div>
       </div>
       </main>
