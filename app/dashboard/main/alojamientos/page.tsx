@@ -1,13 +1,7 @@
 import Header from '@/app/components/dashboard/header';
 import DashSidebar from '@/app/components/dashboard/sidebar';
 import React from 'react';
-import MiniCrudTable from '@/app/components/dashboard/mainpage/tabs/MiniCrud'; // Ajusta la ruta según dónde guardes el componente
-
-const alojamientoData = [
-  { id: 1, name: "Habitación Deluxe", description: "Habitación con vista al mar" },
-  { id: 2, name: "Suite Familiar", description: "Ideal para familias grandes" },
-  { id: 3, name: "Habitación Standard", description: "Cómoda y económica" },
-];
+import AlojamientoCRUD from '@/app/components/dashboard/mainpage/tabs/alojamientocrud';
 
 const HotelPage = () => {
   return (
@@ -20,7 +14,7 @@ const HotelPage = () => {
         {/* Contenedor principal para la tabla y formulario CRUD */}
       <div className="col-span-4 row-span-3 col-start-2 row-start-2 flex justify-center items-start overflow-auto p-4">
         <div className="w-full max-w-6xl p-8">
-          <MiniCrudTable initialData={alojamientoData} />
+          <AlojamientoCRUD/>
         </div>
       </div>
       </main>

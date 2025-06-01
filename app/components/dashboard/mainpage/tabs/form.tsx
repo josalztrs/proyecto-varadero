@@ -4,9 +4,10 @@ import React, { useState, FormEvent } from 'react';
 interface FormField {
   name: string;
   label: string;
-  type: string; // e.g., 'text', 'email', 'number'
+  type: string; // e.g., 'text', 'email', 'number', 'select'
   required?: boolean;
   placeholder?: string;
+  options?: { value: string; label: string }[]; // For select fields
 }
 
 interface GenericFormProps<T> {
@@ -61,16 +62,32 @@ const Form = <T extends Record<string, any>>({
             <label htmlFor={field.name} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {field.label} {field.required && <span className="text-red-500">*</span>}
             </label>
-            <input
-              type={field.type}
-              id={field.name}
-              name={field.name} // Important for handleChange
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              value={(formData[field.name as keyof T] as string) || ''} // Handle null values for controlled input
-              onChange={handleChange}
-              required={field.required}
-              placeholder={field.placeholder}
-            />
+            {field.type === 'select' && field.options ? (
+              <select
+                id={field.name}
+                name={field.name}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                value={formData[field.name as keyof T] ?? ''}
+                onChange={handleChange}
+                required={field.required}
+              >
+                <option value="">Seleccione...</option>
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={field.type}
+                id={field.name}
+                name={field.name}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                value={(formData[field.name as keyof T] as string) || ''}
+                onChange={handleChange}
+                required={field.required}
+                placeholder={field.placeholder}
+              />
+            )}
           </div>
         ))}
       </div>

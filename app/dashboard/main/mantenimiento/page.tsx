@@ -1,13 +1,8 @@
 import Header from '@/app/components/dashboard/header';
 import DashSidebar from '@/app/components/dashboard/sidebar';
 import React from 'react';
-import MiniCrudTable from '@/app/components/dashboard/mainpage/tabs/MiniCrud';
+import MantenimientoCRUD from '@/app/components/dashboard/mainpage/tabs/mantenimientocrud';
 
-const initialMaintenanceData = [
-  { id: 1, name: 'Cambio de aceite', description: 'Motor del yate X-200' },
-  { id: 2, name: 'Revisión eléctrica', description: 'Lancha de pesca Z-15' },
-  { id: 3, name: 'Limpieza general', description: 'Moto acuática cliente G' },
-];
 
 const MaintainPage = () => {
   return (
@@ -20,7 +15,7 @@ const MaintainPage = () => {
         {/* Contenedor principal para la tabla y formulario CRUD */}
       <div className="col-span-4 row-span-3 col-start-2 row-start-2 flex justify-center items-start overflow-auto p-4">
         <div className="w-full max-w-6xl p-8">
-          <MiniCrudTable initialData={initialMaintenanceData} />
+          <MantenimientoCRUD/>
         </div>
       </div>
       </main>

@@ -34,6 +34,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      alojamientos: {
+        Row: {
+          fecha: string
+          id: number
+          id_cliente: number
+        }
+        Insert: {
+          fecha?: string
+          id?: number
+          id_cliente: number
+        }
+        Update: {
+          fecha?: string
+          id?: number
+          id_cliente?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alojamientos_id_cliente_fkey"
+            columns: ["id_cliente"]
+            isOneToOne: false
+            referencedRelation: "cliente"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cliente: {
         Row: {
           correo: string | null
@@ -88,7 +114,7 @@ export type Database = {
           caracteristicas: string
           cuadr_asign: number
           edo_antes: string
-          edo_despues: string
+          edo_despues: string | null
           id_cliente: number
           marcmod: string
           matricula: string
@@ -100,11 +126,10 @@ export type Database = {
           caracteristicas: string
           cuadr_asign: number
           edo_antes: string
-          edo_despues: string
+          edo_despues?: string | null
           id_cliente: number
-          marca: string
+          marcmod: string
           matricula: string
-          modelo: string
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_emb"]
         }
@@ -113,11 +138,10 @@ export type Database = {
           caracteristicas?: string
           cuadr_asign?: number
           edo_antes?: string
-          edo_despues?: string
+          edo_despues?: string | null
           id_cliente?: number
-          marca?: string
+          marcmod?: string
           matricula?: string
-          modelo?: string
           nombre?: string
           tipo?: Database["public"]["Enums"]["tipo_emb"]
         }
@@ -128,6 +152,38 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cliente"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      mantenimientos: {
+        Row: {
+          concepto: string
+          fecha: string
+          id: number
+          matricula_emb: string
+          precio: number
+        }
+        Insert: {
+          concepto: string
+          fecha?: string
+          id?: number
+          matricula_emb: string
+          precio: number
+        }
+        Update: {
+          concepto?: string
+          fecha?: string
+          id?: number
+          matricula_emb?: string
+          precio?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mantenimientos_matricula_emb_fkey"
+            columns: ["matricula_emb"]
+            isOneToOne: false
+            referencedRelation: "embarcacion"
+            referencedColumns: ["matricula"]
           },
         ]
       }
