@@ -44,8 +44,7 @@ const HelpPage = () => {
           <div className="text-center">
             <a
               href="/help/Manual_Usuario_Varadero.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
+              download
               className="bg-cyan-600 text-white px-6 py-2 rounded-md hover:bg-cyan-700 transition duration-300"
             >
              📘 Descargar Manual del Usuario
