@@ -6,7 +6,7 @@ import React from 'react';
 const ExchangeCard = () => {
   return (
     <DashboardCard className="hover:shadow-xl transition-shadow duration-300 rounded-2xl">
-      <div className="flex flex-col gap-3 p-4 sm:p-6">
+      <div className="flex flex-col gap-3">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
           <div className="bg-gradient-to-r from-amber-400 to-amber-500 dark:from-cyan-600 dark:to-blue-700 px-4 py-2 rounded-xl shadow-md">

@@ -4,7 +4,7 @@ import React from 'react';
 
 const HelpPage = () => {
   return (
-    <div className="grid grid-cols-5 grid-rows-[auto_1fr] gap-4 min-h-screen">
+    <div className="grid grid-cols-5 grid-rows-[auto_1fr] gap-4 min-h-screen bg-gray-100 dark:bg-gray-950 text-black dark:text-white">
       {/* Sidebar a la izquierda */}
       <div className="row-span-2"><DashSidebar /></div>
 

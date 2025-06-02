@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
+import { FaHome } from 'react-icons/fa';
 import { FaBook } from 'react-icons/fa6';
 import { GiPaperBoat } from 'react-icons/gi';
 import { HiMiniHomeModern, HiWrenchScrewdriver } from 'react-icons/hi2';
@@ -12,6 +13,11 @@ const DashSidebar = () => {
   const pathname = usePathname();
 
   const navItems = [
+    {
+      href: '/dashboard/main',
+      icon: <FaHome className='text-xl'/>, 
+      label: 'Inicio'
+    },
     {
       href: '/dashboard/main/embarcaciones',
       icon: <PiBoatFill className="text-xl" />,
@@ -39,9 +45,9 @@ const DashSidebar = () => {
       className={`
         flex md:flex-col flex-row
         items-center justify-between
-        h-16 md:h-full
+        h-16
         bg-gradient-to-b from-amber-400 to-amber-500 dark:from-cyan-600 dark:to-blue-700
-        text-white p-2 md:p-4
+        text-white shadow-xl shadow-amber-400 dark:shadow-cyan-600 p-2 md:p-4
         w-full md:w-[220px]
         fixed md:fixed bottom-0 md:top-0 left-0 right-0 z-50 md:z-10
         md:h-screen md:max-w-[220px]
@@ -57,7 +63,7 @@ const DashSidebar = () => {
       <nav
         className={`
           flex flex-1 w-full
-          md:flex-col flex-row items-center justify-evenly gap-2 text-2xl
+          md:flex-col flex-row items-center gap-8 text-2xl justify-center
         `}
       >
         {navItems.map((item) => (
@@ -67,6 +73,7 @@ const DashSidebar = () => {
             className={`
               flex flex-col md:flex-row gap-1 md:gap-3 items-center justify-center
               w-full md:p-4 p-2 rounded-lg transition-all duration-200 font-extrabold
+              text-shadow-md text-shadow-neutral-600/30
               ${pathname === item.href 
                 ? 'bg-white/20 backdrop-blur-sm shadow-md'
                 : 'hover:bg-white/10 hover:shadow-sm'

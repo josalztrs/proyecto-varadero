@@ -84,7 +84,7 @@ const LoginPage = () => {
             transition={{ delay: 1.2, duration: 0.8, type: 'spring' }}
           />
         </motion.div>
-      </motion.div>
+      </motion.div>;
     </main>
   );
 };

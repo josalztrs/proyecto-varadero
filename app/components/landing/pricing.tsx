@@ -28,8 +28,13 @@ const PricingPage: React.FC = () => {
       optiontwo="Cancelar"
       onclose={onClose}
       onOK={onOK}>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Corporis expedita dicta eos nostrum inventore molestiae, repudiandae incidunt itaque unde! Quam laudantium exercitationem aperiam nobis eum ullam sunt maxime tempora tempore.
+      <p>
+        Correo
       </p>
+      <p>
+        Tipo de Embarcacion
+      </p>
+
     </ModalLayout>
 
 
