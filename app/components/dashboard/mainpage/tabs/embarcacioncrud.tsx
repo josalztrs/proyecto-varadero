@@ -1,16 +1,18 @@
-// app/components/EmbarcacionCRUD.tsx
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
+
 import Form from './form';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
+import { toast } from 'sonner'; // ✅ Importar sonner
 
 const EmbarcacionCRUD = () => {
   type Embarcacion = Tables<'embarcacion'> & { id: number };
-  type Cliente = Tables<'cliente'>; // Also need Cliente type for related data
+  type Cliente = Tables<'cliente'>;
 
   const {
     data: embarcaciones,
@@ -22,7 +24,7 @@ const EmbarcacionCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    fetchRelatedItemDetails, // Get the new function from useCrud
+    fetchRelatedItemDetails,
   } = useCrud<Embarcacion>(supabase, 'embarcacion', {
     itemsPerPage: 5,
     orderBy: { column: 'matricula', ascending: true },
@@ -34,12 +36,25 @@ const EmbarcacionCRUD = () => {
     try {
       if (editingEmbarcacion) {
         await updateItem(editingEmbarcacion.id, formData);
+        toast.success('Embarcación actualizada exitosamente');
         setEditingEmbarcacion(null);
       } else {
         await createItem(formData);
+        toast.success('Embarcación registrada exitosamente');
       }
     } catch (err) {
+      toast.error('Error al enviar el formulario. Revisa los campos e intenta de nuevo');
       console.error('Form submission error caught in component:', err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteItem(id);
+      toast.success('Embarcación eliminada correctamente');
+    } catch (err) {
+      toast.error('Error al eliminar la embarcación');
+      console.error(err);
     }
   };
 
@@ -56,7 +71,6 @@ const EmbarcacionCRUD = () => {
     { name: 'edo_despues', label: 'Estado al salir', type: 'text' },
   ];
 
-  // TableColumn definition (can be imported from a shared types file)
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
@@ -67,7 +81,7 @@ const EmbarcacionCRUD = () => {
       relatedTableName: string;
       relatedIdColumn: string;
       displayColumn: string;
-      hoverDisplayColumns: { key: keyof Cliente; label: string }[]; // Type for Cliente
+      hoverDisplayColumns: { key: keyof Cliente; label: string }[];
     };
   }
 
@@ -79,12 +93,12 @@ const EmbarcacionCRUD = () => {
       key: 'id_cliente',
       label: 'Id Dueño',
       isRelated: {
-        key: 'id_cliente', // The foreign key column in 'embarcacion'
+        key: 'id_cliente',
         label: 'Dueño',
-        relatedTableName: 'cliente', // The table it relates to
-        relatedIdColumn: 'id', // The ID column in the 'cliente' table
-        displayColumn: 'id_cliente', // The column from 'cliente' to display initially (e.g., the client's name)
-        hoverDisplayColumns: [ // Columns to show in the hover popover
+        relatedTableName: 'cliente',
+        relatedIdColumn: 'id',
+        displayColumn: 'id_cliente',
+        hoverDisplayColumns: [
           { key: 'nombre', label: 'Nombre' },
           { key: 'doc_ident', label: 'Doc. Ident.' },
           { key: 'correo', label: 'Correo' },
@@ -96,39 +110,63 @@ const EmbarcacionCRUD = () => {
   ];
 
   return (
-    <div className="container mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">
+    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-4xl font-extrabold mb-10 text-center text-blue-600 dark:text-blue-400"
+      >
         Gestión de Embarcaciones
-      </h1>
+      </motion.h1>
 
-      <Form<Embarcacion>
-        fields={embarcacionFormFields}
-        initialData={editingEmbarcacion || undefined}
-        onSubmit={handleFormSubmit}
-        onCancel={() => setEditingEmbarcacion(null)}
-        loading={loading}
-        error={error}
-        submitButtonText={editingEmbarcacion ? 'Guardar Cambios' : 'Registrar Embarcación'}
-      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10"
+      >
+        <Form<Embarcacion>
+          fields={embarcacionFormFields}
+          initialData={editingEmbarcacion || undefined}
+          onSubmit={handleFormSubmit}
+          onCancel={() => setEditingEmbarcacion(null)}
+          loading={loading}
+          error={error}
+          submitButtonText={editingEmbarcacion ? 'Guardar Cambios' : 'Registrar Embarcación'}
+        />
+      </motion.div>
 
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
+      <motion.h2
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white"
+      >
         Embarcaciones Registradas
-      </h2>
+      </motion.h2>
 
-      <Table<Embarcacion> // Use Table component
-        data={embarcaciones}
-        columns={embarcacionTableColumns}
-        onEdit={setEditingEmbarcacion}
-        onDelete={deleteItem}
-        loading={loading}
-        error={error}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={goToPage}
-        emptyMessage="No hay embarcaciones registradas aún."
-        deleteConfirmMessage="¿Estás seguro de que quieres eliminar esta embarcación? Esta acción es irreversible y podría afectar registros relacionados."
-        fetchRelatedItemDetails={fetchRelatedItemDetails} // Pass the function to the table
-      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4"
+      >
+        <Table<Embarcacion>
+          data={embarcaciones}
+          columns={embarcacionTableColumns}
+          onEdit={setEditingEmbarcacion}
+          onDelete={handleDelete}
+          loading={loading}
+          error={error}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={goToPage}
+          emptyMessage="No hay embarcaciones registradas aún."
+          deleteConfirmMessage="¿Estás seguro de que quieres eliminar esta embarcación? Esta acción es irreversible y podría afectar registros relacionados."
+          fetchRelatedItemDetails={fetchRelatedItemDetails}
+        />
+      </motion.div>
     </div>
   );
 };

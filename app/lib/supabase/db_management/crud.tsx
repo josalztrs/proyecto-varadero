@@ -1,6 +1,8 @@
 // hooks/useCrud.ts
+'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { toast } from 'sonner'; // ✅ Importar sonner
 
 interface CrudItem {
   id: number;
@@ -52,35 +54,35 @@ const useCrud = <T extends CrudItem>(
     } catch (err: any) {
       console.error(`Error fetching items from ${tableName}:`, err.message);
       setError(`Could not load items: ${err.message}. Please try again.`);
+      toast.error(`Error al cargar datos: ${err.message}`);
     } finally {
       setLoading(false);
     }
   }, [supabase, tableName, currentPage, itemsPerPage, orderBy.column, orderBy.ascending]);
 
-  // --- NEW: Function to fetch details for a single related item ---
   const fetchRelatedItemDetails = useCallback(
     async (relatedTableName: string, id: number) => {
-      if (!id) return null; // Handle cases where ID might be null/undefined
+      if (!id) return null;
 
       try {
         const { data: relatedData, error: relatedError } = await supabase
           .from(relatedTableName)
           .select('*')
           .eq('id', id)
-          .single(); // Use .single() to get one record
+          .single();
 
-        if (relatedError && relatedError.code !== 'PGRST116') { // PGRST116 is "no rows found"
+        if (relatedError && relatedError.code !== 'PGRST116') {
           throw relatedError;
         }
         return relatedData;
       } catch (err: any) {
         console.error(`Error fetching related item from ${relatedTableName} with ID ${id}:`, err.message);
+        toast.error(`Error al buscar detalles relacionados: ${err.message}`);
         return null;
       }
     },
     [supabase]
   );
-
 
   useEffect(() => {
     fetchItems();
@@ -104,7 +106,7 @@ const useCrud = <T extends CrudItem>(
     };
   }, [fetchItems, tableName, supabase]);
 
-  const createItem = async (newItemData: Partial<T>) => {
+  const createItem = async (newItemData: Partial<T>): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -114,12 +116,18 @@ const useCrud = <T extends CrudItem>(
         .select();
 
       if (insertError) throw insertError;
+
       console.log('Item created:', insertedData[0]);
+      toast.success('Elemento creado exitosamente'); // ✅ Notificación de éxito
+
       setCurrentPage(1);
+      await fetchItems();
+      return true;
     } catch (err: any) {
       console.error(`Error creating item in ${tableName}:`, err.message);
       setError(`Could not create item: ${err.message}.`);
-      throw err;
+      toast.error(`Error al crear: ${err.message}`); // ✅ Notificación de error
+      return false;
     } finally {
       setLoading(false);
     }
@@ -136,17 +144,22 @@ const useCrud = <T extends CrudItem>(
         .select();
 
       if (updateError) throw updateError;
+
       console.log('Item updated:', updatedData[0]);
+      toast.success('Elemento actualizado correctamente'); // ✅ Notificación de éxito
+
+      await fetchItems();
     } catch (err: any) {
       console.error(`Error updating item in ${tableName}:`, err.message);
       setError(`Could not update item: ${err.message}.`);
+      toast.error(`Error al actualizar: ${err.message}`); // ✅ Notificación de error
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteItem = async (id: number) => {
+  const deleteItem = async (id: number): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
@@ -156,14 +169,21 @@ const useCrud = <T extends CrudItem>(
         .eq('id', id);
 
       if (deleteError) throw deleteError;
-      console.log('Item deleted:', id);
+
+      console.log(`Item with ID ${id} deleted successfully.`);
+      toast.success('Elemento eliminado correctamente'); // ✅ Notificación de éxito
+
       if (data.length === 1 && currentPage > 1) {
         setCurrentPage(prev => prev - 1);
       }
+
+      await fetchItems();
+      return true;
     } catch (err: any) {
       console.error(`Error deleting item from ${tableName}:`, err.message);
       setError(`Could not delete item: ${err.message}.`);
-      throw err;
+      toast.error(`Error al eliminar: ${err.message}`); // ✅ Notificación de error
+      return false;
     } finally {
       setLoading(false);
     }
@@ -187,7 +207,7 @@ const useCrud = <T extends CrudItem>(
     deleteItem,
     goToPage,
     refetch: fetchItems,
-    fetchRelatedItemDetails, // Expose the new function
+    fetchRelatedItemDetails,
   };
 };
 
