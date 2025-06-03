@@ -82,7 +82,7 @@ const Form = <T extends Record<string, any>>({
                 type={field.type}
                 id={field.name}
                 name={field.name}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-1 pl-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 value={(formData[field.name as keyof T] as string) || ''}
                 onChange={handleChange}
                 required={field.required}
@@ -95,7 +95,7 @@ const Form = <T extends Record<string, any>>({
       <div className="flex gap-4">
         <button
           type="submit"
-          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="px-6 py-2 bg-amber-400 text-gray-800 dark:text-white font-medium rounded-md hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-500 transition-colors duration-100 ease-in-out"
           disabled={loading}
         >
           {loading ? 'Processing...' : submitButtonText}
@@ -104,7 +104,7 @@ const Form = <T extends Record<string, any>>({
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+            className="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700 transition-colors duration-100 ease-in-out"
             disabled={loading}
           >
             {cancelButtonText}

@@ -87,13 +87,13 @@ const ClienteCRUD = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto p-4 min-h-screen text-gray-900 dark:text-gray-100"
+      className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100"
     >
       <motion.h1
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="text-3xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400"
+        className="text-3xl font-bold mb-6 text-center text-amber-500 dark:text-cyan-500"
       >
         Gestión de Clientes
       </motion.h1>

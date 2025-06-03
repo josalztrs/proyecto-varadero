@@ -110,12 +110,12 @@ const EmbarcacionCRUD = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
+    <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-4xl font-extrabold mb-10 text-center text-blue-600 dark:text-blue-400"
+        className="text-4xl font-extrabold mb-10 text-center text-amber-500 dark:text-cyan-500"
       >
         Gestión de Embarcaciones
       </motion.h1>
