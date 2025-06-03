@@ -1,2 +1,12 @@
 @import "tailwindcss";
 /* Estilos para el contenedor principal del calendario */
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
+
+.animate-fadeInOut {
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+/* Esto hace que el mensaje aparezca y luego desaparezca suavemente en 3 segundos. */

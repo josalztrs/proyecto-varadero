@@ -1,18 +1,18 @@
-// app/components/MantenimientoCRUD.tsx
 'use client';
 
 import React, { useState } from 'react';
-import { supabase } from '@/app/lib/supabase/supabase'; // Ensure this path is correct
-import type { Tables } from '@/app/lib/supabase/db_types'; // Your database types
+import { motion } from 'framer-motion';
+import { Toaster } from 'sonner'; // 👈 Importa el Toaster
+import { supabase } from '@/app/lib/supabase/supabase';
+import type { Tables } from '@/app/lib/supabase/db_types';
 
-import Form from './form'; // Assuming 'form' is your GenericForm component
-import Table from './table'; // Assuming 'table' is your GenericTable component
-import useCrud from '@/app/lib/supabase/db_management/crud'; // Your custom hook
+import Form from './form';
+import Table from './table';
+import useCrud from '@/app/lib/supabase/db_management/crud';
 
 const MantenimientoCRUD = () => {
-  // Define the types for Mantenimiento and Embarcacion
   type Mantenimiento = Tables<'mantenimientos'> & { id: number };
-  type Embarcacion = Tables<'embarcacion'>; // Needed for related data
+  type Embarcacion = Tables<'embarcacion'>;
 
   const {
     data: mantenimientos,
@@ -24,10 +24,10 @@ const MantenimientoCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    fetchRelatedItemDetails, // Necessary for hover details on related columns
+    fetchRelatedItemDetails,
   } = useCrud<Mantenimiento>(supabase, 'mantenimientos', {
     itemsPerPage: 5,
-    orderBy: { column: 'fecha', ascending: false }, // Order by date, newest first
+    orderBy: { column: 'fecha', ascending: false },
   });
 
   const [editingMantenimiento, setEditingMantenimiento] = useState<Mantenimiento | null>(null);
@@ -45,7 +45,6 @@ const MantenimientoCRUD = () => {
     }
   };
 
-  // Define form fields for Mantenimiento based on your provided types
   const mantenimientoFormFields = [
     { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true },
     { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true },
@@ -53,7 +52,6 @@ const MantenimientoCRUD = () => {
     { name: 'precio', label: 'Precio', type: 'number', required: true },
   ];
 
-  // Re-define TableColumn interface for clarity (can be shared globally)
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
@@ -68,7 +66,6 @@ const MantenimientoCRUD = () => {
     };
   }
 
-  // Define table columns for Mantenimiento based on your provided types
   const mantenimientoTableColumns: TableColumn<Mantenimiento>[] = [
     {
       key: 'matricula_emb',
@@ -77,8 +74,8 @@ const MantenimientoCRUD = () => {
         key: 'matricula_emb',
         label: 'Embarcación',
         relatedTableName: 'embarcacion',
-        relatedIdColumn: 'matricula', // Foreign key matches 'matricula' in 'embarcacion'
-        displayColumn: 'nombre', // Display the name of the boat
+        relatedIdColumn: 'matricula',
+        displayColumn: 'nombre',
         hoverDisplayColumns: [
           { key: 'nombre', label: 'Nombre' },
           { key: 'tipo', label: 'Tipo' },
@@ -92,7 +89,6 @@ const MantenimientoCRUD = () => {
       key: 'fecha',
       label: 'Fecha',
       render: (mantenimiento) => {
-        // Format date for better readability
         try {
           return new Date(mantenimiento.fecha).toLocaleDateString();
         } catch {
@@ -105,39 +101,65 @@ const MantenimientoCRUD = () => {
   ];
 
   return (
-    <div className="container mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">
+    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
+      <Toaster position="top-right" richColors /> 
+
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-4xl font-extrabold mb-10 text-center text-blue-600 dark:text-blue-400"
+      >
         Gestión de Mantenimientos
-      </h1>
+      </motion.h1>
 
-      <Form<Mantenimiento>
-        fields={mantenimientoFormFields}
-        initialData={editingMantenimiento || undefined}
-        onSubmit={handleFormSubmit}
-        onCancel={() => setEditingMantenimiento(null)}
-        loading={loading}
-        error={error}
-        submitButtonText={editingMantenimiento ? 'Guardar Cambios' : 'Registrar Mantenimiento'}
-      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10"
+      >
+        <Form<Mantenimiento>
+          fields={mantenimientoFormFields}
+          initialData={editingMantenimiento || undefined}
+          onSubmit={handleFormSubmit}
+          onCancel={() => setEditingMantenimiento(null)}
+          loading={loading}
+          error={error}
+          submitButtonText={editingMantenimiento ? 'Guardar Cambios' : 'Registrar Mantenimiento'}
+        />
+      </motion.div>
 
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
+      <motion.h2
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white"
+      >
         Mantenimientos Registrados
-      </h2>
+      </motion.h2>
 
-      <Table<Mantenimiento>
-        data={mantenimientos}
-        columns={mantenimientoTableColumns}
-        onEdit={setEditingMantenimiento}
-        onDelete={deleteItem}
-        loading={loading}
-        error={error}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={goToPage}
-        emptyMessage="No hay mantenimientos registrados aún."
-        deleteConfirmMessage="¿Estás seguro de que quieres eliminar este mantenimiento? Esta acción es irreversible."
-        fetchRelatedItemDetails={fetchRelatedItemDetails} // Pass the function to the table
-      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4"
+      >
+        <Table<Mantenimiento>
+          data={mantenimientos}
+          columns={mantenimientoTableColumns}
+          onEdit={setEditingMantenimiento}
+          onDelete={deleteItem}
+          loading={loading}
+          error={error}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={goToPage}
+          emptyMessage="No hay mantenimientos registrados aún."
+          deleteConfirmMessage="¿Estás seguro de que quieres eliminar este mantenimiento? Esta acción es irreversible."
+          fetchRelatedItemDetails={fetchRelatedItemDetails}
+        />
+      </motion.div>
     </div>
   );
 };

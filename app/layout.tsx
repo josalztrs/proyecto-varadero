@@ -1,14 +1,24 @@
 import { FC, PropsWithChildren } from "react";
-import "@/app/ui/globals.css"
+import "@/app/ui/globals.css";
 import { nunito } from "./ui/fonts";
-const RootLayout: FC<PropsWithChildren> = ({children}) => {
-    return (
-        <html>
-            <body className={`${nunito.className}  antialiased bg-white dark:bg-slate-900 transition-colors duration-300`}>
-                {children}
-            </body>
-        </html>
-    );
+import { Toaster } from "sonner";
+
+const RootLayout: FC<PropsWithChildren> = ({ children }) => {
+  return (
+    <html lang="es">
+      <body
+        className={`${nunito.className} antialiased bg-white dark:bg-slate-900 transition-colors duration-300`}
+      >
+        {children}
+        <Toaster
+          richColors
+          position="top-right"
+          theme="light"
+          duration={3000} // ⏱️ duración en milisegundos
+        />
+      </body>
+    </html>
+  );
 };
 
 export default RootLayout;
