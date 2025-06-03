@@ -1,5 +1,4 @@
 import { GiPaperBoat } from 'react-icons/gi';
-import Contact from './contact';
 
 const Header = () => {
   return (
@@ -20,9 +19,6 @@ const Header = () => {
         <span className='text-xl md:text-2xl font-medium text-gray-900 dark:text-neutral-100'>Mar Serena</span>
       </div>
 
-      <div className='flex items-center justify-center'>
-        <Contact/>
-      </div>
     </header>
   );
 };
