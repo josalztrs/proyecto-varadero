@@ -61,7 +61,7 @@ const DashSidebar = () => {
       {/* Logo (solo visible en md+) */}
       <div className='hidden md:flex mt-2 mb-4 items-center justify-center flex-col'>
         <GiPaperBoat className='text-6xl text-white'/>
-        <h1 className='font-bold'>Varadero Apollyon</h1>
+        <h1 className='font-bold'>Atracadero Mar Serena</h1>
       </div>
 
       {/* Items */}
