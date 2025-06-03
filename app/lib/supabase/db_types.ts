@@ -110,6 +110,7 @@ export type Database = {
       }
       embarcacion: {
         Row: {
+          id: number
           amarres_asign: number
           caracteristicas: string
           cuadr_asign: number
@@ -122,6 +123,7 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_emb"]
         }
         Insert: {
+          id?: number
           amarres_asign: number
           caracteristicas: string
           cuadr_asign: number
@@ -134,6 +136,7 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_emb"]
         }
         Update: {
+          id?: number
           amarres_asign?: number
           caracteristicas?: string
           cuadr_asign?: number
