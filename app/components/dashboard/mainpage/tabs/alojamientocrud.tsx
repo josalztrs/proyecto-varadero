@@ -25,8 +25,6 @@ const AlojamientoCRUD = () => {
     deleteItem,
     goToPage,
     fetchRelatedItemDetails,
-    refetch,
-    totalItemsCount,
   } = useCrud<Alojamiento>(supabase, 'alojamientos', {
     itemsPerPage: 5,
     orderBy: { column: 'fecha', ascending: false },

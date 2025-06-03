@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // hooks/useCrud.ts
 'use client';
 import { useState, useEffect, useCallback } from 'react';

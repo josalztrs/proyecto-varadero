@@ -38,6 +38,7 @@ export default function MiniCrudTable({ initialData = [] }: MiniCrudTableProps) 
       {
         id: "actions",
         header: "Acciones",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         cell: ({ row }: { row: any }) => (
           <div className="flex gap-2 justify-center">
             <button

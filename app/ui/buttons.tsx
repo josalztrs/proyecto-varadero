@@ -107,10 +107,6 @@ const TertiaryButton = ({ children, href, type = "button", ...props }: ButtonPro
         <BaseButton
           type={type}
           className="px-4 py-2 text-md text-gray-700 dark:text-gray-300 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
-          variants={{
-            ...buttonAnimations,
-            hover: { ...buttonAnimations.hover, y: -1 }
-          }}
           {...props}
         >
           {children}
@@ -123,10 +119,6 @@ const TertiaryButton = ({ children, href, type = "button", ...props }: ButtonPro
     <BaseButton
       type={type}
       className="px-4 py-2 text-md text-gray-700 dark:text-gray-300 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
-      variants={{
-        ...buttonAnimations,
-        hover: { ...buttonAnimations.hover, y: -1 }
-      }}
       {...props}
     >
       {children}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/GenericTable.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

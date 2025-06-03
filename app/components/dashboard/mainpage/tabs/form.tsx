@@ -21,6 +21,7 @@ interface GenericFormProps<T> {
   cancelButtonText?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Form = <T extends Record<string, any>>({
   fields,
   initialData,

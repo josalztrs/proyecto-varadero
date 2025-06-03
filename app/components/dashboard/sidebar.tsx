@@ -24,14 +24,14 @@ const DashSidebar = () => {
       label: 'Embarcaciones'
     },
     {
-      href: '/dashboard/main/alojamientos',
-      icon: <HiMiniHomeModern className="text-xl" />,
-      label: 'Alojamientos'
-    },
-    {
       href: '/dashboard/main/clientes',
       icon: <FaUsers className='text-xl'/>,
       label: 'Clientes'
+    },
+    {
+      href: '/dashboard/main/alojamientos',
+      icon: <HiMiniHomeModern className="text-xl" />,
+      label: 'Alojamientos'
     },
     {
       href: '/dashboard/main/mantenimiento',
