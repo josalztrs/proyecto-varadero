@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Toaster, toast } from 'sonner'; // 👈 Incluye Toaster y toast
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 import Form from './form';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
-import { toast } from 'sonner'; // 👈 Importación de sonner
 
 const ClienteCRUD = () => {
   type Cliente = Tables<'cliente'>;
@@ -61,9 +61,9 @@ const ClienteCRUD = () => {
   const clientFormFields = [
     { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true },
     { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true },
-    { name: 'correo', label: 'Correo Electrónico', type: 'email' },
+    { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true },
     { name: 'nacionalidad', label: 'Nacionalidad', type: 'text' },
-    { name: 'telefono', label: 'Teléfono', type: 'text' },
+    { name: 'telefono', label: 'Teléfono', type: 'text', required: true },
   ];
 
   interface TableColumn<T> {
@@ -83,26 +83,23 @@ const ClienteCRUD = () => {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100"
-    >
+    <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
+      <Toaster position="top-right" richColors />
+
       <motion.h1
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-3xl font-bold mb-6 text-center text-amber-500 dark:text-cyan-500"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-4xl font-extrabold mb-10 text-center text-amber-500 dark:text-cyan-500"
       >
         Gestión de Clientes
       </motion.h1>
 
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 mb-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10"
       >
         <Form<Cliente>
           fields={clientFormFields}
@@ -116,9 +113,9 @@ const ClienteCRUD = () => {
       </motion.div>
 
       <motion.h2
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
         className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white"
       >
         Clientes Registrados
@@ -127,8 +124,8 @@ const ClienteCRUD = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4"
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4"
       >
         <Table<Cliente>
           data={clientes}
@@ -144,7 +141,7 @@ const ClienteCRUD = () => {
           fetchRelatedItemDetails={async () => null}
         />
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
