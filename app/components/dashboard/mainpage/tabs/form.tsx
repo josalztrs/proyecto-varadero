@@ -7,12 +7,13 @@ interface FormField {
   type: string; // e.g., 'text', 'email', 'number', 'select'
   required?: boolean;
   placeholder?: string;
+  maxLength?: number; // ✅ Agregado para permitir limitar caracteres
   options?: { value: string; label: string }[]; // For select fields
 }
 
 interface GenericFormProps<T> {
   fields: FormField[];
-  initialData?: Partial<T> | null; // Data for editing
+  initialData?: Partial<T> | null;
   onSubmit: (formData: Partial<T>) => Promise<void>;
   onCancel?: () => void;
   loading?: boolean;
@@ -34,7 +35,6 @@ const Form = <T extends Record<string, any>>({
 }: GenericFormProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
 
-  // Update formData when initialData changes (e.g., when starting to edit a new item)
   React.useEffect(() => {
     setFormData(initialData || {});
   }, [initialData]);
@@ -43,7 +43,7 @@ const Form = <T extends Record<string, any>>({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value === '' ? null : value, // Treat empty string as null for DB
+      [name]: value === '' ? null : value,
     }));
   };
 
@@ -87,6 +87,7 @@ const Form = <T extends Record<string, any>>({
                 onChange={handleChange}
                 required={field.required}
                 placeholder={field.placeholder}
+                maxLength={field.maxLength} // ✅ Esta línea permite la restricción de caracteres
               />
             )}
           </div>

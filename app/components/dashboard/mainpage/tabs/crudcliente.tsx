@@ -58,13 +58,14 @@ const ClienteCRUD = () => {
     }
   };
 
-  const clientFormFields = [
-    { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true },
-    { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true },
-    { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true },
-    { name: 'nacionalidad', label: 'Nacionalidad', type: 'text' },
-    { name: 'telefono', label: 'Teléfono', type: 'text', required: true },
-  ];
+ const clientFormFields = [
+  { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32 },
+  { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 32 },
+  { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32 },
+  { name: 'nacionalidad', label: 'Nacionalidad', type: 'text', maxLength: 32 },
+  { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 32 },
+];
+
 
   interface TableColumn<T> {
     key: keyof T | 'actions';

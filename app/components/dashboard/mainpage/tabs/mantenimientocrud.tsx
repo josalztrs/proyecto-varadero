@@ -46,10 +46,10 @@ const MantenimientoCRUD = () => {
   };
 
   const mantenimientoFormFields = [
-    { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true },
-    { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true },
-    { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
-    { name: 'precio', label: 'Precio', type: 'number', required: true },
+    { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 32 },
+    { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32 },
+    { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true, maxLength: 32 },
+    { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 32 },
   ];
 
   interface TableColumn<T> {

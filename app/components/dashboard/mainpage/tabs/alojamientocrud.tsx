@@ -49,8 +49,8 @@ const AlojamientoCRUD = () => {
   };
 
   const alojamientoFormFields = [
-    { name: 'fecha', label: 'Fecha de Alojamiento', type: 'date', required: true },
-    { name: 'id_cliente', label: 'ID Cliente', type: 'number', required: true },
+    { name: 'fecha', label: 'Fecha de Alojamiento', type: 'date', required: true, maxLength: 32 },
+    { name: 'id_cliente', label: 'ID Cliente', type: 'number', required: true, maxLength: 32 },
   ];
 
   interface TableColumn<T> {
