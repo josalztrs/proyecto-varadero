@@ -59,16 +59,16 @@ const EmbarcacionCRUD = () => {
   };
 
   const embarcacionFormFields = [
-    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 32 },
-    { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32 },
-    { name: 'tipo', label: 'Tipo', type: 'text', maxLength: 32 },
-    { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 32 },
-    { name: 'caracteristicas', label: 'Caracteristicas', type: 'text', required: true, maxLength: 32 },
+    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'tipo', label: 'Tipo', type: 'text', maxLength: 32, uppercase: true },
+    { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'caracteristicas', label: 'Caracteristicas', type: 'text', required: true, maxLength: 32, uppercase: true },
     { name: 'id_cliente', label: 'ID Dueño (Cliente)', type: 'number', required: true, maxLength: 32 },
     { name: 'amarres_asign', label: 'Amarres Asignados', type: 'number', required: true, maxLength: 32 },
     { name: 'cuadr_asign', label: 'Cuadrante', type: 'number', required: true, maxLength: 32 },
-    { name: 'edo_antes', label: 'Estado al entrar', type: 'text', required: true, maxLength: 32 },
-    { name: 'edo_despues', label: 'Estado al salir', type: 'text', maxLength: 32 },
+    { name: 'edo_antes', label: 'Estado al entrar', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'edo_despues', label: 'Estado al salir', type: 'text', maxLength: 32, uppercase: true },
   ];
 
   interface TableColumn<T> {

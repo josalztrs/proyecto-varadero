@@ -59,11 +59,11 @@ const ClienteCRUD = () => {
   };
 
  const clientFormFields = [
-  { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32 },
-  { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 32 },
-  { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32 },
-  { name: 'nacionalidad', label: 'Nacionalidad', type: 'text', maxLength: 32 },
-  { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 32 },
+  { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
+  { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 32, uppercase: true },
+  { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32, uppercase: true },
+  { name: 'nacionalidad', label: 'Nacionalidad', type: 'text', maxLength: 32, uppercase: true },
+  { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 32, uppercase: true },
 ];
 
 

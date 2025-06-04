@@ -49,7 +49,7 @@ const AlojamientoCRUD = () => {
   };
 
   const alojamientoFormFields = [
-    { name: 'fecha', label: 'Fecha de Alojamiento', type: 'date', required: true, maxLength: 32 },
+    { name: 'fecha', label: 'Fecha de Alojamiento', type: 'date', required: true, maxLength: 32, },
     { name: 'id_cliente', label: 'ID Cliente', type: 'number', required: true, maxLength: 32 },
   ];
 

@@ -7,8 +7,9 @@ interface FormField {
   type: string; // e.g., 'text', 'email', 'number', 'select'
   required?: boolean;
   placeholder?: string;
-  maxLength?: number; // ✅ Agregado para permitir limitar caracteres
+  maxLength?: number;
   options?: { value: string; label: string }[]; // For select fields
+  uppercase?: boolean; // ✅ NUEVO: Indica si se debe convertir a mayúsculas al enviar
 }
 
 interface GenericFormProps<T> {
@@ -39,7 +40,9 @@ const Form = <T extends Record<string, any>>({
     setFormData(initialData || {});
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -49,7 +52,22 @@ const Form = <T extends Record<string, any>>({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
+
+    const formattedData: Partial<T> = { ...formData };
+
+    // ✅ Convertir a mayúsculas si el campo lo requiere
+    fields.forEach((field) => {
+      const value = formattedData[field.name as keyof T];
+      if (
+        typeof value === 'string' &&
+        field.uppercase &&
+        (field.type === 'text' || field.type === 'email')
+      ) {
+        formattedData[field.name as keyof T] = value.toUpperCase() as T[keyof T];
+      }
+    });
+
+    await onSubmit(formattedData);
   };
 
   return (
@@ -87,7 +105,7 @@ const Form = <T extends Record<string, any>>({
                 onChange={handleChange}
                 required={field.required}
                 placeholder={field.placeholder}
-                maxLength={field.maxLength} // ✅ Esta línea permite la restricción de caracteres
+                maxLength={field.maxLength}
               />
             )}
           </div>
