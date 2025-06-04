@@ -57,10 +57,10 @@ const AtracaderoLanding = () => {
 {/* Botones de contacto con hover ámbar/cian */}
       <div className="fixed top-6 left-6 z-20 flex flex-col space-y-4">
         {[
-          { icon: <FaTwitter />, link: "#" },
-          { icon: <FaFacebookF />, link: "#" },
-          { icon: <FaInstagram />, link: "#" },
-          { icon: <FaWhatsapp />, link: "#" }
+          { icon: <FaTwitter />, link: "https://x.com/varadero_apolly" },
+          { icon: <FaFacebookF />, link: "https://www.facebook.com/profile.php?id=61576706318962&mibextid=ZbWKwL" },
+          { icon: <FaInstagram />, link: "https://www.instagram.com/varadero_apollyon?igsh=enp1cG40Z241Mm50" },
+          { icon: <FaWhatsapp />, link: "https://wa.me/584129896675" }
         ].map((social, index) => (
           <motion.a
             key={index}

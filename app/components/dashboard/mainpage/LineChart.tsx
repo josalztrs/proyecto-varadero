@@ -74,7 +74,7 @@ const LineChart = () => {
             weight: 'normal',
             family: "'Inter', sans-serif",
           },
-          color: '#d1d5db',
+          color: '#858585',
         },
       },
       title: {
