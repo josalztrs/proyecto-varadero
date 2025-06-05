@@ -6,7 +6,7 @@ import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 
 import Form from './form';
-import Table from './table';
+import Table from './table'; // Assuming this imports the updated GenericTable
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import { toast } from 'sonner'; // ✅ Importar sonner
 
@@ -24,7 +24,7 @@ const EmbarcacionCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    fetchRelatedItemDetails,
+    fetchRelatedItemDetails, // This fetchRelatedItemDetails is already designed to handle dynamic columns
   } = useCrud<Embarcacion>(supabase, 'embarcacion', {
     itemsPerPage: 5,
     orderBy: { column: 'matricula', ascending: true },
@@ -59,28 +59,40 @@ const EmbarcacionCRUD = () => {
   };
 
   const embarcacionFormFields = [
-    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder: "XXX-123", pattern: '[A-Z]{3}-[0-9]{4}' },
     { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'tipo', label: 'Tipo', type: 'text', maxLength: 32, uppercase: true },
+    {
+      name: 'tipo',
+      label: 'Tipo',
+      type: 'select', // Changed to 'select'
+      maxLength: 32, // maxLength is not strictly needed for select, but harmless
+      uppercase: true, // uppercase will still apply to the selected value (though usually not necessary for select values)
+      options: [ // Added options for the dropdown
+        { value: 'LANCHA', label: 'Lancha' },
+        { value: 'YATE', label: 'Yate' },
+        { value: 'MOTO_ACUATICA', label: 'Moto Acuática' },
+      ],
+    },
     { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'caracteristicas', label: 'Caracteristicas', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'id_cliente', label: 'ID Dueño (Cliente)', type: 'number', required: true, maxLength: 32 },
+    { name: 'caracteristicas', label: 'Características', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder:"Caracteristicas fisicas del vehiculo" },
+    { name: 'id_cliente', label: 'ID Dueño (Cliente)', type: 'number', required: true, maxLength: 32, placeholder:"El campo ID asociado al cliente" },
     { name: 'amarres_asign', label: 'Amarres Asignados', type: 'number', required: true, maxLength: 32 },
     { name: 'cuadr_asign', label: 'Cuadrante', type: 'number', required: true, maxLength: 32 },
     { name: 'edo_antes', label: 'Estado al entrar', type: 'text', required: true, maxLength: 32, uppercase: true },
     { name: 'edo_despues', label: 'Estado al salir', type: 'text', maxLength: 32, uppercase: true },
   ];
 
+  // Modified TableColumn interface to correctly type `isRelated` for Embarcacion and Cliente
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
     render?: (item: T) => React.ReactNode;
     isRelated?: {
-      key: keyof T;
+      key: keyof T; // The foreign key in the current table (e.g., 'id_cliente')
       label: string;
       relatedTableName: string;
-      relatedIdColumn: string;
-      displayColumn: string;
+      relatedIdColumn: string; // The column in the related table that acts as the primary key/unique identifier (e.g., 'id')
+      displayColumn: string; // The column from the related table to display initially (e.g., 'nombre' of the client)
       hoverDisplayColumns: { key: keyof Cliente; label: string }[];
     };
   }
@@ -90,14 +102,14 @@ const EmbarcacionCRUD = () => {
     { key: 'nombre', label: 'Nombre' },
     { key: 'tipo', label: 'Tipo', render: (embarcacion) => embarcacion.tipo || 'N/A' },
     {
-      key: 'id_cliente',
-      label: 'Id Dueño',
+      key: 'id_cliente', // This is the foreign key in 'embarcacion' pointing to 'cliente'
+      label: 'Dueño', // Changed label for better readability in the table header
       isRelated: {
-        key: 'id_cliente',
-        label: 'Dueño',
-        relatedTableName: 'cliente',
-        relatedIdColumn: 'id',
-        displayColumn: 'id_cliente',
+        key: 'id_cliente', // The foreign key in 'embarcacion'
+        label: 'Dueño', // Label for the related item in the hover popover
+        relatedTableName: 'cliente', // The name of the related table
+        relatedIdColumn: 'id', // The primary key column in the 'cliente' table
+        displayColumn: 'id_cliente', // The column from 'cliente' to display directly in the table
         hoverDisplayColumns: [
           { key: 'nombre', label: 'Nombre' },
           { key: 'doc_ident', label: 'Doc. Ident.' },
@@ -164,7 +176,9 @@ const EmbarcacionCRUD = () => {
           onPageChange={goToPage}
           emptyMessage="No hay embarcaciones registradas aún."
           deleteConfirmMessage="¿Estás seguro de que quieres eliminar esta embarcación? Esta acción es irreversible y podría afectar registros relacionados."
-          fetchRelatedItemDetails={fetchRelatedItemDetails}
+          fetchRelatedItemDetails={(tableName, idColumn, value) =>
+            fetchRelatedItemDetails(tableName, value)
+          }
         />
       </motion.div>
     </div>

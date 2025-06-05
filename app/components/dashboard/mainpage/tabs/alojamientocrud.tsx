@@ -7,7 +7,7 @@ import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 
 import Form from './form';
-import Table from './table';
+import Table from './table'; // Assuming this imports the updated GenericTable
 import useCrud from '@/app/lib/supabase/db_management/crud';
 
 const AlojamientoCRUD = () => {
@@ -24,7 +24,7 @@ const AlojamientoCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    fetchRelatedItemDetails,
+    fetchRelatedItemDetails, // Already provided by useCrud and compatible
   } = useCrud<Alojamiento>(supabase, 'alojamientos', {
     itemsPerPage: 5,
     orderBy: { column: 'fecha', ascending: false },
@@ -49,20 +49,21 @@ const AlojamientoCRUD = () => {
   };
 
   const alojamientoFormFields = [
-    { name: 'fecha', label: 'Fecha de Alojamiento', type: 'date', required: true, maxLength: 32, },
+    { name: 'fecha', label: 'Fecha de Alojamiento', type: 'date', required: true, maxLength: 32 },
     { name: 'id_cliente', label: 'ID Cliente', type: 'number', required: true, maxLength: 32 },
   ];
 
+  // Updated TableColumn interface to correctly type `isRelated` for Alojamiento and Cliente
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
     render?: (item: T) => React.ReactNode;
     isRelated?: {
-      key: keyof T;
+      key: keyof T; // The foreign key in the current table (e.g., 'id_cliente')
       label: string;
       relatedTableName: string;
-      relatedIdColumn: string;
-      displayColumn: string;
+      relatedIdColumn: string; // The column in the related table that acts as the primary key/unique identifier (e.g., 'id')
+      displayColumn: string; // The column from the related table to display initially (e.g., 'nombre' of the client)
       hoverDisplayColumns: { key: keyof Cliente; label: string }[];
     };
   }
@@ -80,14 +81,14 @@ const AlojamientoCRUD = () => {
       },
     },
     {
-      key: 'id_cliente',
-      label: 'ID Cliente',
+      key: 'id_cliente', // This is the foreign key in 'alojamientos' pointing to 'cliente'
+      label: 'Cliente', // Changed label for better readability in the table header
       isRelated: {
-        key: 'id_cliente',
-        label: 'Cliente',
-        relatedTableName: 'cliente',
-        relatedIdColumn: 'id',
-        displayColumn: 'nombre',
+        key: 'id_cliente', // The foreign key in 'alojamientos'
+        label: 'Cliente', // Label for the related item in the hover popover
+        relatedTableName: 'cliente', // The name of the related table
+        relatedIdColumn: 'id', // The primary key column in the 'cliente' table
+        displayColumn: 'nombre', // The column from 'cliente' to display directly in the table
         hoverDisplayColumns: [
           { key: 'nombre', label: 'Nombre' },
           { key: 'doc_ident', label: 'Doc. Ident.' },
@@ -161,7 +162,9 @@ const AlojamientoCRUD = () => {
           onPageChange={goToPage}
           emptyMessage="No hay alojamientos registrados aún."
           deleteConfirmMessage="¿Estás seguro de que quieres eliminar este alojamiento? Esta acción es irreversible."
-          fetchRelatedItemDetails={fetchRelatedItemDetails}
+          fetchRelatedItemDetails={(tableName, idColumn, value) =>
+            fetchRelatedItemDetails(tableName, value)
+          }
         />
       </motion.div>
     </div>

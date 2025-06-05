@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 // --- New Interfaces for Related Data ---
 interface RelatedTableColumn<T> {
-  key: keyof T; // The foreign key column in the current table (e.g., 'dueno_id')
+  key: keyof T; // The foreign key column in the current table (e.g., 'id_cliente', 'matricula_emb')
   label: string; // Label for the column header
-  relatedTableName: string; // The table it relates to (e.g., 'cliente')
-  relatedIdColumn: string; // The ID column in the related table (e.g., 'id')
-  displayColumn: string; // The column from the related table to display initially (e.g., 'nombre')
+  relatedTableName: string; // The table it relates to (e.g., 'cliente', 'embarcacion')
+  relatedIdColumn: string; // The UNIQUE IDENTIFIER column in the related table (e.g., 'id', 'matricula')
+  displayColumn: string; // The column from the related table to display initially (e.g., 'nombre', 'nombre')
   // Columns to display in the hover popover for the related item
   hoverDisplayColumns: { key: string; label: string }[];
 }
@@ -35,7 +35,7 @@ interface GenericTableProps<T> {
   emptyMessage?: string;
   deleteConfirmMessage?: string;
   // --- New prop: function to fetch related item details ---
-  fetchRelatedItemDetails: (tableName: string, id: number) => Promise<any | null>;
+  fetchRelatedItemDetails: (tableName: string, idColumn: string, value: any) => Promise<any | null>;
 }
 
 const Table = <T extends { id: number; [key: string]: any }>({
@@ -63,13 +63,15 @@ const Table = <T extends { id: number; [key: string]: any }>({
   const handleMouseEnter = async (
     e: React.MouseEvent,
     relatedTable: string,
-    id: number,
+    relatedIdColumn: string, // New: Pass the column name to query by
+    value: any, // New: Pass the value of that column
     column: TableColumn<T>
   ) => {
     setHoverLoading(true);
     setHoverPosition({ x: e.clientX + 10, y: e.clientY + 10 }); // Position near cursor
     try {
-      const details = await fetchRelatedItemDetails(relatedTable, id);
+      // Use relatedIdColumn and value to fetch details
+      const details = await fetchRelatedItemDetails(relatedTable, relatedIdColumn, value);
       setHoveredItemDetails({ details, column }); // Store details and the column definition
     } catch (err) {
       console.error('Error fetching related item details:', err);
@@ -191,7 +193,8 @@ const Table = <T extends { id: number; [key: string]: any }>({
                                 handleMouseEnter(
                                   e,
                                   column.isRelated!.relatedTableName,
-                                  item[column.isRelated!.key] as number,
+                                  column.isRelated!.relatedIdColumn, // Pass the related ID column name
+                                  item[column.isRelated!.key], // Pass the value from the current item's FK column
                                   column
                                 )
                               }

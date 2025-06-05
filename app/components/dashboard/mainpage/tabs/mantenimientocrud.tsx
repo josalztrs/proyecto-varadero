@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Toaster } from 'sonner'; // 👈 Importa el Toaster
+import { Toaster, toast } from 'sonner'; // Ensure toast is also imported from sonner
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 
 import Form from './form';
-import Table from './table';
+import Table from './table'; // Assuming this imports the updated GenericTable
 import useCrud from '@/app/lib/supabase/db_management/crud';
 
 const MantenimientoCRUD = () => {
@@ -24,7 +24,7 @@ const MantenimientoCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    fetchRelatedItemDetails,
+    fetchRelatedItemDetails, // This is already correctly passed from useCrud
   } = useCrud<Mantenimiento>(supabase, 'mantenimientos', {
     itemsPerPage: 5,
     orderBy: { column: 'fecha', ascending: false },
@@ -36,12 +36,26 @@ const MantenimientoCRUD = () => {
     try {
       if (editingMantenimiento) {
         await updateItem(editingMantenimiento.id, formData);
+        toast.success('Mantenimiento actualizado exitosamente'); // Added toast notification
         setEditingMantenimiento(null);
       } else {
         await createItem(formData);
+        toast.success('Mantenimiento registrado exitosamente'); // Added toast notification
       }
     } catch (err) {
       console.error('Form submission error caught in component:', err);
+      toast.error('Error al procesar el formulario. Revisa los campos e intenta de nuevo'); // Added toast notification
+    }
+  };
+
+  // The handleDelete function needs to be wrapped in a try/catch for toast notifications
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteItem(id);
+      toast.success('Mantenimiento eliminado exitosamente');
+    } catch (err) {
+      console.error('Error deleting item:', err);
+      toast.error('Error al eliminar el mantenimiento.');
     }
   };
 
@@ -52,35 +66,36 @@ const MantenimientoCRUD = () => {
     { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 32 },
   ];
 
+  // Updated TableColumn interface to correctly type `isRelated` for Mantenimiento and Embarcacion
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
     render?: (item: T) => React.ReactNode;
     isRelated?: {
-      key: keyof T;
+      key: keyof T; // The foreign key in the current table (e.g., 'matricula_emb')
       label: string;
       relatedTableName: string;
-      relatedIdColumn: string;
-      displayColumn: string;
+      relatedIdColumn: string; // The unique identifier column in the related table (e.g., 'matricula')
+      displayColumn: string; // The column from the related table to display initially (e.g., 'nombre' of the boat)
       hoverDisplayColumns: { key: keyof Embarcacion; label: string }[];
     };
   }
 
   const mantenimientoTableColumns: TableColumn<Mantenimiento>[] = [
     {
-      key: 'matricula_emb',
-      label: 'Matrícula Embarcación',
+      key: 'matricula_emb', // This is the foreign key in 'mantenimientos'
+      label: 'Embarcación', // Changed label for better readability in the table header
       isRelated: {
-        key: 'matricula_emb',
-        label: 'Embarcación',
-        relatedTableName: 'embarcacion',
-        relatedIdColumn: 'matricula',
-        displayColumn: 'nombre',
+        key: 'matricula_emb', // The foreign key in 'mantenimientos'
+        label: 'Detalles Embarcación', // Label for the related item in the hover popover
+        relatedTableName: 'embarcacion', // The name of the related table
+        relatedIdColumn: 'matricula', // The UNIQUE IDENTIFIER column in the 'embarcacion' table
+        displayColumn: 'nombre', // The column from 'embarcacion' to display directly in the table
         hoverDisplayColumns: [
           { key: 'nombre', label: 'Nombre' },
           { key: 'tipo', label: 'Tipo' },
           { key: 'marcmod', label: 'Marca/Modelo' },
-          { key: 'matricula', label: 'Matrícula' },
+          { key: 'matricula', label: 'Matrícula' }, // Include matricula in hover for clarity
         ],
       },
     },
@@ -92,7 +107,7 @@ const MantenimientoCRUD = () => {
         try {
           return new Date(mantenimiento.fecha).toLocaleDateString();
         } catch {
-          return mantenimiento.fecha;
+          return String(mantenimiento.fecha); // Ensure it's a string even if parsing fails
         }
       },
     },
@@ -102,7 +117,7 @@ const MantenimientoCRUD = () => {
 
   return (
     <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
-      <Toaster position="top-right" richColors /> 
+      <Toaster position="top-right" richColors />
 
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
@@ -149,7 +164,7 @@ const MantenimientoCRUD = () => {
           data={mantenimientos}
           columns={mantenimientoTableColumns}
           onEdit={setEditingMantenimiento}
-          onDelete={deleteItem}
+          onDelete={handleDelete} // Use the wrapped handleDelete function
           loading={loading}
           error={error}
           currentPage={currentPage}
@@ -157,7 +172,9 @@ const MantenimientoCRUD = () => {
           onPageChange={goToPage}
           emptyMessage="No hay mantenimientos registrados aún."
           deleteConfirmMessage="¿Estás seguro de que quieres eliminar este mantenimiento? Esta acción es irreversible."
-          fetchRelatedItemDetails={fetchRelatedItemDetails}
+          fetchRelatedItemDetails={(tableName, idColumn, value) =>
+            fetchRelatedItemDetails(tableName, value)
+          }
         />
       </motion.div>
     </div>
