@@ -309,7 +309,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      tipo_emb: "Lancha" | "Yate" | "Moto Acuatica"
+      tipo_emb: "LANCHA" | "YATE" | "MOTO_ACUATICA"
     }
     CompositeTypes: {
       [_ in never]: never
