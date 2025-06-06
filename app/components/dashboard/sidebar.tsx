@@ -5,6 +5,7 @@ import React from 'react';
 import { FaHome } from 'react-icons/fa';
 import { FaBook, FaUsers } from 'react-icons/fa6';
 import { GiPaperBoat } from 'react-icons/gi';
+import { GrUserWorker } from 'react-icons/gr';
 import { HiMiniHomeModern, HiWrenchScrewdriver } from 'react-icons/hi2';
 import { MdHelp } from 'react-icons/md';
 import { PiBoatFill } from 'react-icons/pi';
@@ -39,6 +40,11 @@ const DashSidebar = () => {
       label: 'Mantenimiento'
     },
     {
+      href: '/dashboard/main/personal',
+      icon: <GrUserWorker className="text-xl" />,
+      label: 'Personal'
+    },
+    {
       href: '/dashboard/main/contabilidad',
       icon: <FaBook className="text-xl" />,
       label: 'Contabilidad'
@@ -68,7 +74,7 @@ const DashSidebar = () => {
       <nav
         className={`
           flex flex-1 w-full
-          md:flex-col flex-row items-center gap-8 text-2xl justify-center
+          md:flex-col flex-row items-center gap-4 text-2xl justify-center
         `}
       >
         {navItems.map((item) => (
@@ -76,7 +82,7 @@ const DashSidebar = () => {
             key={item.href}
             href={item.href}
             className={`
-              flex flex-col md:flex-row gap-1 md:gap-3 items-center justify-center
+              flex flex-col md:flex-row gap-1 md:gap-1 items-center justify-center
               w-full md:p-4 p-2 rounded-lg transition-all duration-200 font-extrabold
               text-shadow-md text-shadow-neutral-600/30
               ${pathname === item.href 

@@ -428,7 +428,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      tipo_emb: ["Lancha", "Yate", "Moto Acuatica"],
+      tipo_emb: ["LANCHA", "YATE", "MOTO_ACUATICA"],
     },
   },
 } as const
