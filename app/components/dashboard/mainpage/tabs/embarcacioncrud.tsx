@@ -176,9 +176,7 @@ const EmbarcacionCRUD = () => {
           onPageChange={goToPage}
           emptyMessage="No hay embarcaciones registradas aún."
           deleteConfirmMessage="¿Estás seguro de que quieres eliminar esta embarcación? Esta acción es irreversible y podría afectar registros relacionados."
-          fetchRelatedItemDetails={(tableName, idColumn, value) =>
-            fetchRelatedItemDetails(tableName, value)
-          }
+          fetchRelatedItemDetails={fetchRelatedItemDetails}
         />
       </motion.div>
     </div>

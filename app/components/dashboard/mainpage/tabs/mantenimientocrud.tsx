@@ -11,7 +11,7 @@ import Table from './table'; // Assuming this imports the updated GenericTable
 import useCrud from '@/app/lib/supabase/db_management/crud';
 
 const MantenimientoCRUD = () => {
-  type Mantenimiento = Tables<'mantenimientos'> & { id: number };
+  type Mantenimiento = Tables<'mantenimientos'> & { id: string };
   type Embarcacion = Tables<'embarcacion'>;
 
   const {
@@ -172,9 +172,7 @@ const MantenimientoCRUD = () => {
           onPageChange={goToPage}
           emptyMessage="No hay mantenimientos registrados aún."
           deleteConfirmMessage="¿Estás seguro de que quieres eliminar este mantenimiento? Esta acción es irreversible."
-          fetchRelatedItemDetails={(tableName, idColumn, value) =>
-            fetchRelatedItemDetails(tableName, value)
-          }
+          fetchRelatedItemDetails={fetchRelatedItemDetails}
         />
       </motion.div>
     </div>

@@ -20,24 +20,24 @@ const DashSidebar = () => {
       label: 'Inicio'
     },
     {
-      href: '/dashboard/main/embarcaciones',
-      icon: <PiBoatFill className="text-xl" />,
-      label: 'Embarcaciones'
-    },
-    {
       href: '/dashboard/main/clientes',
       icon: <FaUsers className='text-xl'/>,
       label: 'Clientes'
     },
     {
-      href: '/dashboard/main/alojamientos',
-      icon: <HiMiniHomeModern className="text-xl" />,
-      label: 'Alojamientos'
+      href: '/dashboard/main/embarcaciones',
+      icon: <PiBoatFill className="text-xl" />,
+      label: 'Embarcaciones'
     },
     {
       href: '/dashboard/main/mantenimiento',
       icon: <HiWrenchScrewdriver className="text-xl" />,
       label: 'Mantenimiento'
+    },
+    {
+      href: '/dashboard/main/alojamientos',
+      icon: <HiMiniHomeModern className="text-xl" />,
+      label: 'Alojamientos'
     },
     {
       href: '/dashboard/main/personal',

@@ -12,14 +12,13 @@ import { FaEdit, FaSignOutAlt, FaPlus } from 'react-icons/fa';
 import Form from './form';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 
-// Alojamiento type based *strictly* on your provided db_types.ts
-// 'id' is the primary key, and it's also your slot_number
-type Alojamiento = Tables<'alojamientos'>; // No need to add 'id: number' here, as it's already in Tables<'alojamientos'>
+// Tipo Alojamiento basado en tu db_types.ts
+type Alojamiento = Tables<'alojamientos'>;
 
 type AlojamientoSlot = {
-  slot_number: number; // This will now directly correspond to 'alojamientos.id'
+  slot_number: number; // Corresponde a 'id' en alojamientos
   is_occupied: boolean;
-  occupancy_data: Alojamiento | null; // The actual DB record if it exists
+  occupancy_data: Alojamiento | null; // Registro de la BD si existe
   client_details: Tables<'cliente'> | null;
 };
 
@@ -29,12 +28,10 @@ const AlojamientoCRUD = () => {
   const {
     loading,
     error,
-    // We will only use updateItem based on the logic that slots always exist
     updateItem,
-    // We'll use a direct Supabase query for fetching to manage the 8 slots
   } = useCrud<Alojamiento>(supabase, 'alojamientos', {
     itemsPerPage: 999,
-    orderBy: { column: 'id', ascending: true }, // Order by ID (slot number)
+    orderBy: { column: 'id', ascending: true },
   });
 
   const [alojamientoSlots, setAlojamientoSlots] = useState<AlojamientoSlot[]>([]);
@@ -42,7 +39,7 @@ const AlojamientoCRUD = () => {
   const [selectedSlotForForm, setSelectedSlotForForm] = useState<AlojamientoSlot | null>(null);
 
   const fetchAccommodationSlots = useCallback(async () => {
-    // Fetch all alojamientos records
+    // Trae todos los registros de alojamientos
     const { data: allAlojamientos, error: fetchError } = await supabase
       .from('alojamientos')
       .select('*');
@@ -53,13 +50,13 @@ const AlojamientoCRUD = () => {
       return;
     }
 
-    // Create a map for quick lookup of existing records by their 'id' (which is the slot number)
+    // Mapa para buscar registros existentes por 'id'
     const existingRecordsMap = new Map<number, Alojamiento>();
     allAlojamientos.forEach(a => existingRecordsMap.set(a.id, a));
 
-    // Collect all client IDs from the fetched alojamientos that are actually occupied
+    // Obtiene los IDs de clientes ocupados
     const clientIds = allAlojamientos
-      .filter(a => a.id_cliente !== 0) // Filter by id_cliente not being 0 (unoccupied)
+      .filter(a => a.id_cliente !== 0)
       .map(a => a.id_cliente);
 
     const clientDetailsMap = new Map<number, Tables<'cliente'>>();
@@ -68,7 +65,7 @@ const AlojamientoCRUD = () => {
       const { data: clients, error: clientsError } = await supabase
         .from('cliente')
         .select('*')
-        .in('id', Array.from(new Set(clientIds))); // Use Set to avoid duplicate client ID fetches
+        .in('id', Array.from(new Set(clientIds)));
 
       if (clientsError) {
         toast.error('Error al cargar detalles de clientes.');
@@ -78,20 +75,19 @@ const AlojamientoCRUD = () => {
       }
     }
 
-    // Construct the 8 virtual slots
+    // Construye los 8 slots virtuales
     const slots: AlojamientoSlot[] = Array.from({ length: NUM_ALOJAMIENTO_SLOTS }, (_, i) => {
-      const slotNumber = i + 1; // Slots 1 to 8
+      const slotNumber = i + 1;
 
-      // Get the actual DB record for this slot number (its ID)
       const currentOccupancyRecord = existingRecordsMap.get(slotNumber);
 
-      // Determine if it's occupied based on id_cliente being non-zero
+      // Ocupado si id_cliente es distinto de 0
       const isOccupied = !!currentOccupancyRecord && currentOccupancyRecord.id_cliente !== 0;
 
       return {
         slot_number: slotNumber,
         is_occupied: isOccupied,
-        occupancy_data: currentOccupancyRecord || null, // Will be null if no corresponding DB record for this slot ID
+        occupancy_data: currentOccupancyRecord || null,
         client_details: isOccupied ? clientDetailsMap.get(currentOccupancyRecord!.id_cliente) || null : null,
       };
     });
@@ -111,18 +107,16 @@ const AlojamientoCRUD = () => {
         return;
       }
 
-      // Client ID validation
+      // Validación de ID de cliente
       const client_id_input = formData.id_cliente;
       let client_id: number;
 
-      // If id_cliente is empty or 0 and we are trying to occupy
       if (client_id_input === undefined || client_id_input === null || String(client_id_input).trim() === '') {
-        // If it's a new occupation, id_cliente cannot be empty
         if (!selectedSlotForForm?.is_occupied) {
           toast.error('Debe ingresar un ID de cliente para ocupar el alojamiento.');
           return;
         }
-        client_id = 0; // If clearing/emptying or it's an existing edit to empty (not allowed by current form flow but good for robustness)
+        client_id = 0;
       } else {
         const parsedId = Number(client_id_input);
         if (isNaN(parsedId) || parsedId <= 0) {
@@ -132,18 +126,16 @@ const AlojamientoCRUD = () => {
         client_id = parsedId;
       }
 
-      // Ensure the record for this slot number exists before attempting to update.
-      // This relies on the pre-population step done directly in Supabase.
+      // Asegura que el registro exista antes de actualizar
       const existingOccupancyRecord = alojamientoSlots.find(s => s.slot_number === slotId)?.occupancy_data;
 
       if (!existingOccupancyRecord) {
-        // This is a critical error and should not happen if the DB is pre-populated with IDs 1-8.
-        toast.error(`Error interno: No se encontró un registro existente para el alojamiento #${slotId}. Por favor, asegúrese de que todos los alojamientos (1-8) estén inicializados en la base de datos.`);
+        toast.error(`Error interno: No se encontró un registro existente para el alojamiento #${slotId}. Asegúrese de que todos los alojamientos (1-8) estén inicializados en la base de datos.`);
         return;
       }
 
-      // Always use updateItem, using the slotId as the primary key for the update
-      await updateItem(slotId, { // The 'id' (primary key) to update is the slotId itself
+      // Siempre usa updateItem, usando el slotId como clave primaria
+      await updateItem(slotId, {
         id_cliente: client_id,
         fecha: formData.fecha,
       });
@@ -151,11 +143,11 @@ const AlojamientoCRUD = () => {
 
       setShowForm(false);
       setSelectedSlotForForm(null);
-      fetchAccommodationSlots(); // Re-fetch to update UI
+      fetchAccommodationSlots();
     } catch (err: any) {
       console.error('Form submission error caught in component:', err);
       if (err.message && err.message.includes('foreign key constraint')) {
-        toast.error('Error: El ID de cliente ingresado no existe. Por favor, verifique el ID del cliente.');
+        toast.error('Error: El ID de cliente ingresado no existe. Verifique el ID del cliente.');
       } else {
         toast.error('Error al procesar el formulario.');
       }
@@ -170,13 +162,13 @@ const AlojamientoCRUD = () => {
     }
 
     try {
-      // Update the existing record to set id_cliente to 0 (as per your schema) and clear the date
-      await updateItem(slot.occupancy_data.id, { // Use the record's primary ID (which is the slot number itself)
-        id_cliente: 0, // Set to 0 to indicate unoccupied
-        fecha: new Date().toISOString().split('T')[0], // Set to current date for checkout, or null/empty string if schema allows
+      // Actualiza el registro para desocupar (id_cliente = 0)
+      await updateItem(slot.occupancy_data.id, {
+        id_cliente: 0,
+        fecha: new Date().toISOString().split('T')[0],
       });
       toast.success(`Alojamiento ${slotId} desocupado exitosamente.`);
-      fetchAccommodationSlots(); // Re-fetch to update UI
+      fetchAccommodationSlots();
     } catch (err) {
       console.error('Error al desocupar alojamiento:', err);
       toast.error('Error al desocupar el alojamiento.');
@@ -194,18 +186,15 @@ const AlojamientoCRUD = () => {
   };
 
   const alojamientoFormFields = [
-    // 'fecha' is required to be filled if occupying, but if the record is initially 'empty' it might be null.
-    // Given your current db_types, fecha is string and has no '?' so it might be non-nullable in DB.
-    // If fecha is required on INSERT/UPDATE in DB, it needs to be filled.
+    // 'fecha' es requerida si se ocupa el alojamiento
     { name: 'fecha', label: 'Fecha de Ocupación', type: 'date', required: true, maxLength: 32 },
-    // id_cliente is a number, and 0 is used for unoccupied.
-    // It's required if you're trying to occupy, but can be 0.
+    // id_cliente es requerido para ocupar, puede ser 0 para desocupar
     { name: 'id_cliente', label: 'ID Cliente', type: 'number', required: true, maxLength: 32 },
   ];
 
   return (
     <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
-      {/* Header with animated title */}
+      {/* Encabezado animado */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -219,7 +208,7 @@ const AlojamientoCRUD = () => {
         </motion.h1>
       </motion.div>
 
-      {/* Form Section */}
+      {/* Sección del formulario */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -231,13 +220,13 @@ const AlojamientoCRUD = () => {
           >
             <Form<Alojamiento>
               fields={alojamientoFormFields}
-              // Initial data for the form based on selected slot
+              // Datos iniciales del formulario según el slot seleccionado
               initialData={selectedSlotForForm?.is_occupied
-                           ? selectedSlotForForm.occupancy_data! // If occupied, use its data
+                           ? selectedSlotForForm.occupancy_data!
                            : {
-                               id: selectedSlotForForm?.slot_number || 0, // Ensure id is passed for a new occupation
-                               fecha: new Date().toISOString().split('T')[0], // Default current date
-                               id_cliente: 0 // Default to 0 for a new occupation
+                               id: selectedSlotForForm?.slot_number || 0,
+                               fecha: new Date().toISOString().split('T')[0],
+                               id_cliente: 0
                              }}
               onSubmit={handleFormSubmit}
               onCancel={handleCancelForm}
@@ -249,7 +238,7 @@ const AlojamientoCRUD = () => {
         )}
       </AnimatePresence>
 
-      {/* Accommodation Cards Section */}
+      {/* Tarjetas de alojamientos */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -336,7 +325,7 @@ const AlojamientoCRUD = () => {
         ))}
       </motion.div>
 
-      {/* Status indicators */}
+      {/* Indicadores de estado */}
       {loading && (
         <motion.div
           initial={{ opacity: 0 }}

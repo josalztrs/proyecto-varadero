@@ -62,14 +62,14 @@ const useCrud = <T extends CrudItem>(
   }, [supabase, tableName, currentPage, itemsPerPage, orderBy.column, orderBy.ascending]);
 
   const fetchRelatedItemDetails = useCallback(
-    async (relatedTableName: string, id: number) => {
-      if (!id) return null;
+    async (relatedTableName: string, idColumn: string, value: any) => {
+      if (!value) return null;
 
       try {
         const { data: relatedData, error: relatedError } = await supabase
           .from(relatedTableName)
           .select('*')
-          .eq('id', id)
+          .eq(idColumn, value)
           .single();
 
         if (relatedError && relatedError.code !== 'PGRST116') {
@@ -77,7 +77,7 @@ const useCrud = <T extends CrudItem>(
         }
         return relatedData;
       } catch (err: any) {
-        console.error(`Error fetching related item from ${relatedTableName} with ID ${id}:`, err.message);
+        console.error(`Error fetching related item from ${relatedTableName} where ${idColumn}=${value}:`, err.message);
         toast.error(`Error al buscar detalles relacionados: ${err.message}`);
         return null;
       }
