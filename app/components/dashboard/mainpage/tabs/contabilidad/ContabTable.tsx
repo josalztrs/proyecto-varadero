@@ -286,7 +286,6 @@ const ContabTransactionsViewer: React.FC = () => {
       ),
       hideOnMobile: true
     },
-    { key: 'varadero', label: 'Varadero', render: (item) => item.varadero || 'N/A', hideOnMobile: true },
     {
       key: 'actions',
       label: 'Acciones',
