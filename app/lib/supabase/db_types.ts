@@ -36,19 +36,25 @@ export type Database = {
     Tables: {
       alojamientos: {
         Row: {
+          created_at: string | null
           fecha: string
           id: number
           id_cliente: number
+          modified_at: string | null
         }
         Insert: {
+          created_at?: string | null
           fecha?: string
           id?: number
           id_cliente: number
+          modified_at?: string | null
         }
         Update: {
+          created_at?: string | null
           fecha?: string
           id?: number
           id_cliente?: number
+          modified_at?: string | null
         }
         Relationships: [
           {
@@ -63,88 +69,79 @@ export type Database = {
       cliente: {
         Row: {
           correo: string | null
+          created_at: string | null
           doc_ident: string
           id: number
+          modified_at: string | null
           nacionalidad: string | null
           nombre: string
           telefono: string | null
         }
         Insert: {
           correo?: string | null
+          created_at?: string | null
           doc_ident: string
           id?: number
+          modified_at?: string | null
           nacionalidad?: string | null
           nombre: string
           telefono?: string | null
         }
         Update: {
           correo?: string | null
+          created_at?: string | null
           doc_ident?: string
           id?: number
+          modified_at?: string | null
           nacionalidad?: string | null
           nombre?: string
           telefono?: string | null
         }
         Relationships: []
       }
-      datos_pago: {
-        Row: {
-          conc: string
-          id: number
-          modo_pago: string
-          ref: string
-        }
-        Insert: {
-          conc: string
-          id?: number
-          modo_pago: string
-          ref: string
-        }
-        Update: {
-          conc?: string
-          id?: number
-          modo_pago?: string
-          ref?: string
-        }
-        Relationships: []
-      }
       embarcacion: {
         Row: {
-          id: number
           amarres_asign: number
           caracteristicas: string
+          created_at: string | null
           cuadr_asign: number
           edo_antes: string
           edo_despues: string | null
+          id: number
           id_cliente: number
           marcmod: string
           matricula: string
+          modified_at: string | null
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_emb"]
         }
         Insert: {
-          id?: number
           amarres_asign: number
           caracteristicas: string
+          created_at?: string | null
           cuadr_asign: number
           edo_antes: string
           edo_despues?: string | null
+          id?: number
           id_cliente: number
           marcmod: string
           matricula: string
+          modified_at?: string | null
           nombre: string
           tipo: Database["public"]["Enums"]["tipo_emb"]
         }
         Update: {
-          id?: number
           amarres_asign?: number
           caracteristicas?: string
+          created_at?: string | null
           cuadr_asign?: number
           edo_antes?: string
           edo_despues?: string | null
+          id?: number
           id_cliente?: number
           marcmod?: string
           matricula?: string
+          modified_at?: string | null
           nombre?: string
           tipo?: Database["public"]["Enums"]["tipo_emb"]
         }
@@ -161,40 +158,40 @@ export type Database = {
       mantenimientos: {
         Row: {
           concepto: string
+          created_at: string | null
           fecha: string
           id: number
           matricula_emb: string
+          modified_at: string | null
           precio: number
         }
         Insert: {
           concepto: string
+          created_at?: string | null
           fecha?: string
           id?: number
           matricula_emb: string
+          modified_at?: string | null
           precio: number
         }
         Update: {
           concepto?: string
+          created_at?: string | null
           fecha?: string
           id?: number
           matricula_emb?: string
+          modified_at?: string | null
           precio?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "mantenimientos_matricula_emb_fkey"
-            columns: ["matricula_emb"]
-            isOneToOne: false
-            referencedRelation: "embarcacion"
-            referencedColumns: ["matricula"]
-          },
-        ]
+        Relationships: []
       }
       personal: {
         Row: {
           cedula: string
+          created_at: string | null
           email: string
           id: number
+          modified_at: string | null
           nombre: string
           oficio_id: number
           salario: number
@@ -202,8 +199,10 @@ export type Database = {
         }
         Insert: {
           cedula: string
+          created_at?: string | null
           email: string
           id?: number
+          modified_at?: string | null
           nombre: string
           oficio_id: number
           salario: number
@@ -211,8 +210,10 @@ export type Database = {
         }
         Update: {
           cedula?: string
+          created_at?: string | null
           email?: string
           id?: number
+          modified_at?: string | null
           nombre?: string
           oficio_id?: number
           salario?: number
@@ -251,45 +252,50 @@ export type Database = {
       }
       transacciones: {
         Row: {
+          conc: string
+          created_at: string | null
           fecha: string
           id: number
           id_cliente: number
-          id_pago: number
           id_servicio: number | null
+          modified_at: string | null
+          modo_pago: string
           monto_total: string
+          ref: string
           varadero: string | null
         }
         Insert: {
+          conc: string
+          created_at?: string | null
           fecha?: string
           id?: number
           id_cliente: number
-          id_pago: number
           id_servicio?: number | null
+          modified_at?: string | null
+          modo_pago: string
           monto_total: string
+          ref: string
           varadero?: string | null
         }
         Update: {
+          conc?: string
+          created_at?: string | null
           fecha?: string
           id?: number
           id_cliente?: number
-          id_pago?: number
           id_servicio?: number | null
+          modified_at?: string | null
+          modo_pago?: string
           monto_total?: string
+          ref?: string
           varadero?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "transacciones_id_cliente_fkey"
             columns: ["id_cliente"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "cliente"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transacciones_id_pago_fkey"
-            columns: ["id_pago"]
-            isOneToOne: true
-            referencedRelation: "datos_pago"
             referencedColumns: ["id"]
           },
           {
