@@ -91,9 +91,9 @@ const PersonalCRUD = () => {
   // Definición de los campos del formulario para el personal
   const personalFormFields = [
     { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'cedula', label: 'Cédula', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder: 'V-12345678', pattern: '^[VEJPCG]-\\d{7,9}$' }, // Patrón para cédula venezolana
+    { name: 'cedula', label: 'Cédula', type: 'text', required: true, maxLength: 9, uppercase: true, placeholder: 'V-12345678', pattern: '^[VEJPCG]-\\d{7,9}$' }, // Patrón para cédula venezolana
     { name: 'email', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32, uppercase: true, placeholder: 'ejemplo@dominio.com', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
-    { name: 'telefono', label: 'Teléfono', type: 'tel', required: true, maxLength: 14, uppercase: true, placeholder: '+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
+    { name: 'telefono', label: 'Teléfono', type: 'tel', required: true, maxLength: 13, uppercase: true, placeholder: '+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
     {
       name: 'oficio_id',
       label: 'Oficio / Servicio',

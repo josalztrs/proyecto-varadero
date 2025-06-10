@@ -187,9 +187,9 @@ const AlojamientoCRUD = () => {
 
   const alojamientoFormFields = [
     // 'fecha' es requerida si se ocupa el alojamiento
-    { name: 'fecha', label: 'Fecha de Ocupación', type: 'date', required: true, maxLength: 32 },
+    { name: 'fecha', label: 'Fecha de Ocupación', type: 'date', required: true, maxLength: 11 },
     // id_cliente es requerido para ocupar, puede ser 0 para desocupar
-    { name: 'id_cliente', label: 'ID Cliente', type: 'number', required: true, maxLength: 32 },
+    { name: 'id_cliente', label: 'ID Cliente', type: 'text', required: true, maxLength: 4 },
   ];
 
   return (

@@ -59,7 +59,7 @@ const EmbarcacionCRUD = () => {
   };
 
   const embarcacionFormFields = [
-    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder: "XXX-123", pattern: '[A-Z]{3}-[0-9]{4}' },
+    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 7, uppercase: true, placeholder: "XXX-123", pattern: '[A-Z]{3}-[0-9]{4}' },
     { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true },
     {
       name: 'tipo',
@@ -73,11 +73,11 @@ const EmbarcacionCRUD = () => {
         { value: 'MOTO_ACUATICA', label: 'Moto Acuática' },
       ],
     },
-    { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 20, uppercase: true },
     { name: 'caracteristicas', label: 'Características', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder:"Caracteristicas fisicas del vehiculo" },
-    { name: 'id_cliente', label: 'ID Dueño (Cliente)', type: 'number', required: true, maxLength: 32, placeholder:"El campo ID asociado al cliente" },
-    { name: 'amarres_asign', label: 'Amarres Asignados', type: 'number', required: true, maxLength: 32 },
-    { name: 'cuadr_asign', label: 'Cuadrante', type: 'number', required: true, maxLength: 32 },
+    { name: 'id_cliente', label: 'ID Dueño (Cliente)', type: 'number', required: true, maxLength: 4, placeholder:"El campo ID asociado al cliente" },
+    { name: 'amarres_asign', label: 'Amarres Asignados', type: 'number', required: true, maxLength: 4 },
+    { name: 'cuadr_asign', label: 'Cuadrante', type: 'number', required: true, maxLength: 24 },
     { name: 'edo_antes', label: 'Estado al entrar', type: 'text', required: true, maxLength: 32, uppercase: true },
     { name: 'edo_despues', label: 'Estado al salir', type: 'text', maxLength: 32, uppercase: true },
   ];

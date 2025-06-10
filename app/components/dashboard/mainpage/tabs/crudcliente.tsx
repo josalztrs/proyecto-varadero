@@ -62,10 +62,10 @@ const ClienteCRUD = () => {
 
   const clientFormFields = [
     { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 32, uppercase: true },
+    { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 9, uppercase: true },
     { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32, uppercase: true, pattern:'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
     { name: 'nacionalidad', label: 'Nacionalidad', type: 'text', maxLength: 32, uppercase: true },
-    { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder:'+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
+    { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 13, uppercase: true, placeholder:'+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
   ];
 
   // For Cliente, we don't need 'isRelated' as Cliente is the primary entity here.
