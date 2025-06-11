@@ -5,10 +5,12 @@ import { FaTwitter, FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa'
 import Image from 'next/image';
 import varadero from '../public/varadero.jpg';
 import { useState } from 'react';
+import ReservaModal from '@/app/components/Modal_reserva';
 
 const AtracaderoLanding = () => {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
 
   const services = [
     {
@@ -43,7 +45,6 @@ const AtracaderoLanding = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-slate-900 overflow-hidden">
-      {/* Fondo con overlay */}
       <div className="fixed inset-0 z-0">
         <Image
           src={varadero}
@@ -54,7 +55,7 @@ const AtracaderoLanding = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 to-slate-900/90" />
       </div>
-{/* Botones de contacto con hover ámbar/cian */}
+
       <div className="fixed top-6 left-6 z-20 flex flex-col space-y-4">
         {[
           { icon: <FaTwitter />, link: "https://x.com/varadero_apolly" },
@@ -79,9 +80,7 @@ const AtracaderoLanding = () => {
         ))}
       </div>
 
-      {/* Contenido principal */}
       <motion.main className="relative z-10 min-h-screen flex flex-col items-center justify-center py-20 px-6">
-        {/* Logo animado */}
         <motion.div
           animate={{ 
             y: [0, -15, 0],
@@ -97,7 +96,6 @@ const AtracaderoLanding = () => {
           <GiPaperBoat className="text-8xl text-amber-400 dark:text-cyan-400" />
         </motion.div>
 
-        {/* Título */}
         <motion.h1 
           className="text-4xl md:text-6xl font-bold text-center mb-6"
           initial={{ opacity: 0 }}
@@ -108,7 +106,6 @@ const AtracaderoLanding = () => {
           <span className="text-amber-400 dark:text-cyan-400">Mar Serena</span>
         </motion.h1>
 
-        {/* Subtítulo */}
         <motion.p
           className="text-xl text-amber-100 dark:text-cyan-100 mb-12 max-w-2xl text-center"
           initial={{ opacity: 0, y: 20 }}
@@ -118,7 +115,6 @@ const AtracaderoLanding = () => {
           Tecnología y experiencia para el mejor cuidado de tu embarcación
         </motion.p>
 
-        {/* Tarjetas de servicios mejoradas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl mb-12 relative">
           {services.map((service, index) => (
             <motion.div
@@ -135,7 +131,6 @@ const AtracaderoLanding = () => {
               onMouseLeave={() => setHoveredCard(null)}
               onClick={() => setSelectedCard(selectedCard === index ? null : index)}
             >
-              {/* Indicador "Hazme click!" en hover */}
               {hoveredCard === index && (
                 <motion.div 
                   className="absolute -top-3 -right-3 bg-amber-500 dark:bg-cyan-500 text-white text-xs font-bold px-2 py-1 rounded-full"
@@ -156,7 +151,6 @@ const AtracaderoLanding = () => {
             </motion.div>
           ))}
 
-          {/* Texto flotante al hacer click */}
           <AnimatePresence>
             {selectedCard !== null && (
               <motion.div
@@ -194,7 +188,7 @@ const AtracaderoLanding = () => {
           </AnimatePresence>
         </div>
 
-                {/* Botón CTA con sombra animada */}
+        {/* BOTÓN: abrir modal de reserva */}
         <motion.button
           whileHover={{ 
             scale: 1.05,
@@ -205,13 +199,17 @@ const AtracaderoLanding = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
+          onClick={() => setIsReserveModalOpen(true)}
         >
           Reserva tu espacio
         </motion.button>
-      <div className='flex flex-row gap-4 p-4'>
-        <a href="/dashboard/login" className='text-white text-sm'>ir a login</a>
-        <a href="/dashboard/main" className='text-white text-sm'>ir a dashboard</a>
-      </div>
+
+        <ReservaModal isOpen={isReserveModalOpen} onClose={() => setIsReserveModalOpen(false)} />
+
+        <div className='flex flex-row gap-4 p-4'>
+          <a href="/dashboard/login" className='text-white text-sm'>ir a login</a>
+          <a href="/dashboard/main" className='text-white text-sm'>ir a dashboard</a>
+        </div>
       </motion.main>
     </div>
   );

@@ -204,7 +204,7 @@ const PersonalCRUD = () => {
           emptyMessage="No hay personal registrado aún."
           deleteConfirmMessage="¿Estás seguro de que quieres eliminar este miembro del personal? Esta acción es irreversible."
           fetchRelatedItemDetails={(tableName, idColumn, value) =>
-            fetchRelatedItemDetails(tableName, value)
+            fetchRelatedItemDetails(tableName, idColumn, value)
           }
         />
       </motion.div>

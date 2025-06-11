@@ -16,21 +16,20 @@ const Notification = () => {
   const [isOpen, setIsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Cierra el dropdown al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Mock notification generator (replace with your actual notification source)
+  // Generador de notificaciones de ejemplo (reemplaza con fuente real)
   useEffect(() => {
-    const types: ('info' | 'warning' | 'error' | 'success')[] = ['info', 'warning', 'error', 'success'];
+    const types: NotificationItem['type'][] = ['info', 'warning', 'error', 'success'];
     const messages = [
       'Nuevo mensaje recibido',
       'Tarea completada con éxito',
@@ -47,19 +46,23 @@ const Notification = () => {
         timestamp: new Date(),
         type: types[Math.floor(Math.random() * types.length)]
       };
-      
-      setNotifications(prev => [newNotification, ...prev].slice(0, 20)); // Limit to 20 notifications
-    }, 15000); // Every 15 seconds
+      setNotifications(prev => [newNotification, ...prev].slice(0, 20));
+    }, 15000);
 
     return () => clearInterval(intervalId);
   }, []);
 
-  // Auto-scroll to bottom when new notifications arrive
+  // Scroll arriba cuando se abre el panel
   useEffect(() => {
     if (isOpen && notificationsRef.current) {
-      notificationsRef.current.scrollTop = 0; // Changed to top since we're adding new ones at the beginning
+      notificationsRef.current.scrollTop = 0;
     }
   }, [notifications, isOpen]);
+
+  // Función para agregar notificaciones desde fuera (si quieres exponer)
+  const addNotification = (notification: NotificationItem) => {
+    setNotifications(prev => [notification, ...prev].slice(0, 20));
+  };
 
   const markAsRead = (id: string) => {
     setNotifications(prev =>
@@ -72,8 +75,8 @@ const Notification = () => {
   const markAllAsRead = () => {
     setNotifications(prev =>
       prev.map(notification => ({ ...notification, read: true }))
-  );
-};
+    );
+  };
 
   const deleteNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
@@ -81,7 +84,6 @@ const Notification = () => {
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
-    // Mark all as read when opening
     if (!isOpen) {
       markAllAsRead();
     }
@@ -90,7 +92,7 @@ const Notification = () => {
   const hasUnreadNotifications = notifications.some(n => !n.read);
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const getTypeColor = (type: string) => {
+  const getTypeColor = (type: NotificationItem['type'] = 'info') => {
     switch (type) {
       case 'warning': return 'text-yellow-500';
       case 'error': return 'text-red-500';
@@ -154,7 +156,7 @@ const Notification = () => {
                       onClick={() => markAsRead(notification.id)}
                     >
                       <div className="flex justify-between">
-                        <div className={`text-sm font-medium ${getTypeColor(notification.type || 'info')}`}>
+                        <div className={`text-sm font-medium ${getTypeColor(notification.type)}`}>
                           {notification.message}
                         </div>
                         <button
