@@ -183,7 +183,50 @@ export type Database = {
           modified_at?: string | null
           precio?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mantenimientos_matricula_emb_fkey"
+            columns: ["matricula_emb"]
+            isOneToOne: false
+            referencedRelation: "embarcacion"
+            referencedColumns: ["matricula"]
+          },
+        ]
+      }
+      notificaciones: {
+        Row: {
+          id: string
+          leido: boolean | null
+          mensaje: string
+          reservacion_id: string | null
+          timestamp: string | null
+          tipo: string | null
+        }
+        Insert: {
+          id?: string
+          leido?: boolean | null
+          mensaje: string
+          reservacion_id?: string | null
+          timestamp?: string | null
+          tipo?: string | null
+        }
+        Update: {
+          id?: string
+          leido?: boolean | null
+          mensaje?: string
+          reservacion_id?: string | null
+          timestamp?: string | null
+          tipo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificaciones_reservacion_id_fkey"
+            columns: ["reservacion_id"]
+            isOneToOne: false
+            referencedRelation: "Reservaciones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personal: {
         Row: {
@@ -228,6 +271,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      Reservaciones: {
+        Row: {
+          cliente_id: string | null
+          estado: string | null
+          fecha_llegada: string | null
+          fecha_registro: string | null
+          id: string
+          tipo_embarcacion: string | null
+          tipo_pago: string | null
+          tipo_servicio: string | null
+        }
+        Insert: {
+          cliente_id?: string | null
+          estado?: string | null
+          fecha_llegada?: string | null
+          fecha_registro?: string | null
+          id?: string
+          tipo_embarcacion?: string | null
+          tipo_pago?: string | null
+          tipo_servicio?: string | null
+        }
+        Update: {
+          cliente_id?: string | null
+          estado?: string | null
+          fecha_llegada?: string | null
+          fecha_registro?: string | null
+          id?: string
+          tipo_embarcacion?: string | null
+          tipo_pago?: string | null
+          tipo_servicio?: string | null
+        }
+        Relationships: []
       }
       servicios: {
         Row: {
