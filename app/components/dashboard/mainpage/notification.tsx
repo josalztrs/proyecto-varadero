@@ -60,6 +60,7 @@ const Notification = () => {
   }, [notifications, isOpen]);
 
   // Función para agregar notificaciones desde fuera (si quieres exponer)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addNotification = (notification: NotificationItem) => {
     setNotifications(prev => [notification, ...prev].slice(0, 20));
   };
@@ -134,6 +135,7 @@ const Notification = () => {
             <div className="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
               <h3 className="font-medium text-gray-900 dark:text-white">Notificaciones</h3>
               <button
+                title='.'
                 onClick={() => setIsOpen(false)}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
@@ -160,6 +162,7 @@ const Notification = () => {
                           {notification.message}
                         </div>
                         <button
+                          title='.'
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteNotification(notification.id);
