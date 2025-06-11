@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "../lib/supabase/supabase";
 
 interface ReservaModalProps {
   isOpen: boolean;
@@ -9,7 +9,6 @@ interface ReservaModalProps {
 }
 
 const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
-  const supabase = createClientComponentClient();
 
   // Estado para el formulario
   const [formData, setFormData] = useState({
