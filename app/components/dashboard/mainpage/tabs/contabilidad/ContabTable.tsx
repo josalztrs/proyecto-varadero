@@ -97,7 +97,7 @@ const ContabTransactionsViewer: React.FC = () => {
         `,
           { count: 'exact' }
         )
-        .order('fecha', { ascending: false })
+        .order('id', { ascending: false })
         .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1);
 
       if (txError) throw txError;
@@ -160,6 +160,8 @@ const ContabTransactionsViewer: React.FC = () => {
       });
     });
     setFilteredTransactions(filtered);
+    {/* IMPORTANTE */}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, transactions]); // Dependencias para re-filtrar
 
   // --- Manejadores de Eventos para el Popover de Hover ---
