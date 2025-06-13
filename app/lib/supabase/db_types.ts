@@ -37,32 +37,32 @@ export type Database = {
       alojamientos: {
         Row: {
           created_at: string | null
+          doc_cliente: string
           fecha: string
           id: number
-          id_cliente: number
           modified_at: string | null
         }
         Insert: {
           created_at?: string | null
+          doc_cliente: string
           fecha?: string
           id?: number
-          id_cliente: number
           modified_at?: string | null
         }
         Update: {
           created_at?: string | null
+          doc_cliente?: string
           fecha?: string
           id?: number
-          id_cliente?: number
           modified_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "alojamientos_id_cliente_fkey"
-            columns: ["id_cliente"]
+            foreignKeyName: "alojamientos_doc_cliente_fkey"
+            columns: ["doc_cliente"]
             isOneToOne: false
             referencedRelation: "cliente"
-            referencedColumns: ["id"]
+            referencedColumns: ["doc_ident"]
           },
         ]
       }
@@ -103,12 +103,10 @@ export type Database = {
         Row: {
           amarres_asign: number
           caracteristicas: string
+          ced_cliente: string
           created_at: string | null
           cuadr_asign: number
-          edo_antes: string
-          edo_despues: string | null
           id: number
-          id_cliente: number
           marcmod: string
           matricula: string
           modified_at: string | null
@@ -118,12 +116,10 @@ export type Database = {
         Insert: {
           amarres_asign: number
           caracteristicas: string
+          ced_cliente: string
           created_at?: string | null
           cuadr_asign: number
-          edo_antes: string
-          edo_despues?: string | null
           id?: number
-          id_cliente: number
           marcmod: string
           matricula: string
           modified_at?: string | null
@@ -133,12 +129,10 @@ export type Database = {
         Update: {
           amarres_asign?: number
           caracteristicas?: string
+          ced_cliente?: string
           created_at?: string | null
           cuadr_asign?: number
-          edo_antes?: string
-          edo_despues?: string | null
           id?: number
-          id_cliente?: number
           marcmod?: string
           matricula?: string
           modified_at?: string | null
@@ -147,11 +141,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "embarcacion_id_cliente_fkey"
-            columns: ["id_cliente"]
+            foreignKeyName: "embarcacion_ced_cliente_fkey"
+            columns: ["ced_cliente"]
             isOneToOne: false
             referencedRelation: "cliente"
-            referencedColumns: ["id"]
+            referencedColumns: ["doc_ident"]
           },
         ]
       }
@@ -159,6 +153,7 @@ export type Database = {
         Row: {
           concepto: string
           created_at: string | null
+          doc_empl: string
           fecha: string
           id: number
           matricula_emb: string
@@ -168,6 +163,7 @@ export type Database = {
         Insert: {
           concepto: string
           created_at?: string | null
+          doc_empl: string
           fecha?: string
           id?: number
           matricula_emb: string
@@ -177,6 +173,7 @@ export type Database = {
         Update: {
           concepto?: string
           created_at?: string | null
+          doc_empl?: string
           fecha?: string
           id?: number
           matricula_emb?: string
@@ -184,6 +181,13 @@ export type Database = {
           precio?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "mantenimientos_doc_empl_fkey"
+            columns: ["doc_empl"]
+            isOneToOne: false
+            referencedRelation: "personal"
+            referencedColumns: ["cedula"]
+          },
           {
             foreignKeyName: "mantenimientos_matricula_emb_fkey"
             columns: ["matricula_emb"]
@@ -195,35 +199,38 @@ export type Database = {
       }
       notificaciones: {
         Row: {
-          id: string
-          leido: boolean | null
+          created_at: string
+          fecha: string
+          id: number
+          leido: boolean
           mensaje: string
-          reservacion_id: string | null
-          timestamp: string | null
-          tipo: string | null
+          reserv_id: number
+          tipo: string
         }
         Insert: {
-          id?: string
-          leido?: boolean | null
+          created_at?: string
+          fecha?: string
+          id?: number
+          leido?: boolean
           mensaje: string
-          reservacion_id?: string | null
-          timestamp?: string | null
-          tipo?: string | null
+          reserv_id: number
+          tipo?: string
         }
         Update: {
-          id?: string
-          leido?: boolean | null
+          created_at?: string
+          fecha?: string
+          id?: number
+          leido?: boolean
           mensaje?: string
-          reservacion_id?: string | null
-          timestamp?: string | null
-          tipo?: string | null
+          reserv_id?: number
+          tipo?: string
         }
         Relationships: [
           {
-            foreignKeyName: "notificaciones_reservacion_id_fkey"
-            columns: ["reservacion_id"]
+            foreignKeyName: "notificaciones_reserv_id_fkey"
+            columns: ["reserv_id"]
             isOneToOne: false
-            referencedRelation: "Reservaciones"
+            referencedRelation: "reservaciones"
             referencedColumns: ["id"]
           },
         ]
@@ -272,38 +279,60 @@ export type Database = {
           },
         ]
       }
-      Reservaciones: {
+      reservaciones: {
         Row: {
-          cliente_id: string | null
-          estado: string | null
-          fecha_llegada: string | null
-          fecha_registro: string | null
-          id: string
-          tipo_embarcacion: string | null
-          tipo_pago: string | null
-          tipo_servicio: string | null
+          created_at: string
+          doc_cliente: string
+          estado: string
+          fecha_est: string
+          id: number
+          id_servicio: number
+          matric_emb: string
+          modified_at: string
         }
         Insert: {
-          cliente_id?: string | null
-          estado?: string | null
-          fecha_llegada?: string | null
-          fecha_registro?: string | null
-          id?: string
-          tipo_embarcacion?: string | null
-          tipo_pago?: string | null
-          tipo_servicio?: string | null
+          created_at?: string
+          doc_cliente: string
+          estado: string
+          fecha_est?: string
+          id?: number
+          id_servicio: number
+          matric_emb: string
+          modified_at?: string
         }
         Update: {
-          cliente_id?: string | null
-          estado?: string | null
-          fecha_llegada?: string | null
-          fecha_registro?: string | null
-          id?: string
-          tipo_embarcacion?: string | null
-          tipo_pago?: string | null
-          tipo_servicio?: string | null
+          created_at?: string
+          doc_cliente?: string
+          estado?: string
+          fecha_est?: string
+          id?: number
+          id_servicio?: number
+          matric_emb?: string
+          modified_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reservaciones_doc_cliente_fkey"
+            columns: ["doc_cliente"]
+            isOneToOne: false
+            referencedRelation: "cliente"
+            referencedColumns: ["doc_ident"]
+          },
+          {
+            foreignKeyName: "reservaciones_id_servicio_fkey"
+            columns: ["id_servicio"]
+            isOneToOne: false
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservaciones_matric_emb_fkey"
+            columns: ["matric_emb"]
+            isOneToOne: false
+            referencedRelation: "embarcacion"
+            referencedColumns: ["matricula"]
+          },
+        ]
       }
       servicios: {
         Row: {

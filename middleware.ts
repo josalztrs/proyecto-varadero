@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute) {
     if (!session) {
       // Si no hay sesión, redirigir a la página de login
-      const redirectUrl = new URL('/login', request.url);
+      const redirectUrl = new URL('/dashboard/login', request.url);
       // Opcional: Puedes añadir un parámetro de redirección para volver a la página original
       // redirectUrl.searchParams.set('redirectedFrom', request.nextUrl.pathname);
       console.log(`Redirigiendo de ${request.nextUrl.pathname} a ${redirectUrl.pathname} (no hay sesión)`);

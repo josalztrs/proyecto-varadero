@@ -14,6 +14,7 @@ const ReservaForm = () => {
     nota: '',
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };

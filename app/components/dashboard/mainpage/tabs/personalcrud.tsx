@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Import useEffect
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
-import type { Tables } from '@/app/lib/supabase/db_types'; // Asegúrate de que esta ruta sea correcta
+import type { Tables } from '@/app/lib/supabase/db_types';
 
-import Form from './form'; // Tu componente Form genérico
-import Table from './table'; // Tu componente Table genérico
-import useCrud from '@/app/lib/supabase/db_management/crud'; // Tu hook useCrud
+import Form from './form';
+import Table from './table';
+import useCrud from '@/app/lib/supabase/db_management/crud';
+import ExportPdfButton from './pdfbutton';
 
 const PersonalCRUD = () => {
-  // Definición de tipos para las tablas 'personal' y 'servicios'
   type Personal = Tables<'personal'>;
+  type Servicios = Tables<'servicios'>; // Define Servicios type for PDF export
 
   const {
     data: personal,
@@ -24,7 +25,7 @@ const PersonalCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    fetchRelatedItemDetails, // Necesario para la columna 'oficio_id'
+    fetchRelatedItemDetails,
   } = useCrud<Personal>(supabase, 'personal', {
     itemsPerPage: 5,
     orderBy: { column: 'nombre', ascending: true },
@@ -33,12 +34,12 @@ const PersonalCRUD = () => {
   const [editingPersonal, setEditingPersonal] = useState<Personal | null>(null);
   const [serviciosOptions, setServiciosOptions] = useState<{ value: number; label: string }[]>([]);
 
-  // Función para cargar los tipos de servicios (oficios) para el select
+  // Function to load service types (oficios) for the select input
   const fetchServicios = async () => {
     try {
       const { data, error } = await supabase
         .from('servicios')
-        .select('id, tipo') // Seleccionar 'id' para el valor y 'tipo' para la etiqueta
+        .select('id, tipo') // Select 'id' for value and 'tipo' for label
         .order('tipo', { ascending: true });
 
       if (error) throw error;
@@ -54,8 +55,8 @@ const PersonalCRUD = () => {
     }
   };
 
-  // Cargar los servicios al montar el componente
-  React.useEffect(() => {
+  // Load services when the component mounts
+  useEffect(() => { // Changed to useEffect
     fetchServicios();
   }, []);
 
@@ -88,10 +89,10 @@ const PersonalCRUD = () => {
     }
   };
 
-  // Definición de los campos del formulario para el personal
+  // Define form fields for staff
   const personalFormFields = [
     { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'cedula', label: 'Cédula', type: 'text', required: true, maxLength: 9, uppercase: true, placeholder: 'V-12345678', pattern: '^[VEJPCG]-\\d{7,9}$' }, // Patrón para cédula venezolana
+    { name: 'cedula', label: 'Cédula', type: 'text', required: true, maxLength: 9, uppercase: true, placeholder: 'V-12345678', pattern: '^[VEJPCG]-\\d{7,9}$' },
     { name: 'email', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32, uppercase: true, placeholder: 'ejemplo@dominio.com', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
     { name: 'telefono', label: 'Teléfono', type: 'tel', required: true, maxLength: 13, uppercase: true, placeholder: '+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
     {
@@ -99,27 +100,27 @@ const PersonalCRUD = () => {
       label: 'Oficio / Servicio',
       type: 'select',
       required: true,
-      options: serviciosOptions, // Las opciones se cargarán dinámicamente
+      options: serviciosOptions,
     },
     { name: 'salario', label: 'Salario', type: 'number', required: true, maxLength: 32 },
   ];
 
-  // Interfaz de columna para la tabla genérica
+  // Interface for generic table column
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
     render?: (item: T) => React.ReactNode;
     isRelated?: {
-      key: keyof T; // La clave foránea en la tabla actual
+      key: keyof T;
       label: string;
       relatedTableName: string;
-      relatedIdColumn: string; // La columna ID única en la tabla relacionada
-      displayColumn: string; // La columna a mostrar en la celda de la tabla
-      hoverDisplayColumns: { key: string; label: string }[]; // Columnas a mostrar al pasar el mouse
+      relatedIdColumn: string;
+      displayColumn: string;
+      hoverDisplayColumns: { key: string; label: string }[];
     };
   }
 
-  // Definición de las columnas de la tabla de personal
+  // Define table columns for staff
   const personalTableColumns: TableColumn<Personal>[] = [
     { key: 'id', label: 'ID' },
     { key: 'nombre', label: 'Nombre' },
@@ -127,14 +128,14 @@ const PersonalCRUD = () => {
     { key: 'email', label: 'Email' },
     { key: 'telefono', label: 'Teléfono' },
     {
-      key: 'oficio_id', // Esta es la clave foránea en la tabla 'personal'
+      key: 'oficio_id',
       label: 'Oficio',
       isRelated: {
         key: 'oficio_id',
         label: 'Detalles del Oficio',
-        relatedTableName: 'servicios', // La tabla relacionada es 'servicios'
-        relatedIdColumn: 'id', // El 'id' es la clave primaria en 'servicios'
-        displayColumn: 'tipo', // Mostrar el 'tipo' de servicio en la celda de la tabla
+        relatedTableName: 'servicios',
+        relatedIdColumn: 'id',
+        displayColumn: 'tipo',
         hoverDisplayColumns: [
           { key: 'tipo', label: 'Tipo de Oficio' },
           { key: 'precio', label: 'Precio (Servicio)' },
@@ -144,6 +145,26 @@ const PersonalCRUD = () => {
     },
     { key: 'salario', label: 'Salario', render: (personal) => `$${personal.salario.toFixed(2)}` },
     { key: 'actions', label: 'Acciones' },
+  ];
+
+  // --- PDF Export Columns ---
+  // Define a combined type for PDF export if you need related data in the PDF
+  type PersonalForPdf = Personal & {
+    servicios: Servicios | null; // Assuming 'servicios' is the relationship name in Supabase query
+  };
+
+  const pdfPersonalColumns: PdfColumn<PersonalForPdf>[] = [
+    { key: 'id', label: 'ID' },
+    { key: 'nombre', label: 'Nombre Completo' },
+    { key: 'cedula', label: 'Cédula' },
+    { key: 'email', label: 'Correo Electrónico' },
+    { key: 'telefono', label: 'Teléfono' },
+    {
+      key: 'oficio', // This will be the displayed oficio
+      label: 'Oficio',
+      format: (item: { servicios: { tipo: unknown; }; }) => item.servicios?.tipo || 'N/A', // Access the 'tipo' from the joined 'servicios' data
+    },
+    { key: 'salario', label: 'Salario', format: (item: { salario: number; }) => `$${item.salario.toFixed(2)}` },
   ];
 
   return (
@@ -180,9 +201,20 @@ const PersonalCRUD = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white"
+        className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white flex items-center justify-between"
       >
         Personal Registrado
+        <ExportPdfButton<PersonalForPdf>
+          tableName="personal"
+          columns={pdfPersonalColumns}
+          fileName="Reporte_Personal"
+          queryBuilder={(query) =>
+            query.select(`
+              *,
+              servicios!personal_oficio_id_fkey(tipo, precio, perdidas)
+            `).order('nombre', { ascending: true })
+          }
+        />
       </motion.h2>
 
       <motion.div

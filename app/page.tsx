@@ -18,28 +18,28 @@ const AtracaderoLanding = () => {
       description: "Aseguramos tu embarcación con seguridad y comodidad.",
       price: "Desde 10REF",
       icon: <GiAnchor className="text-3xl" />,
-      detail: "Amplios espacios para embarcaciones. Incluye vigilancia 24/7 y acceso eléctrico. Reservas diarias. "
+      detail: "En nuestro varadero, ofrecemos espacios de atraque exclusivos y seguros para embarcaciones de todos los tamaños. Nuestro muelle está equipado con las mejores instalaciones y servicios auxiliares para garantizar la comodidad y tranquilidad de nuestros clientes. Con ubicación privilegiada en Varadero, somos la opción ideal para quienes buscan un lugar confiable y estratégico para sus embarcaciones. Confíe en nosotros para el cuidado y resguardo de su inversión náutica."
     },
     {
       title: "Mantenimiento",
       description: "Expertos cualificados en mecánica náutica.",
       price: "Desde 25REF",
       icon: <GiShipWheel className="text-3xl" />,
-      detail: "Servicio completo de mantenimiento preventivo y correctivo por parte de un personal altamente capacitado."
+      detail: "Nuestro equipo de técnicos altamente capacitados brinda mantenimiento especializado a embarcaciones, asegurando su óptimo funcionamiento y prolongando su vida útil. Desde reparaciones mecánicas hasta limpieza profesional, ofrecemos servicios integrales con los más altos estándares de calidad. En nuestro varadero, su embarcación estará en las mejores manos, con tecnología avanzada y un compromiso inquebrantable con la excelencia."
     },
     {
       title: "Alojamiento",
       description: "Suites con todas las comodidades para tu descanso.",
       price: "Desde 50REF",
       icon: <GiSailboat className="text-3xl" />,
-      detail: "Habitaciones con vista al mar, aire acondicionado y servicio a la habitación. Reservas diarias."
+      detail: "Para complementar su experiencia náutica, ofrecemos alojamiento cómodo y acogedor, diseñado para satisfacer las necesidades de capitanes, tripulaciones y visitantes. Nuestras instalaciones combinan elegancia y funcionalidad, con servicios personalizados que garantizan una estancia placentera. Ubicados en el corazón de Varadero, somos el refugio perfecto después de un día en el mar."
     },
     {
       title: "Comidas y Bebidas",
       description: "Restaurante con especialidades locales.",
       price: "Desde 30REF",
       icon: <GiFishCooked className="text-3xl" />,
-      detail: "Menú del día con pescado fresco. Bar completo con cócteles tropicales y selección de vinos."
+      detail: "Disfrute de una exquisita gastronomía en nuestro restaurante, donde fusionamos sabores locales e internacionales para ofrecer una experiencia culinaria inolvidable. Con ingredientes frescos y un servicio impecable, acompañamos sus momentos con bebidas refrescantes y cócteles exclusivos. Ya sea para un desayuno energético, un almuerzo ligero o una cena memorable, nuestro menú está diseñado para satisfacer los paladares más exigentes."
     }
   ];
 

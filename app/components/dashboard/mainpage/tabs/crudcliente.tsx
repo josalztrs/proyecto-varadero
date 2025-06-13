@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Toaster, toast } from 'sonner'; // 👈 Incluye Toaster y toast
+import { Toaster, toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 import Form from './form';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
+import ExportPdfButton from './pdfbutton';
 
 const ClienteCRUD = () => {
   type Cliente = Tables<'cliente'>;
@@ -22,8 +23,6 @@ const ClienteCRUD = () => {
     updateItem,
     deleteItem,
     goToPage,
-    // No need for fetchRelatedItemDetails from useCrud if Cliente doesn't reference other tables in its display
-    // However, the Table component still expects it, so we pass a dummy function below.
   } = useCrud<Cliente>(supabase, 'cliente', {
     itemsPerPage: 5,
     orderBy: { column: 'nombre', ascending: true },
@@ -68,13 +67,10 @@ const ClienteCRUD = () => {
     { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 13, uppercase: true, placeholder:'+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
   ];
 
-  // For Cliente, we don't need 'isRelated' as Cliente is the primary entity here.
-  // The structure matches what GenericTable expects for non-related columns.
   interface TableColumn<T> {
     key: keyof T | 'actions';
     label: string;
     render?: (item: T) => React.ReactNode;
-    // No 'isRelated' needed for Cliente, as it's the main table.
   }
 
   const clientTableColumns: TableColumn<Cliente>[] = [
@@ -85,6 +81,16 @@ const ClienteCRUD = () => {
     { key: 'telefono', label: 'Teléfono', render: (cliente) => cliente.telefono || 'N/A' },
     { key: 'nacionalidad', label: 'Nacionalidad', render: (cliente) => cliente.nacionalidad || 'N/A' },
     { key: 'actions', label: '' },
+  ];
+
+  // Columnas para la exportación a PDF
+  const pdfClienteColumns: PdfColumn<Cliente>[] = [
+    { key: 'id', label: 'ID' },
+    { key: 'nombre', label: 'Nombre Completo' },
+    { key: 'doc_ident', label: 'Documento de Identidad' },
+    { key: 'correo', label: 'Correo Electrónico' },
+    { key: 'telefono', label: 'Teléfono' },
+    { key: 'nacionalidad', label: 'Nacionalidad' },
   ];
 
   return (
@@ -121,9 +127,15 @@ const ClienteCRUD = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white"
+        className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white flex items-center justify-between"
       >
         Clientes Registrados
+        <ExportPdfButton<Cliente>
+          tableName="cliente"
+          columns={pdfClienteColumns}
+          fileName="Reporte_Clientes"
+          queryBuilder={(query) => query.order('nombre', { ascending: true })}
+        />
       </motion.h2>
 
       <motion.div
@@ -143,7 +155,7 @@ const ClienteCRUD = () => {
           totalPages={totalPages}
           onPageChange={goToPage}
           emptyMessage="No hay clientes registrados, aún."
-          fetchRelatedItemDetails={async () => null}
+          fetchRelatedItemDetails={async () => null} // No es necesario para ClienteCRUD
         />
       </motion.div>
     </div>
