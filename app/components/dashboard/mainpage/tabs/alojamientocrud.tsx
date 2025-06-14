@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -7,33 +6,40 @@ import { toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 import { FaSignOutAlt, FaPlus, FaHouseUser } from 'react-icons/fa';
+import { FaHouse } from 'react-icons/fa6';
 
 import Form from './form';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';
-import { FaHouse } from 'react-icons/fa6';
 
-// Tipo Alojamiento basado en tu db_types.ts
+// Tipos
 type Alojamiento = Tables<'alojamientos'>;
 type Cliente = Tables<'cliente'>;
 
 type AlojamientoSlot = {
   slot_number: number;
-  // `is_occupied_by_real_client` ahora significa si está realmente ocupado por un cliente con doc_cliente != "VACIO"
   is_occupied_by_real_client: boolean;
   occupancy_data: Alojamiento | null;
   client_details: Cliente | null;
-  is_empty_status: boolean; // Nuevo estado para doc_cliente "VACIO"
+  is_empty_status: boolean;
 };
 
 type AlojamientoForPdf = Alojamiento & {
   cliente: Cliente | null;
 };
 
+type PdfColumn<T> = {
+  key: keyof T | string;
+  label: string;
+  format?: (item: T) => string | number;
+};
+
+// Constantes
 const NUM_ALOJAMIENTO_SLOTS = 8;
-const EMPTY_DOC_CLIENTE_STATUS = "VACIO"; // Define la constante para el estado "VACIO"
+const EMPTY_DOC_CLIENTE_STATUS = "VACIO";
 
 const AlojamientoCRUD = () => {
+  // Hooks y estado
   const {
     loading,
     error,
@@ -47,6 +53,7 @@ const AlojamientoCRUD = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedSlotForForm, setSelectedSlotForForm] = useState<AlojamientoSlot | null>(null);
 
+  // Obtener los slots de alojamiento y sus clientes
   const fetchAccommodationSlots = useCallback(async () => {
     const { data: allAlojamientos, error: fetchError } = await supabase
       .from('alojamientos')
@@ -69,7 +76,6 @@ const AlojamientoCRUD = () => {
       const currentOccupancyRecord = existingRecordsMap.get(slotNumber);
 
       const docCliente = currentOccupancyRecord?.doc_cliente;
-      // Considera "VACIO" como el estado especial de "no ocupado"
       const isOccupiedByRealClient = !!currentOccupancyRecord && docCliente !== null && docCliente !== "" && docCliente !== EMPTY_DOC_CLIENTE_STATUS;
       const isEmptyStatus = !!currentOccupancyRecord && docCliente === EMPTY_DOC_CLIENTE_STATUS;
 
@@ -89,6 +95,7 @@ const AlojamientoCRUD = () => {
     fetchAccommodationSlots();
   }, [fetchAccommodationSlots]);
 
+  // Manejo del formulario de ocupación/desocupación
   const handleFormSubmit = async (formData: Partial<Alojamiento>) => {
     try {
       const slotId = selectedSlotForForm?.slot_number;
@@ -98,20 +105,14 @@ const AlojamientoCRUD = () => {
       }
 
       const doc_cliente_input = formData.doc_cliente;
-      let doc_cliente_to_save: string; // doc_cliente siempre será un string, no null
+      let doc_cliente_to_save: string;
 
       if (doc_cliente_input === undefined || doc_cliente_input === null || String(doc_cliente_input).trim() === '') {
-        // Si el campo está vacío, la intención es poner el estado "VACIO"
         doc_cliente_to_save = EMPTY_DOC_CLIENTE_STATUS;
       } else {
         doc_cliente_to_save = String(doc_cliente_input).trim().toUpperCase();
 
-        // Si el valor ingresado es "VACIO", lo aceptamos directamente sin verificar en la tabla cliente
-        if (doc_cliente_to_save === EMPTY_DOC_CLIENTE_STATUS) {
-          // No hace falta verificar en la tabla `cliente` para el ID "VACIO"
-          // (Asumiendo que has creado un cliente con doc_ident = "VACIO")
-        } else {
-          // Si no es "VACIO", validamos que el Documento de Identidad exista en la tabla 'cliente'
+        if (doc_cliente_to_save !== EMPTY_DOC_CLIENTE_STATUS) {
           const { data: clientData, error: clientError } = await supabase
             .from('cliente')
             .select('doc_ident')
@@ -129,10 +130,9 @@ const AlojamientoCRUD = () => {
         }
       }
 
-      // Prepara los datos a actualizar
       const updatePayload: Partial<Alojamiento> = {
         doc_cliente: doc_cliente_to_save,
-        fecha: formData.fecha || new Date().toISOString().split('T')[0], // Asegura que siempre haya una fecha
+        fecha: formData.fecha || new Date().toISOString().split('T')[0],
       };
 
       await updateItem(slotId, updatePayload);
@@ -153,19 +153,18 @@ const AlojamientoCRUD = () => {
     }
   };
 
+  // Desalojar alojamiento
   const handleCheckout = async (slotId: number) => {
     const slot = alojamientoSlots.find(s => s.slot_number === slotId);
-    // Solo permitir desalojar si realmente está ocupado por un cliente real (no "VACIO")
     if (!slot || !slot.occupancy_data || !slot.is_occupied_by_real_client) {
       toast.error('Error: Este alojamiento no tiene un cliente real asignado para desalojar.');
       return;
     }
 
     try {
-      // Establecer doc_cliente a "VACIO" al desocupar, según el nuevo requisito
       await updateItem(slot.occupancy_data.id, {
         doc_cliente: EMPTY_DOC_CLIENTE_STATUS,
-        fecha: new Date().toISOString().split('T')[0], // Actualizar la fecha al día de la desocupación
+        fecha: new Date().toISOString().split('T')[0],
       });
       toast.success(`Alojamiento ${slotId} desalojado exitosamente.`);
       fetchAccommodationSlots();
@@ -179,6 +178,7 @@ const AlojamientoCRUD = () => {
     }
   };
 
+  // Mostrar formulario para ocupar/desocupar
   const handleAddOrEdit = (slot: AlojamientoSlot) => {
     setSelectedSlotForForm(slot);
     setShowForm(true);
@@ -189,12 +189,13 @@ const AlojamientoCRUD = () => {
     setSelectedSlotForForm(null);
   };
 
+  // Campos del formulario
   const alojamientoFormFields = [
     { name: 'fecha', label: 'Fecha de Ocupación', type: 'date', required: true, maxLength: 11 },
-    // El placeholder ahora indica el valor especial "VACIO"
     { name: 'doc_cliente', label: 'Doc. Ident. Cliente (VACIO para no ocupado)', type: 'text', maxLength: 16, placeholder: `Dejar vacío o escribir "${EMPTY_DOC_CLIENTE_STATUS}" para no ocupado` },
   ];
 
+  // Columnas para PDF
   const pdfAlojamientoColumns: PdfColumn<AlojamientoForPdf>[] = [
     { key: 'id', label: 'ID Alojamiento' },
     {
@@ -202,24 +203,39 @@ const AlojamientoCRUD = () => {
       label: 'Estado Ocupación',
       format: (item: { doc_cliente: string | null; }) => {
         if (item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS) return 'No Ocupado (VACIO)';
-        if (item.doc_cliente === null || item.doc_cliente === "") return 'Disponible (NULL/Vacío Real)'; // En caso de que haya datos antiguos o mal formados
-        return String(item.doc_cliente); // Si es un ID de cliente real
+        if (item.doc_cliente === null || item.doc_cliente === "") return 'Disponible (NULL/Vacío Real)';
+        return String(item.doc_cliente);
       },
     },
     {
       key: 'nombre_cliente',
       label: 'Nombre del Cliente',
-      format: (item: { doc_cliente: string | null; cliente: { nombre: any; }; }) => (item.doc_cliente === null || item.doc_cliente === "" || item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS) ? 'N/A' : item.cliente?.nombre || 'N/A',
+      format: (item: AlojamientoForPdf) =>
+        item.doc_cliente === null ||
+        item.doc_cliente === "" ||
+        item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS
+          ? 'N/A'
+          : item.cliente?.nombre || 'N/A',
     },
     {
       key: 'correo_cliente',
       label: 'Correo del Cliente',
-      format: (item: { doc_cliente: string | null; cliente: { correo: any; }; }) => (item.doc_cliente === null || item.doc_cliente === "" || item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS) ? 'N/A' : item.cliente?.correo || 'N/A',
+      format: (item: AlojamientoForPdf) =>
+        item.doc_cliente === null ||
+        item.doc_cliente === "" ||
+        item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS
+          ? 'N/A'
+          : item.cliente?.correo || 'N/A',
     },
     {
       key: 'telefono_cliente',
       label: 'Teléfono del Cliente',
-      format: (item: { doc_cliente: string | null; cliente: { telefono: any; }; }) => (item.doc_cliente === null || item.doc_cliente === "" || item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS) ? 'N/A' : item.cliente?.telefono || 'N/A',
+      format: (item: AlojamientoForPdf) =>
+        item.doc_cliente === null ||
+        item.doc_cliente === "" ||
+        item.doc_cliente === EMPTY_DOC_CLIENTE_STATUS
+          ? 'N/A'
+          : item.cliente?.telefono || 'N/A',
     },
     {
       key: 'fecha',
@@ -228,6 +244,7 @@ const AlojamientoCRUD = () => {
     },
   ];
 
+  // Render
   return (
     <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
       <motion.div
@@ -236,9 +253,7 @@ const AlojamientoCRUD = () => {
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        <motion.h1
-          className="text-4xl font-extrabold mb-4 text-amber-500 dark:text-cyan-500"
-        >
+        <motion.h1 className="text-4xl font-extrabold mb-4 text-amber-500 dark:text-cyan-500">
           Gestión de Alojamientos
         </motion.h1>
       </motion.div>
@@ -257,7 +272,6 @@ const AlojamientoCRUD = () => {
               initialData={selectedSlotForForm?.occupancy_data || {
                 id: selectedSlotForForm?.slot_number || 0,
                 fecha: new Date().toISOString().split('T')[0],
-                // Inicializar con el valor actual o el estado "VACIO" si no hay datos
                 doc_cliente: selectedSlotForForm?.occupancy_data?.doc_cliente || EMPTY_DOC_CLIENTE_STATUS,
               }}
               onSubmit={handleFormSubmit}
@@ -281,6 +295,7 @@ const AlojamientoCRUD = () => {
           tableName="alojamientos"
           columns={pdfAlojamientoColumns}
           fileName="Reporte_Alojamientos"
+          headerTitle="Reporte de Alojamientos"
           queryBuilder={(query) =>
             query.select(`
               *,
@@ -319,35 +334,34 @@ const AlojamientoCRUD = () => {
               </div>
 
               {slot.is_occupied_by_real_client ? (
-                // Ocupado por un cliente real (doc_cliente no es "VACIO", null o "")
                 <>
                   <div className="text-sm">
                     <div>
-                      <p className=" text-gray-500 dark:text-slate-400">Cliente</p>
+                      <p className="text-gray-500 dark:text-slate-400">Cliente</p>
                       <p className="text-gray-800 dark:text-gray-200 font-medium">
                         {slot.client_details?.nombre || 'N/A'}
                       </p>
                     </div>
-                    </div>
-                    <div>
-                      <p className=" text-gray-500 dark:text-slate-400">Correo del Cliente</p>
-                      <p className="text-gray-800 dark:text-gray-200 font-medium text-xs">
-                        {slot.client_details?.correo || 'N/A'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className=" text-gray-500 dark:text-slate-400">Teléfono del Cliente</p>
-                      <p className="text-gray-800 dark:text-gray-200 font-medium">
-                        {slot.client_details?.telefono || 'N/A'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className=" text-gray-500 dark:text-slate-400">Fecha de ocupación</p>
-                      <p className="text-gray-800 dark:text-gray-200 font-medium">
-                        {slot.occupancy_data?.fecha ? new Date(slot.occupancy_data.fecha).toLocaleDateString('es-VE') : 'N/A'}
-                      </p>
                   </div>
-                  <div className="flex justify-center"> {/* Centrar el botón */}
+                  <div>
+                    <p className="text-gray-500 dark:text-slate-400">Correo del Cliente</p>
+                    <p className="text-gray-800 dark:text-gray-200 font-medium text-xs">
+                      {slot.client_details?.correo || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 dark:text-slate-400">Teléfono del Cliente</p>
+                    <p className="text-gray-800 dark:text-gray-200 font-medium">
+                      {slot.client_details?.telefono || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 dark:text-slate-400">Fecha de ocupación</p>
+                    <p className="text-gray-800 dark:text-gray-200 font-medium">
+                      {slot.occupancy_data?.fecha ? new Date(slot.occupancy_data.fecha).toLocaleDateString('es-VE') : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="flex justify-center">
                     <button
                       onClick={() => handleCheckout(slot.slot_number)}
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
@@ -358,7 +372,6 @@ const AlojamientoCRUD = () => {
                   </div>
                 </>
               ) : (
-                // No ocupado por un cliente real (incluye el estado "VACIO" y null/vacío)
                 <>
                   <div className="h-24 flex items-center justify-center mb-4">
                     <p className="text-gray-500 dark:text-slate-500 italic">No está ocupado.</p>

@@ -8,29 +8,30 @@ import autoTable from 'jspdf-autotable';
 import { supabase } from '@/app/lib/supabase/supabase';
 import { toast } from 'sonner';
 
-interface PdfColumn<T> {
+// Tipado genérico para columnas PDF
+export interface PdfColumn<T> {
   key: keyof T | string;
   label: string;
   format?: (item: T) => string | number;
 }
 
-interface ExportPdfButtonProps<T extends Record<string, any>> {
+export interface ExportPdfButtonProps<T extends Record<string, any>> {
   tableName: string;
   columns: PdfColumn<T>[];
   fileName?: string;
-  headerTitle: string; // Título para el encabezado del PDF (ej. "Nombre del Varadero")
-  showReportDateTime?: boolean; // Si se muestra la fecha y hora de generación
+  headerTitle?: string; // Opcional, con valor por defecto
+  showReportDateTime?: boolean;
   queryBuilder?: (query: any) => any;
 }
 
-const ExportPdfButton = <T extends Record<string, any>>({
+function ExportPdfButton<T extends Record<string, any>>({
   tableName,
   columns,
-  fileName = `Reporte_${tableName}_${new Date().toLocaleDateString('es-VE')}`,
-  headerTitle = "Varadero Mar Serena", // Valor por defecto en las props
+  fileName,
+  headerTitle = "Varadero Mar Serena",
   showReportDateTime = true,
   queryBuilder,
-}: ExportPdfButtonProps<T>) => {
+}: ExportPdfButtonProps<T>) {
   const [loading, setLoading] = useState(false);
 
   const exportToPdf = async () => {
@@ -39,16 +40,10 @@ const ExportPdfButton = <T extends Record<string, any>>({
 
     try {
       let query = supabase.from(tableName).select('*');
-
-      if (queryBuilder) {
-        query = queryBuilder(query);
-      }
+      if (queryBuilder) query = queryBuilder(query);
 
       const { data, error } = await query;
-
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (!data || data.length === 0) {
         toast.warning(`No hay datos para exportar en la tabla "${tableName}".`);
@@ -65,10 +60,6 @@ const ExportPdfButton = <T extends Record<string, any>>({
       const margin = 15;
       let currentY = margin;
 
-      // Usar un valor por defecto para headerTitle si es undefined o vacío
-      // Ya está en las props desestructuradas (headerTitle = "Varadero Mar Serena")
-      const finalHeaderTitle = headerTitle; // Usa directamente el valor de la prop
-
       // Calcular la fecha y hora una sola vez para usarla en todas las páginas
       const reportDateTime = new Date().toLocaleString('es-VE', {
         year: 'numeric',
@@ -79,12 +70,9 @@ const ExportPdfButton = <T extends Record<string, any>>({
         second: '2-digit',
       });
 
-      // --- Encabezado del PDF (primera página o cada página según tu preferencia) ---
-      // Si el encabezado es el mismo para todas las páginas, se puede mover al didDrawPage
-      // Pero por ahora, lo mantenemos separado para claridad si es contenido solo de inicio.
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
-      doc.text(finalHeaderTitle, margin, currentY);
+      doc.text(headerTitle, margin, currentY);
 
       currentY += 10;
 
@@ -99,19 +87,19 @@ const ExportPdfButton = <T extends Record<string, any>>({
 
       const head = [columns.map((col) => col.label)];
 
-      const body = data.map((item) =>
-        columns.map((col) => {
-          if (col.format) {
-            return col.format(item as T);
-          }
-          const value = item[col.key as keyof typeof item];
-          return value !== null && value !== undefined ? String(value) : '';
-        })
+      const body = data.map((item: T) =>
+        columns.map((col) =>
+          col.format
+            ? col.format(item)
+            : item[col.key as keyof T] !== null && item[col.key as keyof T] !== undefined
+              ? String(item[col.key as keyof T])
+              : ''
+        )
       );
 
       autoTable(doc, {
-        head: head,
-        body: body,
+        head,
+        body,
         startY: currentY,
         margin: { top: margin, right: margin, bottom: margin, left: margin },
         headStyles: {
@@ -128,8 +116,6 @@ const ExportPdfButton = <T extends Record<string, any>>({
           cellPadding: 3,
           overflow: 'linebreak',
         },
-        columnStyles: {},
-        // --- Nuevo: didDrawPage para el pie de página ---
         didDrawPage: (data) => {
           const pageCount = doc.getNumberOfPages();
           const currentPageNumber = data.pageNumber;
@@ -139,28 +125,33 @@ const ExportPdfButton = <T extends Record<string, any>>({
           // Dibujar línea separadora
           doc.setLineWidth(0.2);
           doc.setDrawColor(180, 180, 180); // Un gris claro para la línea
-          doc.line(margin, doc.internal.pageSize.height - margin - footerTextSize,
-                   doc.internal.pageSize.width - margin, doc.internal.pageSize.height - margin - footerTextSize);
-          
+          doc.line(
+            margin,
+            doc.internal.pageSize.height - margin - footerTextSize,
+            doc.internal.pageSize.width - margin,
+            doc.internal.pageSize.height - margin - footerTextSize
+          );
+
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(footerTextSize);
           doc.setTextColor(100); // Color de texto gris oscuro para el pie de página
 
           // Info del Varadero y Fecha/Hora del Reporte en la izquierda
-          doc.text(finalHeaderTitle, margin, footerY);
+          doc.text(headerTitle, margin, footerY);
           if (showReportDateTime) {
             doc.text(`Generado: ${reportDateTime}`, margin, footerY + 4); // Un poco más abajo
           }
 
           // Número de página en el centro
           const pageNumberText = `Pág. ${currentPageNumber} / ${pageCount}`;
-          const pageNumberTextWidth = doc.getStringUnitWidth(pageNumberText) * footerTextSize / doc.internal.scaleFactor;
+          const pageNumberTextWidth =
+            doc.getStringUnitWidth(pageNumberText) * footerTextSize / doc.internal.scaleFactor;
           const pageNumberX = (doc.internal.pageSize.width / 2) - (pageNumberTextWidth / 2);
           doc.text(pageNumberText, pageNumberX, footerY + 2); // Centrado y ligeramente más abajo
         },
       });
 
-      doc.save(`${fileName}.pdf`);
+      doc.save(`${fileName || `Reporte_${tableName}_${new Date().toLocaleDateString('es-VE')}`}.pdf`);
       toast.success('PDF generado exitosamente!');
     } catch (err: any) {
       console.error('Error al exportar a PDF:', err.message);
@@ -175,11 +166,12 @@ const ExportPdfButton = <T extends Record<string, any>>({
       onClick={exportToPdf}
       disabled={loading}
       className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      title={`Exportar a PDF`}
+      title="Exportar a PDF"
+      type="button"
     >
       {loading ? 'Generando...' : 'Exportar a PDF'}
     </button>
   );
-};
+}
 
 export default ExportPdfButton;

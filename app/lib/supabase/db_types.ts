@@ -244,7 +244,6 @@ export type Database = {
           modified_at: string | null
           nombre: string
           oficio_id: number
-          salario: number
           telefono: string
         }
         Insert: {
@@ -340,18 +339,21 @@ export type Database = {
           perdidas: number
           precio: string
           tipo: string
+          salario: number
         }
         Insert: {
           id?: number
           perdidas: number
           precio: string
           tipo: string
+          salario: number
         }
         Update: {
           id?: number
           perdidas?: number
           precio?: string
           tipo?: string
+          salario?: number
         }
         Relationships: []
       }

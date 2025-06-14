@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react'; // Import useEffect
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
@@ -11,10 +11,38 @@ import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';
 
-const PersonalCRUD = () => {
-  type Personal = Tables<'personal'>;
-  type Servicios = Tables<'servicios'>; // Define Servicios type for PDF export
+// Tipos
+type Personal = Tables<'personal'>;
+type Servicios = Tables<'servicios'>;
 
+// Columnas para la tabla
+interface TableColumn<T> {
+  key: keyof T | 'actions';
+  label: string;
+  render?: (item: T) => React.ReactNode;
+  isRelated?: {
+    key: keyof T;
+    label: string;
+    relatedTableName: string;
+    relatedIdColumn: string;
+    displayColumn: string;
+    hoverDisplayColumns: { key: string; label: string }[];
+  };
+}
+
+// Columnas para PDF
+type PersonalForPdf = Personal & {
+  servicios: Servicios | null;
+};
+
+type PdfColumn<T> = {
+  key: keyof T | string;
+  label: string;
+  format?: (item: T) => string | number;
+};
+
+const PersonalCRUD = () => {
+  // Hooks y estado
   const {
     data: personal,
     loading,
@@ -34,32 +62,31 @@ const PersonalCRUD = () => {
   const [editingPersonal, setEditingPersonal] = useState<Personal | null>(null);
   const [serviciosOptions, setServiciosOptions] = useState<{ value: number; label: string }[]>([]);
 
-  // Function to load service types (oficios) for the select input
-  const fetchServicios = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('servicios')
-        .select('id, tipo') // Select 'id' for value and 'tipo' for label
-        .order('tipo', { ascending: true });
+  // Cargar opciones de servicios
+  useEffect(() => {
+    const fetchServicios = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('servicios')
+          .select('id, tipo')
+          .order('tipo', { ascending: true });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const options = data.map((servicio) => ({
-        value: servicio.id,
-        label: servicio.tipo,
-      }));
-      setServiciosOptions(options);
-    } catch (err) {
-      console.error('Error al cargar los tipos de servicios:', err);
-      toast.error('Error al cargar las opciones de oficios.');
-    }
-  };
-
-  // Load services when the component mounts
-  useEffect(() => { // Changed to useEffect
+        const options = data.map((servicio) => ({
+          value: servicio.id,
+          label: servicio.tipo,
+        }));
+        setServiciosOptions(options);
+      } catch (err) {
+        console.error('Error al cargar los tipos de servicios:', err);
+        toast.error('Error al cargar las opciones de oficios.');
+      }
+    };
     fetchServicios();
   }, []);
 
+  // Manejo de formulario
   const handleFormSubmit = async (formData: Partial<Personal>) => {
     try {
       if (editingPersonal) {
@@ -76,6 +103,7 @@ const PersonalCRUD = () => {
     }
   };
 
+  // Manejo de eliminación
   const handleDeletePersonal = async (id: number) => {
     const confirmed = confirm('¿Estás seguro de que deseas eliminar este miembro del personal? Esta acción es irreversible.');
     if (!confirmed) return;
@@ -89,7 +117,7 @@ const PersonalCRUD = () => {
     }
   };
 
-  // Define form fields for staff
+  // Campos del formulario
   const personalFormFields = [
     { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
     { name: 'cedula', label: 'Cédula', type: 'text', required: true, maxLength: 9, uppercase: true, placeholder: 'V-12345678', pattern: '^[VEJPCG]-\\d{7,9}$' },
@@ -102,26 +130,10 @@ const PersonalCRUD = () => {
       required: true,
       options: serviciosOptions,
     },
-    { name: 'salario', label: 'Salario', type: 'number', required: true, maxLength: 32 },
   ];
 
-  // Interface for generic table column
-  interface TableColumn<T> {
-    key: keyof T | 'actions';
-    label: string;
-    render?: (item: T) => React.ReactNode;
-    isRelated?: {
-      key: keyof T;
-      label: string;
-      relatedTableName: string;
-      relatedIdColumn: string;
-      displayColumn: string;
-      hoverDisplayColumns: { key: string; label: string }[];
-    };
-  }
-
-  // Define table columns for staff
-  const personalTableColumns: TableColumn<Personal>[] = [
+  // Columnas de la tabla
+  const personalTableColumns: TableColumn <Personal>  [] = [
     { key: 'id', label: 'ID' },
     { key: 'nombre', label: 'Nombre' },
     { key: 'cedula', label: 'Cédula' },
@@ -140,19 +152,14 @@ const PersonalCRUD = () => {
           { key: 'tipo', label: 'Tipo de Oficio' },
           { key: 'precio', label: 'Precio (Servicio)' },
           { key: 'perdidas', label: 'Pérdidas (Servicio)' },
+          { key: 'salario', label: 'Salario (Servicio) ' },
         ],
       },
     },
-    { key: 'salario', label: 'Salario', render: (personal) => `$${personal.salario.toFixed(2)}` },
     { key: 'actions', label: 'Acciones' },
   ];
 
-  // --- PDF Export Columns ---
-  // Define a combined type for PDF export if you need related data in the PDF
-  type PersonalForPdf = Personal & {
-    servicios: Servicios | null; // Assuming 'servicios' is the relationship name in Supabase query
-  };
-
+  // Columnas para PDF
   const pdfPersonalColumns: PdfColumn<PersonalForPdf>[] = [
     { key: 'id', label: 'ID' },
     { key: 'nombre', label: 'Nombre Completo' },
@@ -160,13 +167,19 @@ const PersonalCRUD = () => {
     { key: 'email', label: 'Correo Electrónico' },
     { key: 'telefono', label: 'Teléfono' },
     {
-      key: 'oficio', // This will be the displayed oficio
+      key: 'oficio',
       label: 'Oficio',
-      format: (item: { servicios: { tipo: unknown; }; }) => item.servicios?.tipo || 'N/A', // Access the 'tipo' from the joined 'servicios' data
+      format: (item: PersonalForPdf) => item.servicios?.tipo ?? 'N/A',
     },
-    { key: 'salario', label: 'Salario', format: (item: { salario: number; }) => `$${item.salario.toFixed(2)}` },
+    {
+      key: 'salario_servicio',
+      label: 'Salario del personal',
+      format: (item: PersonalForPdf) => item.servicios?.salario ? `$${item.servicios.salario.toFixed(2)}` : 'N/A',
+    },
+
   ];
 
+  // Render
   return (
     <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
       <Toaster position="top-right" richColors />
@@ -208,10 +221,11 @@ const PersonalCRUD = () => {
           tableName="personal"
           columns={pdfPersonalColumns}
           fileName="Reporte_Personal"
+          headerTitle="Reporte de Personal"
           queryBuilder={(query) =>
             query.select(`
               *,
-              servicios!personal_oficio_id_fkey(tipo, precio, perdidas)
+              servicios!personal_oficio_id_fkey(tipo, precio, perdidas, salario)
             `).order('nombre', { ascending: true })
           }
         />

@@ -83,6 +83,12 @@ const ClienteCRUD = () => {
     { key: 'actions', label: '' },
   ];
 
+  // Tipo para columnas de exportación a PDF
+  type PdfColumn<T> = {
+    key: keyof T;
+    label: string;
+  };
+
   // Columnas para la exportación a PDF
   const pdfClienteColumns: PdfColumn<Cliente>[] = [
     { key: 'id', label: 'ID' },

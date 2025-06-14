@@ -9,12 +9,120 @@ import type { Tables } from '@/app/lib/supabase/db_types';
 import Form from './form';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
-import ExportPdfButton from './pdfbutton';
+import ExportPdfButton, { PdfColumn } from './pdfbutton';
 
+// Tipos
+type Mantenimiento = Tables<'mantenimientos'> & { id: string; doc_empl: string };
+type Embarcacion = Tables<'embarcacion'>;
+
+interface TableColumn<T> {
+  key: keyof T | 'actions';
+  label: string;
+  render?: (item: T) => React.ReactNode;
+  isRelated?: {
+    key: keyof T;
+    label: string;
+    relatedTableName: string;
+    relatedIdColumn: string;
+    displayColumn: string;
+    hoverDisplayColumns: { key: string; label: string }[];
+  };
+}
+
+type MantenimientoForPdf = Mantenimiento & {
+  embarcacion: Embarcacion | null;
+};
+
+// Campos del formulario
+const mantenimientoFormFields = [
+  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 7, uppercase: true },
+  { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32, uppercase: true },
+  { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
+  { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 8 },
+  { name: 'doc_empl', label: 'Documento del Empleado Responsable', type: 'text', required: true, maxLength: 16, placeholder: 'Doc. Ident. del personal' },
+];
+
+// Columnas de la tabla
+const mantenimientoTableColumns: TableColumn<Mantenimiento>[] = [
+  {
+    key: 'matricula_emb',
+    label: 'Embarcación',
+    isRelated: {
+      key: 'matricula_emb',
+      label: 'Detalles Embarcación',
+      relatedTableName: 'embarcacion',
+      relatedIdColumn: 'matricula',
+      displayColumn: 'nombre',
+      hoverDisplayColumns: [
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'tipo', label: 'Tipo' },
+        { key: 'marcmod', label: 'Marca/Modelo' },
+        { key: 'matricula', label: 'Matrícula' },
+        { key: 'ced_cliente', label: 'Doc. Ident. Cliente' },
+      ],
+    },
+  },
+  { key: 'concepto', label: 'Concepto' },
+  {
+    key: 'fecha',
+    label: 'Fecha',
+    render: (mantenimiento) => {
+      try {
+        return new Date(mantenimiento.fecha).toLocaleDateString('es-VE');
+      } catch {
+        return String(mantenimiento.fecha);
+      }
+    },
+  },
+  { key: 'precio', label: 'Precio', render: (mantenimiento) => `$${mantenimiento.precio.toFixed(2)}` },
+  {
+    key: 'doc_empl',
+    label: 'Doc. Ident. Empleado',
+    isRelated: {
+      key: 'doc_empl',
+      label: 'Detalles Empleado',
+      relatedTableName: 'personal',
+      relatedIdColumn: 'cedula',
+      displayColumn: 'cedula',
+      hoverDisplayColumns: [
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'cargo', label: 'Cargo' },
+        { key: 'telefono', label: 'Teléfono' },
+      ],
+    },
+  },
+  { key: 'actions', label: 'Acciones' },
+];
+
+// Columnas para PDF
+const pdfMantenimientoColumns: PdfColumn<MantenimientoForPdf>[] = [
+  { key: 'id', label: 'ID Mantenimiento' },
+  {
+    key: 'embarcacion_matricula',
+    label: 'Matrícula Embarcación',
+    format: (item) => item.embarcacion?.matricula ?? 'N/A',
+  },
+  {
+    key: 'embarcacion_nombre',
+    label: 'Nombre Embarcación',
+    format: (item) => item.embarcacion?.nombre ?? 'N/A',
+  },
+  { key: 'concepto', label: 'Concepto de Mantenimiento' },
+  {
+    key: 'fecha',
+    label: 'Fecha de Mantenimiento',
+    format: (item) => new Date(item.fecha).toLocaleDateString('es-VE'),
+  },
+  { key: 'precio', label: 'Precio', format: (item) => `$${item.precio.toFixed(2)}` },
+  {
+    key: 'doc_empl',
+    label: 'Doc. Ident. Empleado',
+    format: (item) => item.doc_empl ?? 'N/A',
+  },
+];
+
+// Componente principal
 const MantenimientoCRUD = () => {
-  type Mantenimiento = Tables<'mantenimientos'> & { id: string };
-  type Embarcacion = Tables<'embarcacion'>;
-
   const {
     data: mantenimientos,
     loading,
@@ -59,88 +167,6 @@ const MantenimientoCRUD = () => {
     }
   };
 
-  const mantenimientoFormFields = [
-    { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 7, uppercase: true },
-    { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
-    { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 8 },
-  ];
-
-  interface TableColumn<T> {
-    key: keyof T | 'actions';
-    label: string;
-    render?: (item: T) => React.ReactNode;
-    isRelated?: {
-      key: keyof T;
-      label: string;
-      relatedTableName: string;
-      relatedIdColumn: string;
-      displayColumn: string;
-      hoverDisplayColumns: { key: keyof Embarcacion; label: string }[];
-    };
-  }
-
-  const mantenimientoTableColumns: TableColumn<Mantenimiento>[] = [
-    {
-      key: 'matricula_emb',
-      label: 'Embarcación',
-      isRelated: {
-        key: 'matricula_emb',
-        label: 'Detalles Embarcación',
-        relatedTableName: 'embarcacion',
-        relatedIdColumn: 'matricula',
-        displayColumn: 'nombre',
-        hoverDisplayColumns: [
-          { key: 'nombre', label: 'Nombre' },
-          { key: 'tipo', label: 'Tipo' },
-          { key: 'marcmod', label: 'Marca/Modelo' },
-          { key: 'matricula', label: 'Matrícula' },
-        ],
-      },
-    },
-    { key: 'concepto', label: 'Concepto' },
-    {
-      key: 'fecha',
-      label: 'Fecha',
-      render: (mantenimiento) => {
-        try {
-          return new Date(mantenimiento.fecha).toLocaleDateString();
-        } catch {
-          return String(mantenimiento.fecha);
-        }
-      },
-    },
-    { key: 'precio', label: 'Precio', render: (mantenimiento) => `$${mantenimiento.precio.toFixed(2)}` },
-    { key: 'actions', label: 'Acciones' },
-  ];
-
-  // --- PDF Export Columns ---
-  // Define a combined type for PDF export including related Embarcacion data
-  type MantenimientoForPdf = Mantenimiento & {
-    embarcacion: Embarcacion | null; // Assuming 'embarcacion' is the relationship name in Supabase query
-  };
-
-  const pdfMantenimientoColumns: PdfColumn<MantenimientoForPdf>[] = [
-    { key: 'id', label: 'ID Mantenimiento' },
-    {
-      key: 'embarcacion_matricula',
-      label: 'Matrícula Embarcación',
-      format: (item: { embarcacion: { matricula: unknown; }; }) => item.embarcacion?.matricula || 'N/A', // Access matricula from joined data
-    },
-    {
-      key: 'embarcacion_nombre',
-      label: 'Nombre Embarcación',
-      format: (item: { embarcacion: { nombre: unknown; }; }) => item.embarcacion?.nombre || 'N/A', // Access nombre from joined data
-    },
-    { key: 'concepto', label: 'Concepto de Mantenimiento' },
-    {
-      key: 'fecha',
-      label: 'Fecha de Mantenimiento',
-      format: (item: { fecha: string | number | Date; }) => new Date(item.fecha).toLocaleDateString('es-VE'),
-    },
-    { key: 'precio', label: 'Precio', format: (item: { precio: number; }) => `$${item.precio.toFixed(2)}` },
-  ];
-
   return (
     <div className="container mx-auto px-4 min-h-screen text-gray-900 dark:text-gray-100">
       <Toaster position="top-right" richColors />
@@ -182,7 +208,6 @@ const MantenimientoCRUD = () => {
           tableName="mantenimientos"
           columns={pdfMantenimientoColumns}
           fileName="Reporte_Mantenimientos"
-          // Query to select all maintenance records and join related embarcacion data
           queryBuilder={(query) =>
             query.select(`
               *,

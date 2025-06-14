@@ -14,6 +14,9 @@ import { toast } from 'sonner';
 // Importa el nuevo componente ExportPdfButton
 import ExportPdfButton from './pdfbutton';
 
+// Usa el tipo PdfColumn importado desde pdfbutton para evitar incompatibilidades
+import type { PdfColumn } from './pdfbutton';
+
 const EmbarcacionCRUD = () => {
   type Embarcacion = Tables<'embarcacion'>;
   type Cliente = Tables<'cliente'>;
@@ -147,17 +150,17 @@ const EmbarcacionCRUD = () => {
     {
       key: 'doc_cliente', // Usamos esta clave, aunque el dato venga de la relación
       label: 'Doc. Ident. Cliente',
-      format: (item: { cliente: { doc_ident: unknown; }; ced_cliente: unknown; }) => item.cliente?.doc_ident || item.ced_cliente || 'N/A', // Prioriza el doc_ident de la relación, luego ced_cliente directo, o 'N/A'
+      format: (item: EmbarcacionForPdf) => item.cliente?.doc_ident ?? item.ced_cliente ?? 'N/A', // Prioriza el doc_ident de la relación, luego ced_cliente directo, o 'N/A'
     },
     {
       key: 'nombre_cliente', // Clave inventada para la columna del PDF
       label: 'Nombre del Dueño',
-      format: (item: { cliente: { nombre: unknown; }; }) => item.cliente?.nombre || 'N/A', // Accede a la relación anidada
+      format: (item: EmbarcacionForPdf) => item.cliente?.nombre ?? 'N/A', // Accede a la relación anidada
     },
     {
       key: 'correo_cliente', // Clave inventada para la columna del PDF
       label: 'Correo del Dueño',
-      format: (item: { cliente: { correo: unknown; }; }) => item.cliente?.correo || 'N/A', // Accede a la relación anidada
+      format: (item: EmbarcacionForPdf) => item.cliente?.correo ?? 'N/A', // Accede a la relación anidada
     },
   ];
 
