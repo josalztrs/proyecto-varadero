@@ -141,6 +141,7 @@ const AlojamientoCRUD = () => {
       setShowForm(false);
       setSelectedSlotForForm(null);
       fetchAccommodationSlots();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Form submission error caught in component:', err);
       if (err.message && err.message.includes('foreign key constraint "alojamientos_doc_cliente_fkey"')) {
