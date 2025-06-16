@@ -3,11 +3,15 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaMoneyBillWave, FaCheckCircle, FaSpinner, FaInfoCircle } from 'react-icons/fa';
+import {FaCheckCircle, FaSpinner} from 'react-icons/fa';
 import { supabase } from '@/app/lib/supabase/supabase'; // Asegúrate de que esta ruta sea correcta para tu proyecto
 import type { Tables } from '@/app/lib/supabase/db_types'; // Asegúrate de que esta ruta sea correcta para tu proyecto
 import { toast } from 'sonner'; // Para notificaciones
 import { useRouter } from 'next/navigation'; // Importar useRouter si estás en App Router para revalidatePath
+
+// --- Importar el componente ExportPdfButton y su tipo PdfColumn ---
+import ExportPdfButton from '../pdfbutton';
+import type { PdfColumn } from '../pdfbutton';
 
 // --- Definiciones de Tipos Específicos para el Componente ---
 // Usamos Tables para obtener los tipos directamente de tu db_types.ts
@@ -94,7 +98,7 @@ const ContabTransactionsViewer: React.FC = () => {
           *,
           cliente(nombre, correo, doc_ident, telefono, nacionalidad),
           servicios(tipo, precio, perdidas)
-        `,
+          `,
           { count: 'exact' }
         )
         .order('id', { ascending: false })
@@ -225,7 +229,6 @@ const ContabTransactionsViewer: React.FC = () => {
 
   // --- Definición de las Columnas de la Tabla ---
   const transactionColumns: TableColumn[] = [
-    { key: 'id', label: 'ID' },
     { key: 'fecha', label: 'Fecha', render: (item) => new Date(item.fecha).toLocaleDateString() },
     {
       key: 'cliente_nombre', // Este es un campo "virtual" de nuestro tipo extendido
@@ -242,15 +245,7 @@ const ContabTransactionsViewer: React.FC = () => {
       },
       render: (item) => item.cliente?.nombre || 'N/A', // Muestra directamente el nombre del cliente
     },
-    {
-      key: 'modo_pago',
-      label: 'Modo de Pago',
-      render: (item) => (
-        <span className={`font-medium ${item.modo_pago === 'Pendiente' ? 'text-orange-500' : 'text-green-600'}`}>
-          {item.modo_pago}
-        </span>
-      )
-    },
+
     { key: 'ref', label: 'Referencia', render: (item) => item.ref || 'N/A' },
     { key: 'conc', label: 'Concepto', render: (item) => item.conc || 'N/A', hideOnMobile: true },
     {
@@ -289,6 +284,15 @@ const ContabTransactionsViewer: React.FC = () => {
       hideOnMobile: true
     },
     {
+      key: 'modo_pago',
+      label: 'Estado de Pago',
+      render: (item) => (
+        <span className={`font-medium ${item.modo_pago === 'Pendiente' ? 'text-orange-500' : 'text-green-600'}`}>
+          {item.modo_pago}
+        </span>
+      )
+    },
+    {
       key: 'actions',
       label: 'Acciones',
       render: (item) => (
@@ -317,6 +321,26 @@ const ContabTransactionsViewer: React.FC = () => {
     },
   ];
 
+  // --- Definición de las Columnas para el PDF (¡NUEVO!) ---
+  const transactionPdfColumns: PdfColumn<TransaccionWithDetails>[] = [
+    { key: 'fecha', label: 'Fecha', format: (item) => new Date(item.fecha).toLocaleDateString('es-VE') },
+    { key: 'cliente_nombre', label: 'Cliente', format: (item) => item.cliente?.nombre || 'N/A' },
+    { key: 'ref', label: 'Referencia', format: (item) => item.ref || 'N/A' },
+    { key: 'conc', label: 'Concepto', format: (item) => item.conc || 'N/A' },
+    { key: 'servicio_tipo', label: 'Servicio', format: (item) => item.servicios?.tipo || 'Sin Servicio' },
+    { key: 'monto_total', label: 'Monto Total', format: (item) => `$${parseFloat(item.monto_total).toLocaleString('es-VE', { minimumFractionDigits: 2 })}` },
+    {
+      key: 'servicio_perdidas',
+      label: 'Pérdidas',
+      format: (item) =>
+        `$${item.servicios?.perdidas !== undefined && item.servicios?.perdidas !== null
+          ? parseFloat(item.servicios.perdidas.toString()).toLocaleString('es-VE', { minimumFractionDigits: 2 })
+          : '0.00'
+        }`,
+    },
+    { key: 'modo_pago', label: 'Estado de Pago' },
+  ];
+
   // --- Manejador de Cambio de Página ---
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
@@ -329,22 +353,31 @@ const ContabTransactionsViewer: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1, duration: 0.5 }}
-      className="p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-inner flex flex-col"
+      className="p-4 sm:p-6 lg:p-8 rounded-lg shadow-inner flex flex-col"
     >
-      <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 flex items-center border-b pb-3 border-emerald-300 dark:border-emerald-700">
-        <FaMoneyBillWave className="mr-3 text-emerald-600 text-3xl" /> Visor de Transacciones
+      <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 flex items-center justify-between">
+        Transacciones Registradas
+        <ExportPdfButton
+          tableName="transacciones"
+          columns={transactionPdfColumns}
+          fileName="Transacciones_Varadero_Mar_Serena"
+          headerTitle="Transacciones Varadero Mar Serena"
+        />
       </h2>
 
-      {/* --- Campo de Búsqueda --- */}
-      <div className="mb-6 flex items-center space-x-3 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-        <FaInfoCircle className="text-blue-500 text-lg" />
-        <input
-          type="text"
-          placeholder="Buscar por ID, Cliente, Servicio, Concepto, Modo de Pago, Referencia..."
-          className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* --- Campo de Búsqueda y Exportar a PDF (¡MODIFICADO!) --- */}
+      <div className="mb-6 flex items-center justify-between space-x-3 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+        <div className="flex items-center space-x-3 flex-grow">
+          <input
+            type="text"
+            placeholder="Buscar por ID, Cliente, Servicio, Concepto, Modo de Pago, Referencia..."
+            className="flex-grow p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        {/* --- ExportPdfButton Integrado (¡NUEVO!) --- */}
+        
       </div>
 
       {/* --- Mensajes de Estado: Cargando, Error, Vacío --- */}
@@ -426,7 +459,7 @@ const ContabTransactionsViewer: React.FC = () => {
           </div>
 
           {/* --- Paginación --- */}
-          <div className="flex justify-between items-center mt-6 text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+          <div className="flex justify-between items-center text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || loading}

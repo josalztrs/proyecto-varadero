@@ -2,6 +2,8 @@
 // components/GenericTable.tsx
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaEdit } from 'react-icons/fa';
+import { FaTrashCan } from 'react-icons/fa6';
 
 // --- New Interfaces for Related Data ---
 interface RelatedTableColumn<T> {
@@ -133,7 +135,7 @@ const Table = <T extends { id: number; [key: string]: any }>({
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
+          <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6 text-center text-xs">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-100 dark:bg-gray-700">
                 <tr>
@@ -141,7 +143,7 @@ const Table = <T extends { id: number; [key: string]: any }>({
                     <th
                       key={String(column.key)}
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                     >
                       {column.label}
                     </th>
@@ -163,16 +165,16 @@ const Table = <T extends { id: number; [key: string]: any }>({
                       {columns.map((column) => (
                         <td
                           key={`${item.id}-${String(column.key)}`}
-                          className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
+                          className="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 dark:text-white"
                         >
                           {column.key === 'actions' ? (
-                            <div className="flex gap-2 justify-end">
+                            <div className="flex gap-2 justify-center">
                               <button
                                 onClick={() => onEdit(item)}
                                 className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-500"
                                 aria-label={`Edit ${item.nombre || item.name || item.id}`}
                               >
-                                Edit
+                                <FaEdit/>
                               </button>
                               <button
                                 onClick={() => {
@@ -183,7 +185,7 @@ const Table = <T extends { id: number; [key: string]: any }>({
                                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-500 ml-2"
                                 aria-label={`Delete ${item.nombre || item.name || item.id}`}
                               >
-                                Delete
+                                <FaTrashCan/>
                               </button>
                             </div>
                           ) : column.isRelated ? (

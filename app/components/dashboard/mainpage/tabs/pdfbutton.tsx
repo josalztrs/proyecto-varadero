@@ -165,7 +165,7 @@ function ExportPdfButton<T extends Record<string, any>>({
     <button
       onClick={exportToPdf}
       disabled={loading}
-      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center disabled:opacity-50 disabled:cursor-not-allowed text-sm"
       title="Exportar a PDF"
       type="button"
     >
