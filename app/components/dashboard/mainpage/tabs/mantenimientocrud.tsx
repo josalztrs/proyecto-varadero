@@ -35,7 +35,7 @@ type MantenimientoForPdf = Mantenimiento & {
 
 // Campos del formulario
 const mantenimientoFormFields = [
-  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 7, uppercase: true },
+  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 8, uppercase: true },
   { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32, uppercase: true },
   { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
   { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 8 },
