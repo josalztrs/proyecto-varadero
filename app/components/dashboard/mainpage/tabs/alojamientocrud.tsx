@@ -25,6 +25,7 @@ const fieldVariants = {
 };
 
 const renderField = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   field: any,
   value: string,
   error: string | null,
@@ -248,7 +249,7 @@ const AlojamientoCRUD = () => {
     required: true,
     maxLength: 11,
     placeholder: 'Dejar vacío o escribir "VACIO" para no ocupado',
-    inputMode: 'text' as 'text',
+    inputMode: 'text' as const,
     pattern: '^(V|E|J|P|G)-\\d{7,9}$|^VACIO$',
     customValidate: validateDocCliente,
   },
@@ -355,7 +356,7 @@ const AlojamientoCRUD = () => {
           tableName="alojamientos"
           columns={pdfAlojamientoColumns}
           fileName="Reporte_Alojamientos"
-          headerTitle="Varadero Mar Serena | Alojamientos Ocupados"
+          headerTitle="Varadero Mar Serena | Alojamientos"
           queryBuilder={(query) =>
             query.select(`
               *,

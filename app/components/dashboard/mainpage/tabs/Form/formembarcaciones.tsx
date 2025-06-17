@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Utilidad para normalizar el tipo
 const normalizaTipo = (tipo?: string) =>
   tipo ? tipo.trim().toUpperCase().replace(/ /g, '_') : '';
+
 
 export const validateMatricula = (value: string, allValues?: any) => {
   const trimmed = value.trim().toUpperCase();

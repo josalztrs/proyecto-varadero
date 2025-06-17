@@ -39,7 +39,7 @@ const CedulaAutocompleteInput: React.FC<Props> = ({
       const cedulasSet = new Set<string>();
 
       for (const table of tables) {
-        let field = table === 'personal' ? 'cedula' : 'doc_ident';
+        const field = table === 'personal' ? 'cedula' : 'doc_ident';
         const { data, error } = await supabase
           .from(table)
           .select(field)
@@ -47,6 +47,7 @@ const CedulaAutocompleteInput: React.FC<Props> = ({
           .limit(5);
 
         if (!error && data) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data.forEach((row: any) => row[field] && cedulasSet.add(row[field]));
         }
       }

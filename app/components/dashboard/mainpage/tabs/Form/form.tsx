@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, FormEvent, useCallback } from 'react';
@@ -155,7 +156,7 @@ const Form = <T extends Record<string, unknown>>({
 
     // Validación personalizada
     if (field.customValidate) {
-      const customError = field.customValidate(value, currentFormData);
+      const customError = field.customValidate(String(value ?? ''), currentFormData);
       if (customError) return customError;
     }
 
@@ -216,6 +217,7 @@ const Form = <T extends Record<string, unknown>>({
         return newData;
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [fields]
   );
 

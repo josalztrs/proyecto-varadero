@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaBell, FaBellSlash, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/app/lib/supabase/supabase';
-import { Database, Tables } from '@/app/lib/supabase/db_types';
+import { Tables } from '@/app/lib/supabase/db_types';
 
 // Define el tipo de la notificación basándose en tu esquema de Supabase
 type NotificationItem = Tables<'notificaciones'> & {

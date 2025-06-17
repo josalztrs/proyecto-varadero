@@ -23,7 +23,6 @@ const LoginPage = () => {
           priority
           quality={50}
         />
-        <div className="absolute inset-0 bg-gradient-to-t dark:to-slate-900/80 to-amber-50/70 from-white/20 dark:from-slate-900/20" />
       </motion.div>
 
       {/* Contenedor del formulario */}
