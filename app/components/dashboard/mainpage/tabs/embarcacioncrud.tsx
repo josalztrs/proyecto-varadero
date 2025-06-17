@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 
-import Form from './form';
+import Form from './Form/form';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ import ExportPdfButton from './pdfbutton';
 
 // Usa el tipo PdfColumn importado desde pdfbutton para evitar incompatibilidades
 import type { PdfColumn } from './pdfbutton';
+import { validateAmarresAsign, validateCaracteristicas, validateCedCliente, validateCuadrAsign, validateMarcaModelo, validateMatricula, validateNombreEmbarcacion, validateTipo } from './Form/formembarcaciones';
 
 const EmbarcacionCRUD = () => {
   type Embarcacion = Tables<'embarcacion'>;
@@ -79,26 +80,31 @@ const EmbarcacionCRUD = () => {
   };
 
   const embarcacionFormFields = [
-    { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 7, uppercase: true, placeholder: "XXX-123", pattern: '[A-Z]{3}-[0-9]{4}' },
-    { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true },
-    {
-      name: 'tipo',
-      label: 'Tipo',
-      type: 'select',
-      maxLength: 32,
-      uppercase: true,
-      options: [
-        { value: 'LANCHA', label: 'Lancha' },
-        { value: 'YATE', label: 'Yate' },
-        { value: 'MOTO_ACUATICA', label: 'Moto Acuática' },
-      ],
-    },
-    { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 20, uppercase: true },
-    { name: 'caracteristicas', label: 'Características', type: 'text', required: true, maxLength: 32, uppercase: true, placeholder:"Caracteristicas fisicas del vehiculo" },
-    { name: 'ced_cliente', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 16, placeholder:"Doc. Ident. del cliente" },
-    { name: 'amarres_asign', label: 'Amarres Asignados', type: 'number', required: true, maxLength: 4 },
-    { name: 'cuadr_asign', label: 'Cuadrante', type: 'number', required: true, maxLength: 24 },
-  ];
+  { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 8, uppercase: true, placeholder: "LNC-1234 / YAT-1234 / MTA-123", inputMode: "text" as const, pattern: '^[A-Z]{3}-\\d{4}$', customValidate: (value: string, allValues?: Record<string, any>) => {
+    // Usa el tipo más reciente, ya sea del evento o del formData
+    const tipoActual = allValues?.tipo ?? '';
+    return validateMatricula(value, { tipo: tipoActual });
+  }  },
+  { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$', placeholder: 'Nombre de la embarcación', customValidate: validateNombreEmbarcacion, },
+  {
+    name: 'tipo',
+    label: 'Tipo',
+    type: 'select',
+    required: true,
+    maxLength: 32,
+    uppercase: true,
+    options: [
+      { value: 'LANCHA', label: 'Lancha' },
+      { value: 'YATE', label: 'Yate' },
+      { value: 'MOTO_ACUATICA', label: 'Moto Acuática' },
+    ],customValidate: validateTipo,
+  },
+  { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 20, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{2,20}$', placeholder: 'Marca o modelo', customValidate: validateMarcaModelo, },
+  { name: 'caracteristicas', label: 'Características', type: 'text', required: true, maxLength: 32, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$', placeholder: 'Características físicas', customValidate: validateCaracteristicas,  },
+  { name: 'ced_cliente', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 11, uppercase: true, inputMode: "text" as const, pattern: '^[VEJPG]-\\d{7,9}$', placeholder: 'V-12345678', customValidate: validateCedCliente, },
+  { name: 'amarres_asign', label: 'Amarres Asignados', type: 'text', required: true, maxLength: 2, inputMode: "numeric" as const, pattern: '^\\d{1,2}$', placeholder: 'Cantidad de amarres', customValidate: validateAmarresAsign, },
+  { name: 'cuadr_asign', label: 'Cuadrante', type: 'text', required: true, maxLength: 3, inputMode: "numeric" as const, pattern: '^\\d{1,6}$', placeholder: 'Número de cuadrante', customValidate: validateCuadrAsign, },
+];
 
   interface TableColumn<T> {
     key: keyof T | 'actions';

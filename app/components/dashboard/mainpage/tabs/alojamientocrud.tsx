@@ -8,7 +8,7 @@ import type { Tables } from '@/app/lib/supabase/db_types';
 import { FaSignOutAlt, FaPlus, FaHouseUser } from 'react-icons/fa';
 import { FaHouse } from 'react-icons/fa6';
 
-import Form from './form';
+import Form from './Form/form';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';
 

@@ -6,7 +6,7 @@ import { Toaster, toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 
-import Form from './form';
+import Form from './Form/form';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';

@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
-import Form from './form';
+import Form from './Form/form';
+import { validateCorreo, validateDocIdent, validateNacionalidad, validateNombre, validateTelefono } from './Form/formcliente';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';
@@ -60,12 +61,62 @@ const ClienteCRUD = () => {
   };
 
   const clientFormFields = [
-    { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'doc_ident', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 9, uppercase: true },
-    { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32, uppercase: true, pattern:'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
-    { name: 'nacionalidad', label: 'Nacionalidad', type: 'text', maxLength: 32, uppercase: true },
-    { name: 'telefono', label: 'Teléfono', type: 'text', required: true, maxLength: 13, uppercase: true, placeholder:'+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
-  ];
+  {
+    name: 'nombre',
+    label: 'Nombre Completo',
+    type: 'text',
+    required: true,
+    maxLength: 32,
+    uppercase: true,
+    inputMode: 'text' as 'text',
+    pattern: '^[A-ZÁÉÍÓÚÑ ]{3,32}$',
+    customValidate: validateNombre,
+  },
+  {
+    name: 'doc_ident',
+    label: 'Documento de Identidad',
+    type: 'text',
+    required: true,
+    maxLength: 11,
+    uppercase: true,
+    inputMode: 'text' as 'text',
+    pattern: '^[VEJPG]-\\d{7,9}$',
+    customValidate: validateDocIdent,
+    placeholder: 'V-12345678',
+  },
+  {
+    name: 'correo',
+    label: 'Correo Electrónico',
+    type: 'email',
+    required: true,
+    maxLength: 32,
+    inputMode: 'email' as 'email',
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+    customValidate: validateCorreo,
+    placeholder: 'ejemplo@dominio.com',
+  },
+  {
+    name: 'nacionalidad',
+    label: 'Nacionalidad',
+    type: 'text',
+    maxLength: 32,
+    uppercase: true,
+    inputMode: 'text' as 'text',
+    pattern: '^[A-ZÁÉÍÓÚÑ ]{3,32}$',
+    customValidate: validateNacionalidad,
+  },
+  {
+    name: 'telefono',
+    label: 'Teléfono',
+    type: 'text',
+    required: true,
+    maxLength: 15,
+    inputMode: 'tel' as 'tel',
+    pattern: '^\\+\\d{8,15}$',
+    customValidate: validateTelefono,
+    placeholder: '+584167778232',
+  },
+];
 
   interface TableColumn<T> {
     key: keyof T | 'actions';
