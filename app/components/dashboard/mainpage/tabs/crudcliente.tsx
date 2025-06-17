@@ -192,7 +192,10 @@ const ClienteCRUD = () => {
           tableName="cliente"
           columns={pdfClienteColumns}
           fileName="Reporte_Clientes"
-          queryBuilder={(query) => query.order('nombre', { ascending: true })}
+          headerTitle="Varadero Mar Serena | Clientes Registrados"
+          queryBuilder={(query) =>
+        query.gt('id', 0).order('id', { ascending: true })
+          }
         />
       </motion.h2>
 

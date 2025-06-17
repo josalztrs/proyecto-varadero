@@ -262,7 +262,7 @@ const PersonalCRUD = () => {
           tableName="personal"
           columns={pdfPersonalColumns}
           fileName="Reporte_Personal"
-          headerTitle="Reporte de Personal"
+          headerTitle="Varadero Mar Serena | Personal"
           queryBuilder={(query) =>
             query.select(`
               *,

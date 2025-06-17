@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState } from 'react';
@@ -101,7 +102,7 @@ const renderField = (
 
 // Campos del formulario
 const mantenimientoFormFields = [
-  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 7, uppercase: true },
+  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 8, uppercase: true },
   { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32, uppercase: true },
   { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
   { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 8 },
@@ -147,10 +148,10 @@ const mantenimientoTableColumns: TableColumn<Mantenimiento>[] = [
   },
   {
     key: 'doc_empl',
-    label: 'Doc. Ident. Empleado',
+    label: 'Doc. Ident. Enncargado',
     isRelated: {
       key: 'doc_empl',
-      label: 'Detalles Empleado',
+      label: 'Detalles del Empleado Encargado',
       relatedTableName: 'personal',
       relatedIdColumn: 'cedula',
       displayColumn: 'cedula',
@@ -190,7 +191,7 @@ const pdfMantenimientoColumns: PdfColumn<MantenimientoForPdf>[] = [
   },
   {
     key: 'doc_empl',
-    label: 'Doc. Ident. Empleado',
+    label: 'Doc. Ident. Encargado',
     format: (item) => item.doc_empl ?? 'N/A',
   },
 ];
@@ -283,6 +284,7 @@ const MantenimientoCRUD: React.FC = () => {
           tableName="mantenimientos"
           columns={pdfMantenimientoColumns}
           fileName="Reporte_Mantenimientos"
+          headerTitle="Varadero Mar Serena | Mantenimientos"
           queryBuilder={(query) =>
             query
               .select(

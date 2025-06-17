@@ -355,7 +355,7 @@ const AlojamientoCRUD = () => {
           tableName="alojamientos"
           columns={pdfAlojamientoColumns}
           fileName="Reporte_Alojamientos"
-          headerTitle="Reporte de Alojamientos"
+          headerTitle="Varadero Mar Serena | Alojamientos Ocupados"
           queryBuilder={(query) =>
             query.select(`
               *,

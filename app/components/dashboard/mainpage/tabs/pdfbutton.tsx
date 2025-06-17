@@ -79,7 +79,7 @@ function ExportPdfButton<T extends Record<string, any>>({
       if (showReportDateTime) {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        doc.text(`Reporte generado el: ${reportDateTime}`, margin, currentY);
+        doc.text(` Rif: J-XXXXXXXXXXXXXX. Reporte generado el: ${reportDateTime}`, margin, currentY);
         currentY += 10;
       }
 
@@ -139,7 +139,7 @@ function ExportPdfButton<T extends Record<string, any>>({
           // Info del Varadero y Fecha/Hora del Reporte en la izquierda
           doc.text(headerTitle, margin, footerY);
           if (showReportDateTime) {
-            doc.text(`Generado: ${reportDateTime}`, margin, footerY + 4); // Un poco más abajo
+            doc.text(`Bahia de Juan Griego, Estado Nueva Esparta, Venezuela.`, margin, footerY + 4); // Un poco más abajo
           }
 
           // Número de página en el centro

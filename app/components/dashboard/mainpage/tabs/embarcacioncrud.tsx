@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/your-path/EmbarcacionCRUD.tsx
 'use client';
 
@@ -250,6 +251,7 @@ const EmbarcacionCRUD = () => {
           tableName="embarcacion"
           columns={pdfEmbarcacionColumns}
           fileName="Reporte_Embarcaciones"
+          headerTitle="Varadero Mar Serena | Embarcaciones"
           // Personaliza la consulta para incluir los datos del cliente
           queryBuilder={(query) =>
             query.select(`

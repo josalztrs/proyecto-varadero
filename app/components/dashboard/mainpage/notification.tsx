@@ -1,20 +1,127 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaBell, FaBellSlash, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/app/lib/supabase/supabase';
+import { Database, Tables } from '@/app/lib/supabase/db_types';
 
-interface NotificationItem {
-  id: string;
-  message: string;
-  read: boolean;
-  timestamp: Date;
-  type?: 'info' | 'warning' | 'error' | 'success';
-}
+// Define el tipo de la notificación basándose en tu esquema de Supabase
+type NotificationItem = Tables<'notificaciones'> & {
+  type?: 'info' | 'warning' | 'error' | 'success'; // Campo `tipo` de Supabase mapeado a tipos más específicos de Tailwind
+  read?: boolean; // Alias para la UI
+  timestamp?: Date; // Alias para la UI
+};
 
 const Notification = () => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true); // Estado de carga
+
+  // Función auxiliar para mapear el 'tipo' de Supabase a tus tipos de Tailwind
+  const mapSupabaseTypeToUIType = (supabaseType: string | null): NotificationItem['type'] => {
+    switch (supabaseType?.toLowerCase()) {
+      case 'confirmacion':
+      case 'success':
+        return 'success';
+      case 'advertencia':
+      case 'warning':
+        return 'warning';
+      case 'error':
+        return 'error';
+      case 'recordatorio':
+      case 'info':
+      default:
+        return 'info';
+    }
+  };
+
+  // Cargar notificaciones iniciales al montar el componente
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('notificaciones')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20); // Limitar a las últimas 20 notificaciones
+
+      if (error) {
+        console.error('Error fetching notifications:', error);
+      } else if (data) {
+        // Mapea los datos de Supabase a NotificationItem, añadiendo el `type` para la UI
+        const formattedNotifications: NotificationItem[] = data.map((n: Tables<'notificaciones'>) => ({
+          ...n,
+          type: mapSupabaseTypeToUIType(n.tipo), // Mapea el tipo de la base de datos
+          // Propiedades adicionales para la UI (no afectan el tipo base)
+          read: n.leido, // Alias para la UI
+          timestamp: new Date(n.created_at || n.fecha), // Alias para la UI
+        }));
+        setNotifications(formattedNotifications);
+      }
+      setLoading(false);
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // Suscripción a cambios en tiempo real de Supabase
+  useEffect(() => {
+    const channel = supabase
+      .channel('public:notificaciones') // Nombre del canal (coincide con pg_notify)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notificaciones' },
+        (payload: { new: unknown; }) => {
+          // Cuando se inserta una nueva notificación
+          const newNotification: NotificationItem = {
+            ...(payload.new as Tables<'notificaciones'>),
+            id: (payload.new as Tables<'notificaciones'>).id,
+            read: (payload.new as Tables<'notificaciones'>).leido,
+            timestamp: new Date(
+              (payload.new as Tables<'notificaciones'>).created_at ||
+                (payload.new as Tables<'notificaciones'>).fecha
+            ),
+            type: mapSupabaseTypeToUIType((payload.new as Tables<'notificaciones'>).tipo),
+          };
+          setNotifications((prev) => [newNotification, ...prev].slice(0, 20));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'notificaciones' },
+        (payload: { new: unknown; }) => {
+          // Cuando se actualiza una notificación (ej. leída)
+          const updatedNotificationData = payload.new as Tables<'notificaciones'>;
+          setNotifications((prev) =>
+            prev.map((notif) =>
+              String(notif.id) === String(updatedNotificationData.id)
+                ? {
+                    ...notif,
+                    read: updatedNotificationData.leido,
+                    message: updatedNotificationData.mensaje,
+                    type: mapSupabaseTypeToUIType(updatedNotificationData.tipo),
+                  }
+                : notif
+            )
+          );
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'notificaciones' },
+        (payload: { old: unknown; }) => {
+          // Cuando se elimina una notificación
+          const deletedId = String((payload.old as Tables<'notificaciones'>).id);
+          setNotifications((prev) => prev.filter((n) => String(n.id) !== deletedId));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Cierra el dropdown al hacer clic fuera
   useEffect(() => {
@@ -27,31 +134,6 @@ const Notification = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Generador de notificaciones de ejemplo (reemplaza con fuente real)
-  useEffect(() => {
-    const types: NotificationItem['type'][] = ['info', 'warning', 'error', 'success'];
-    const messages = [
-      'Nuevo mensaje recibido',
-      'Tarea completada con éxito',
-      'Advertencia del sistema',
-      'Error en el proceso',
-      'Actualización disponible'
-    ];
-
-    const intervalId = setInterval(() => {
-      const newNotification: NotificationItem = {
-        id: Date.now().toString(),
-        message: messages[Math.floor(Math.random() * messages.length)],
-        read: false,
-        timestamp: new Date(),
-        type: types[Math.floor(Math.random() * types.length)]
-      };
-      setNotifications(prev => [newNotification, ...prev].slice(0, 20));
-    }, 15000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   // Scroll arriba cuando se abre el panel
   useEffect(() => {
     if (isOpen && notificationsRef.current) {
@@ -59,46 +141,67 @@ const Notification = () => {
     }
   }, [notifications, isOpen]);
 
-  // Función para agregar notificaciones desde fuera (si quieres exponer)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const addNotification = (notification: NotificationItem) => {
-    setNotifications(prev => [notification, ...prev].slice(0, 20));
-  };
+  // Modificada para actualizar la base de datos
+  const markAsRead = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from('notificaciones')
+      .update({ leido: true })
+      .eq('id', parseInt(id)); // Asegúrate de que el ID sea numérico si en la DB es int
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
-  };
+    if (error) {
+      console.error('Error marking notification as read:', error);
+    }
+    // El Realtime Listener actualizará el estado local
+  }, []);
 
-  const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
+  // Modificada para actualizar la base de datos
+  const markAllAsRead = useCallback(async () => {
+    const { error } = await supabase
+      .from('notificaciones')
+      .update({ leido: true })
+      .eq('leido', false); // Marcar solo las no leídas como leídas
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+    if (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+    // El Realtime Listener actualizará el estado local
+  }, []);
+
+  // Modificada para eliminar de la base de datos
+  const deleteNotification = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from('notificaciones')
+      .delete()
+      .eq('id', parseInt(id)); // Asegúrate de que el ID sea numérico si en la DB es int
+
+    if (error) {
+      console.error('Error deleting notification:', error);
+    }
+    // El Realtime Listener actualizará el estado local
+  }, []);
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
+      // Cuando se abre el panel, se marcan todas como leídas
+      // Esto dispara el markAllAsRead que actualiza la DB
       markAllAsRead();
     }
   };
 
-  const hasUnreadNotifications = notifications.some(n => !n.read);
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const hasUnreadNotifications = notifications.some((n) => !n.read);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const getTypeColor = (type: NotificationItem['type'] = 'info') => {
     switch (type) {
-      case 'warning': return 'text-yellow-500';
-      case 'error': return 'text-red-500';
-      case 'success': return 'text-green-500';
-      default: return 'text-blue-500';
+      case 'warning':
+        return 'text-yellow-500';
+      case 'error':
+        return 'text-red-500';
+      case 'success':
+        return 'text-green-500';
+      default:
+        return 'text-blue-500';
     }
   };
 
@@ -135,7 +238,7 @@ const Notification = () => {
             <div className="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
               <h3 className="font-medium text-gray-900 dark:text-white">Notificaciones</h3>
               <button
-                title='.'
+                title="Cerrar notificaciones"
                 onClick={() => setIsOpen(false)}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
@@ -144,7 +247,11 @@ const Notification = () => {
             </div>
 
             <div className="max-h-80 overflow-y-auto">
-              {notifications.length > 0 ? (
+              {loading ? (
+                <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                  Cargando notificaciones...
+                </div>
+              ) : notifications.length > 0 ? (
                 <ul className="divide-y divide-gray-200 dark:divide-slate-700">
                   {notifications.map((notification) => (
                     <motion.li
@@ -155,17 +262,17 @@ const Notification = () => {
                       className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer ${
                         !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''
                       }`}
-                      onClick={() => markAsRead(notification.id)}
+                      onClick={() => markAsRead(String(notification.id))}
                     >
                       <div className="flex justify-between">
                         <div className={`text-sm font-medium ${getTypeColor(notification.type)}`}>
-                          {notification.message}
+                          {notification.mensaje} {/* Usa 'mensaje' de la DB */}
                         </div>
                         <button
-                          title='.'
+                          title="Eliminar notificación"
                           onClick={(e) => {
                             e.stopPropagation();
-                            deleteNotification(notification.id);
+                            deleteNotification(String(notification.id));
                           }}
                           className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
                         >
@@ -174,7 +281,12 @@ const Notification = () => {
                       </div>
                       <div className="mt-1 flex justify-between items-center">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {notification.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {notification.timestamp
+                            ? notification.timestamp.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })
+                            : ''}
                         </span>
                         {!notification.read && (
                           <span className="inline-block h-2 w-2 rounded-full bg-blue-500"></span>

@@ -328,7 +328,7 @@ const ContabTransactionsViewer: React.FC = () => {
     { key: 'ref', label: 'Referencia', format: (item) => item.ref || 'N/A' },
     { key: 'conc', label: 'Concepto', format: (item) => item.conc || 'N/A' },
     { key: 'servicio_tipo', label: 'Servicio', format: (item) => item.servicios?.tipo || 'Sin Servicio' },
-    { key: 'monto_total', label: 'Monto Total', format: (item) => `$${parseFloat(item.monto_total).toLocaleString('es-VE', { minimumFractionDigits: 2 })}` },
+    { key: 'monto_total', label: 'Monto Total', format: (item) => `REF${parseFloat(item.monto_total).toLocaleString('es-VE', { minimumFractionDigits: 2 })}` },
     {
       key: 'servicio_perdidas',
       label: 'Pérdidas',
@@ -361,7 +361,7 @@ const ContabTransactionsViewer: React.FC = () => {
           tableName="transacciones"
           columns={transactionPdfColumns}
           fileName="Transacciones_Varadero_Mar_Serena"
-          headerTitle="Transacciones Varadero Mar Serena"
+          headerTitle="Varadero Mar Serena | Transacciones"
         />
       </h2>
 
