@@ -7,19 +7,20 @@ import { Tables } from '@/app/lib/supabase/db_types';
 
 // Define el tipo de la notificación basándose en tu esquema de Supabase
 type NotificationItem = Tables<'notificaciones'> & {
-  type?: 'info' | 'warning' | 'error' | 'success'; // Campo `tipo` de Supabase mapeado a tipos más específicos de Tailwind
-  read?: boolean; // Alias para la UI
-  timestamp?: Date; // Alias para la UI
+  type?: 'info' | 'warning' | 'error' | 'success';
+  read?: boolean;
+  timestamp?: Date;
+  titulo?: string;
 };
 
 const Notification = () => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true); // Estado de carga
+  const [loading, setLoading] = useState(true);
 
-  // Función auxiliar para mapear el 'tipo' de Supabase a tus tipos de Tailwind
-  const mapSupabaseTypeToUIType = (supabaseType: string | null): NotificationItem['type'] => {
+  // Mapea el tipo de la base de datos a un tipo de UI
+  const mapSupabaseTypeToUIType = (supabaseType: string | null | undefined): NotificationItem['type'] => {
     switch (supabaseType?.toLowerCase()) {
       case 'confirmacion':
       case 'success':
@@ -36,7 +37,7 @@ const Notification = () => {
     }
   };
 
-  // Cargar notificaciones iniciales al montar el componente
+  // Cargar notificaciones iniciales
   useEffect(() => {
     const fetchNotifications = async () => {
       setLoading(true);
@@ -44,18 +45,16 @@ const Notification = () => {
         .from('notificaciones')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(20); // Limitar a las últimas 20 notificaciones
+        .limit(20);
 
       if (error) {
         console.error('Error fetching notifications:', error);
       } else if (data) {
-        // Mapea los datos de Supabase a NotificationItem, añadiendo el `type` para la UI
         const formattedNotifications: NotificationItem[] = data.map((n: Tables<'notificaciones'>) => ({
           ...n,
-          type: mapSupabaseTypeToUIType(n.tipo), // Mapea el tipo de la base de datos
-          // Propiedades adicionales para la UI (no afectan el tipo base)
-          read: n.leido, // Alias para la UI
-          timestamp: new Date(n.created_at || n.fecha), // Alias para la UI
+          type: mapSupabaseTypeToUIType(n.tipo),
+          read: n.leido,
+          timestamp: n.created_at ? new Date(n.created_at) : n.fecha ? new Date(n.fecha) : undefined,
         }));
         setNotifications(formattedNotifications);
       }
@@ -68,20 +67,19 @@ const Notification = () => {
   // Suscripción a cambios en tiempo real de Supabase
   useEffect(() => {
     const channel = supabase
-      .channel('public:notificaciones') // Nombre del canal (coincide con pg_notify)
+      .channel('public:notificaciones')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notificaciones' },
-        (payload: { new: unknown; }) => {
-          // Cuando se inserta una nueva notificación
+        (payload: { new: unknown }) => {
           const newNotification: NotificationItem = {
             ...(payload.new as Tables<'notificaciones'>),
-            id: (payload.new as Tables<'notificaciones'>).id,
             read: (payload.new as Tables<'notificaciones'>).leido,
-            timestamp: new Date(
-              (payload.new as Tables<'notificaciones'>).created_at ||
-                (payload.new as Tables<'notificaciones'>).fecha
-            ),
+            timestamp: (payload.new as Tables<'notificaciones'>).created_at
+              ? new Date((payload.new as Tables<'notificaciones'>).created_at)
+              : (payload.new as Tables<'notificaciones'>).fecha
+              ? new Date((payload.new as Tables<'notificaciones'>).fecha)
+              : undefined,
             type: mapSupabaseTypeToUIType((payload.new as Tables<'notificaciones'>).tipo),
           };
           setNotifications((prev) => [newNotification, ...prev].slice(0, 20));
@@ -90,8 +88,7 @@ const Notification = () => {
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'notificaciones' },
-        (payload: { new: unknown; }) => {
-          // Cuando se actualiza una notificación (ej. leída)
+        (payload: { new: unknown }) => {
           const updatedNotificationData = payload.new as Tables<'notificaciones'>;
           setNotifications((prev) =>
             prev.map((notif) =>
@@ -99,7 +96,9 @@ const Notification = () => {
                 ? {
                     ...notif,
                     read: updatedNotificationData.leido,
-                    message: updatedNotificationData.mensaje,
+                    mensaje: updatedNotificationData.mensaje,
+                    titulo: (updatedNotificationData as any).titulo ?? '',
+                    reserv_id: updatedNotificationData.reserv_id,
                     type: mapSupabaseTypeToUIType(updatedNotificationData.tipo),
                   }
                 : notif
@@ -110,8 +109,7 @@ const Notification = () => {
       .on(
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'notificaciones' },
-        (payload: { old: unknown; }) => {
-          // Cuando se elimina una notificación
+        (payload: { old: unknown }) => {
           const deletedId = String((payload.old as Tables<'notificaciones'>).id);
           setNotifications((prev) => prev.filter((n) => String(n.id) !== deletedId));
         }
@@ -141,50 +139,48 @@ const Notification = () => {
     }
   }, [notifications, isOpen]);
 
-  // Modificada para actualizar la base de datos
+  // Marcar como leída
   const markAsRead = useCallback(async (id: string) => {
     const { error } = await supabase
       .from('notificaciones')
       .update({ leido: true })
-      .eq('id', parseInt(id)); // Asegúrate de que el ID sea numérico si en la DB es int
+      .eq('id', parseInt(id));
 
     if (error) {
       console.error('Error marking notification as read:', error);
     }
-    // El Realtime Listener actualizará el estado local
+    // El realtime listener actualizará el estado local
   }, []);
 
-  // Modificada para actualizar la base de datos
+  // Marcar todas como leídas
   const markAllAsRead = useCallback(async () => {
     const { error } = await supabase
       .from('notificaciones')
       .update({ leido: true })
-      .eq('leido', false); // Marcar solo las no leídas como leídas
+      .eq('leido', false);
 
     if (error) {
       console.error('Error marking all notifications as read:', error);
     }
-    // El Realtime Listener actualizará el estado local
+    // El realtime listener actualizará el estado local
   }, []);
 
-  // Modificada para eliminar de la base de datos
+  // Eliminar notificación
   const deleteNotification = useCallback(async (id: string) => {
     const { error } = await supabase
       .from('notificaciones')
       .delete()
-      .eq('id', parseInt(id)); // Asegúrate de que el ID sea numérico si en la DB es int
+      .eq('id', parseInt(id));
 
     if (error) {
       console.error('Error deleting notification:', error);
     }
-    // El Realtime Listener actualizará el estado local
+    // El realtime listener actualizará el estado local
   }, []);
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
-      // Cuando se abre el panel, se marcan todas como leídas
-      // Esto dispara el markAllAsRead que actualiza la DB
       markAllAsRead();
     }
   };
@@ -233,7 +229,7 @@ const Notification = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-72 rounded-lg shadow-xl bg-white dark:bg-slate-800 ring-1 ring-black/10 dark:ring-white/10 overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-80 rounded-lg shadow-xl bg-white dark:bg-slate-800 ring-1 ring-black/10 dark:ring-white/10 overflow-hidden z-50"
           >
             <div className="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
               <h3 className="font-medium text-gray-900 dark:text-white">Notificaciones</h3>
@@ -264,9 +260,21 @@ const Notification = () => {
                       }`}
                       onClick={() => markAsRead(String(notification.id))}
                     >
-                      <div className="flex justify-between">
-                        <div className={`text-sm font-medium ${getTypeColor(notification.type)}`}>
-                          {notification.mensaje} {/* Usa 'mensaje' de la DB */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1">
+                          {notification.titulo && (
+                            <div className="text-sm font-bold text-amber-600 dark:text-cyan-400 mb-1">
+                              {notification.titulo}
+                            </div>
+                          )}
+                          <div className={`text-sm font-medium ${getTypeColor(notification.type)}`}>
+                            {notification.mensaje}
+                          </div>
+                          {notification.reserv_id && (
+                            <div className="text-xs text-gray-400 mt-1">
+                              Reserva asociada: #{notification.reserv_id}
+                            </div>
+                          )}
                         </div>
                         <button
                           title="Eliminar notificación"
@@ -282,7 +290,10 @@ const Notification = () => {
                       <div className="mt-1 flex justify-between items-center">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {notification.timestamp
-                            ? notification.timestamp.toLocaleTimeString([], {
+                            ? notification.timestamp.toLocaleString([], {
+                                year: '2-digit',
+                                month: '2-digit',
+                                day: '2-digit',
                                 hour: '2-digit',
                                 minute: '2-digit',
                               })

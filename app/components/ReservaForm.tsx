@@ -1,8 +1,20 @@
 import { useState } from 'react';
 import { supabase } from '@/app/lib/supabase/supabase'; // Ajusta la ruta a tu cliente supabase
 
+type ReservaFormState = {
+  nombre: string;
+  doc_ident: string;
+  telefono: string;
+  correo: string;
+  tipo_embarcacion: string;
+  tipo_servicio: string;
+  fecha_llegada: string;
+  tipo_pago: string;
+  nota: string;
+};
+
 const ReservaForm = () => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ReservaFormState>({
     nombre: '',
     doc_ident: '',
     telefono: '',
@@ -14,13 +26,65 @@ const ReservaForm = () => {
     nota: '',
   });
 
+  const validarReserva = (form: ReservaFormState) => {
+  // Validación de nombre: solo letras, espacios, tildes, 3-32 caracteres
+  if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]{3,32}$/.test(form.nombre.trim())) {
+    return "El nombre debe tener entre 3 y 32 letras.";
+  }
+  // Teléfono: internacional, mínimo 8 dígitos
+  if (!/^\+?\d{8,16}$/.test(form.telefono.trim())) {
+    return "El teléfono debe tener entre 8 y 16 dígitos (puede iniciar con +).";
+  }
+  // Documento de identidad: V/E/J/P/G- seguido de 7-9 dígitos
+  if (!/^[VEJPG]-\d{7,9}$/i.test(form.doc_ident.trim())) {
+    return "El documento debe tener el formato V-12345678.";
+  }
+  // Correo electrónico
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.trim())) {
+    return "El correo electrónico no es válido.";
+  }
+  // Tipo de embarcación
+  if (!form.tipo_embarcacion) {
+    return "Seleccione el tipo de embarcación.";
+  }
+  // Tipo de servicio
+  if (!form.tipo_servicio) {
+    return "Seleccione el tipo de servicio.";
+  }
+  // Fecha de llegada: debe ser válida y no pasada
+  if (!form.fecha_llegada) {
+    return "Seleccione la fecha de llegada.";
+  }
+  const fecha = new Date(form.fecha_llegada);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (isNaN(fecha.getTime()) || fecha < hoy) {
+    return "La fecha de llegada debe ser hoy o una fecha futura.";
+  }
+  // Tipo de pago
+  if (!form.tipo_pago) {
+    return "Seleccione el tipo de pago.";
+  }
+  // Notas: opcional, máximo 200 caracteres
+  if (form.nota && form.nota.length > 200) {
+    return "Las notas no pueden exceder 200 caracteres.";
+  }
+  return null;
+};
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
+
+  const error = validarReserva(form);
+  if (error) {
+    alert(error);
+    return;
+  }
 
     try {
       // 1. Verificar si el cliente ya existe por doc_ident

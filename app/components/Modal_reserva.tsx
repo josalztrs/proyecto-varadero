@@ -8,152 +8,157 @@ interface ReservaModalProps {
   onClose: () => void;
 }
 
+const initialFormData = {
+  nombre: "",
+  telefono: "",
+  doc_ident: "",
+  correo: "",
+  tipo_embarcacion: "",
+  matric_emb: "",
+  id_servicio: "",
+  fecha_llegada: "",
+  tipo_pago: "",
+  notas: "",
+};
+
+const SERVICIOS = [
+  { value: "8", label: "Alojamiento" },
+  { value: "9", label: "Restaurante" },
+  { value: "1", label: "Atraque" },
+  { value: "10", label: "Mantenimiento" },
+];
+
+const validarReserva = (form: typeof initialFormData) => {
+  if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]{3,32}$/.test(form.nombre.trim())) {
+    return "El nombre debe tener entre 3 y 32 letras.";
+  }
+  if (!/^\+?\d{8,16}$/.test(form.telefono.trim())) {
+    return "El teléfono debe tener entre 8 y 16 dígitos (puede iniciar con +).";
+  }
+  if (!/^[VEJPG]-\d{7,9}$/i.test(form.doc_ident.trim())) {
+    return "El documento debe tener el formato V-12345678.";
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.trim())) {
+    return "El correo electrónico no es válido.";
+  }
+  if (!form.tipo_embarcacion) {
+    return "Seleccione el tipo de embarcación.";
+  }
+  if (!form.matric_emb) {
+    return "Ingrese la matrícula de la embarcación.";
+  }
+  if (!form.id_servicio) {
+    return "Seleccione el tipo de servicio.";
+  }
+  if (!form.fecha_llegada) {
+    return "Seleccione la fecha de llegada.";
+  }
+  const fecha = new Date(form.fecha_llegada + "T00:00:00");
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (isNaN(fecha.getTime()) || fecha < hoy) {
+    return "La fecha de llegada debe ser hoy o una fecha futura.";
+  }
+  if (!form.tipo_pago) {
+    return "Seleccione el tipo de pago.";
+  }
+  if (form.notas && form.notas.length > 200) {
+    return "Las notas no pueden exceder 200 caracteres.";
+  }
+  return null;
+};
+
 const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
-
-  // Estado para el formulario
-  const [formData, setFormData] = useState({
-    nombre: "",
-    telefono: "",
-    doc_ident: "",
-    correo: "",
-    tipo_embarcacion: "",
-    tipo_servicio: "",
-    fecha_llegada: "",
-    tipo_pago: "",
-    notas: "",
-  });
-
-  // Estado para mensajes
+  const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Manejo de cambios en inputs
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  // Envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
 
-    // Validación básica
-    const {
-      nombre,
-      telefono,
-      doc_ident,
-      correo,
-      tipo_embarcacion,
-      tipo_servicio,
-      fecha_llegada,
-      tipo_pago,
-    } = formData;
-
-    if (
-      !nombre ||
-      !telefono ||
-      !doc_ident ||
-      !correo ||
-      !tipo_embarcacion ||
-      !tipo_servicio ||
-      !fecha_llegada ||
-      !tipo_pago
-    ) {
-      setErrorMsg("Por favor, complete todos los campos obligatorios.");
+    const error = validarReserva(formData);
+    if (error) {
+      setErrorMsg(error);
       return;
     }
 
     setLoading(true);
 
     try {
-      // 1. Buscar cliente por doc_ident
-      const { data: clientes, error: errorCliente } = await supabase
-        .from("clientes")
-        .select("id")
-        .eq("doc_ident", doc_ident)
-        .limit(1)
+      // Buscar cliente por doc_ident
+      const { data: cliente, error: errorCliente } = await supabase
+        .from("cliente")
+        .select("doc_ident, nombre")
+        .eq("doc_ident", formData.doc_ident)
         .maybeSingle();
 
       if (errorCliente) throw errorCliente;
 
-      let cliente_id: number;
-
-      if (clientes) {
-        // Cliente existe
-        cliente_id = clientes.id;
-      } else {
-        // Crear nuevo cliente
-        const { data: clienteNuevo, error: errorNuevoCliente } = await supabase
-          .from("clientes")
-          .insert([
-            {
-              nombre,
-              telefono,
-              doc_ident,
-              correo,
-            },
-          ])
-          .select("id")
-          .single();
-
-        if (errorNuevoCliente) throw errorNuevoCliente;
-
-        cliente_id = clienteNuevo.id;
+      if (!cliente) {
+        setErrorMsg("El cliente no está registrado. Debe estar registrado para hacer una reserva.");
+        setLoading(false);
+        return;
       }
 
-      // 2. Crear reserva
-      const { error: errorReserva } = await supabase.from("reservaciones").insert([
-        {
-          cliente_id,
-          tipo_embarcacion,
-          tipo_servicio,
-          fecha_llegada,
-          tipo_pago,
-          notas: formData.notas,
-          estado: "pendiente",
-          // fecha_registro se autogenera en la DB
-        },
-      ]);
+      // Crear reserva y obtener el id generado
+      const { data: reservaData, error: errorReserva } = await supabase
+        .from("reservaciones")
+        .insert([
+          {
+            doc_cliente: cliente.doc_ident,
+            matric_emb: formData.matric_emb,
+            id_servicio: Number(formData.id_servicio),
+            fecha_est: formData.fecha_llegada,
+            estado: "pendiente",
+          },
+        ])
+        .select("id")
+        .single();
 
       if (errorReserva) throw errorReserva;
 
-      // 3. Crear notificación para admin
+      // Crear notificación para admin asociada a la reserva
       const { error: errorNotificacion } = await supabase.from("notificaciones").insert([
         {
           titulo: "Nueva reserva pendiente",
-          mensaje: `Cliente ${nombre} realizó una nueva reserva.`,
+          mensaje: `Cliente ${cliente.nombre} realizó una nueva reserva.`,
           leido: false,
+          reserv_id: reservaData?.id,
         },
       ]);
       if (errorNotificacion) throw errorNotificacion;
 
       setSuccessMsg("Reserva creada correctamente. ¡Gracias!");
-      // Resetear formulario
-      setFormData({
-        nombre: "",
-        telefono: "",
-        doc_ident: "",
-        correo: "",
-        tipo_embarcacion: "",
-        tipo_servicio: "",
-        fecha_llegada: "",
-        tipo_pago: "",
-        notas: "",
-      });
-
-      // Opcional: cerrar modal después de un tiempo
-      setTimeout(() => {
-        setSuccessMsg("");
-        onClose();
-      }, 2500);
+      setFormData(initialFormData);
     } catch (error) {
-      console.error("Error en la reserva:", error);
-      setErrorMsg("Ocurrió un error al crear la reserva. Intente nuevamente.");
+      let errorMsgText = "Ocurrió un error al crear la reserva. Intente nuevamente.";
+      if (error instanceof Error) {
+        console.error("Error en la reserva:", error.message);
+        errorMsgText = error.message;
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+      ) {
+        console.error("Error en la reserva:", (error as { message: string }).message);
+        errorMsgText = (error as { message: string }).message;
+      } else {
+        console.error("Error en la reserva:", error);
+      }
+      setErrorMsg(errorMsgText);
     } finally {
       setLoading(false);
     }
@@ -193,30 +198,26 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
             className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 text-white"
             onSubmit={handleSubmit}
           >
-            {/* Aquí cada input con value y onChange */}
+            {/* Nombre */}
             <div className="flex flex-col">
-              <label
-                htmlFor="nombre"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="nombre" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Nombre
               </label>
               <input
                 type="text"
                 id="nombre"
                 name="nombre"
-                placeholder="Ingrese su nombre"
+                placeholder="Ingrese su nombre completo"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.nombre}
                 onChange={handleChange}
               />
             </div>
 
+            {/* Teléfono */}
             <div className="flex flex-col">
-              <label
-                htmlFor="telefono"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="telefono" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Teléfono
               </label>
               <input
@@ -224,17 +225,16 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 id="telefono"
                 name="telefono"
                 placeholder="Ingrese su teléfono"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.telefono}
                 onChange={handleChange}
               />
             </div>
 
+            {/* Documento de Identidad */}
             <div className="flex flex-col">
-              <label
-                htmlFor="doc_ident"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="doc_ident" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Documento de Identidad
               </label>
               <input
@@ -242,17 +242,16 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 id="doc_ident"
                 name="doc_ident"
                 placeholder="Ingrese su documento"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.doc_ident}
                 onChange={handleChange}
               />
             </div>
 
+            {/* Correo Electrónico */}
             <div className="flex flex-col">
-              <label
-                htmlFor="correo"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="correo" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Correo Electrónico
               </label>
               <input
@@ -260,83 +259,77 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 id="correo"
                 name="correo"
                 placeholder="ejemplo@correo.com"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.correo}
                 onChange={handleChange}
               />
             </div>
 
+            {/* Matrícula de Embarcación */}
             <div className="flex flex-col">
-              <label
-                htmlFor="tipo_embarcacion"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
-                Tipo de Embarcación
+              <label htmlFor="matric_emb" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+                Matrícula de Embarcación
               </label>
-              <select
-                id="tipo_embarcacion"
-                name="tipo_embarcacion"
+              <input
+                type="text"
+                id="matric_emb"
+                name="matric_emb"
+                placeholder="Ingrese la matrícula de la embarcación"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
-                value={formData.tipo_embarcacion}
+                value={formData.matric_emb}
                 onChange={handleChange}
-              >
-                <option value="">Seleccione...</option>
-                <option value="yate">Yate</option>
-                <option value="lancha">Lancha</option>
-                <option value="pesquero">Pesquero</option>
-                <option value="moto_acuatica">Moto Acuática</option>
-              </select>
+              />
             </div>
 
+            {/* Tipo de Servicio */}
             <div className="flex flex-col">
-              <label
-                htmlFor="tipo_servicio"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="id_servicio" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Tipo de Servicio
               </label>
               <select
-                id="tipo_servicio"
-                name="tipo_servicio"
+                id="id_servicio"
+                name="id_servicio"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
-                value={formData.tipo_servicio}
+                value={formData.id_servicio}
                 onChange={handleChange}
               >
                 <option value="">Seleccione...</option>
-                <option value="alquiler_espacio">Alquiler de Espacio</option>
-                <option value="mantenimiento">Mantenimiento</option>
-                <option value="alojamiento">Alojamiento</option>
-                <option value="comidas_bebidas">Comidas y Bebidas</option>
+                {SERVICIOS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
+            {/* Fecha de Llegada */}
             <div className="flex flex-col">
-              <label
-                htmlFor="fecha_llegada"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="fecha_llegada" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Fecha de Llegada
               </label>
               <input
                 type="date"
                 id="fecha_llegada"
                 name="fecha_llegada"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.fecha_llegada}
                 onChange={handleChange}
               />
             </div>
 
+            {/* Tipo de Pago */}
             <div className="flex flex-col">
-              <label
-                htmlFor="tipo_pago"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="tipo_pago" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Tipo de Pago
               </label>
               <select
                 id="tipo_pago"
                 name="tipo_pago"
+                required
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.tipo_pago}
                 onChange={handleChange}
@@ -348,11 +341,9 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
               </select>
             </div>
 
+            {/* Notas */}
             <div className="flex flex-col md:col-span-2">
-              <label
-                htmlFor="notas"
-                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
-              >
+              <label htmlFor="notas" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
                 Notas
               </label>
               <textarea
@@ -398,5 +389,5 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
     </AnimatePresence>
   );
 };
-
+ 
 export default ReservaModal;
