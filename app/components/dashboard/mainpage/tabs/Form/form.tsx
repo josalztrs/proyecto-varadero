@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface FormField {
+export interface FormField {
   name: string;
   label: string;
   type: string;
@@ -28,6 +28,14 @@ interface GenericFormProps<T> {
   error?: string | null;
   submitButtonText?: string;
   cancelButtonText?: string;
+  renderField?: (
+    field: FormField,
+    value: any,
+    error: string | null,
+    handleCustomChange: (value: string, name?: string) => void,
+    disabled: boolean,
+    index?: number 
+  ) => React.ReactNode;
 }
 
 // Animaciones para campos individuales
@@ -70,6 +78,7 @@ const Form = <T extends Record<string, unknown>>({
   error = null,
   submitButtonText = 'Enviar',
   cancelButtonText = 'Cancelar',
+  renderField,
 }: GenericFormProps<T>) => {
   const [formData, setFormData] = useState<Partial<T>>(initialData || {});
   const [errors, setErrors] = useState<Record<string, string | null>>({});
@@ -153,11 +162,12 @@ const Form = <T extends Record<string, unknown>>({
     return null;
   };
 
+  // handleChange para inputs estándar y para componentes personalizados
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >
+      > | { target: { name: string; value: any } }
     ) => {
       const { name, value } = e.target;
       const field = fields.find((f) => f.name === name);
@@ -208,6 +218,35 @@ const Form = <T extends Record<string, unknown>>({
     },
     [fields]
   );
+
+  // Para componentes personalizados: cambia solo el valor de un campo
+  const handleCustomChange = (value: string, name?: string) => {
+    if (!name) return;
+    const field = fields.find((f) => f.name === name);
+    if (!field) return;
+
+    let processedValue: any = value;
+
+    if (field.type === 'number') {
+      const num = Number(value);
+      processedValue = value === '' || isNaN(num) ? null : num;
+    } else if (value === '') {
+      processedValue = null;
+    }
+
+    if (typeof processedValue === 'string' && field.uppercase) {
+      processedValue = processedValue.toUpperCase();
+    }
+
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: processedValue };
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: validateField(field, processedValue, newData),
+      }));
+      return newData;
+    });
+  };
 
   const handleInput = (
     e: React.FormEvent<HTMLInputElement>,
@@ -287,83 +326,94 @@ const Form = <T extends Record<string, unknown>>({
       </AnimatePresence>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-4">
-        {fields.map((field, index) => (
-          <motion.div key={field.name} custom={index} variants={fieldVariants}>
-            <label
-              htmlFor={field.name}
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              {field.label} {field.required && <span className="text-red-500">*</span>}
-            </label>
+        {fields.map((field, index) => {
+          const value = formData[field.name as keyof T];
+          const errorMsg = errors[field.name];
 
-            {field.type === 'select' && field.options ? (
-              <select
-                id={field.name}
-                name={field.name}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors[field.name] ? 'border-red-500' : ''
-                }`}
-                value={(formData[field.name as keyof T] ?? '') as string | number}
-                onChange={handleChange}
-                required={field.required}
-                disabled={loading}
+          // Si hay renderField y retorna algo, úsalo
+          if (typeof renderField === 'function') {
+    const custom = renderField(field, value, errorMsg, handleCustomChange, loading, index);
+    if (custom) return <React.Fragment key={field.name}>{custom}</React.Fragment>;
+          }
+
+          return (
+            <motion.div key={field.name} custom={index} variants={fieldVariants}>
+              <label
+                htmlFor={field.name}
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <option value="">Seleccione...</option>
-                {field.options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            ) : field.type === 'textarea' ? (
-              <textarea
-                id={field.name}
-                name={field.name}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors[field.name] ? 'border-red-500' : ''
-                }`}
-                value={(formData[field.name as keyof T] as string) || ''}
-                onChange={handleChange}
-                required={field.required}
-                placeholder={field.placeholder}
-                maxLength={field.maxLength}
-                disabled={loading}
-              />
-            ) : (
-              <input
-                type={field.type}
-                id={field.name}
-                name={field.name}
-                className={`mt-1 block w-full pl-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors[field.name] ? 'border-red-500' : ''
-                }`}
-                value={
-                  field.type === 'number'
-                    ? formData[field.name as keyof T] !== null &&
-                      formData[field.name as keyof T] !== undefined
-                      ? String(formData[field.name as keyof T])
-                      : ''
-                    : (formData[field.name as keyof T] as string) || ''
-                }
-                onChange={handleChange}
-                onInput={(e) => handleInput(e, field)}
-                required={field.required}
-                placeholder={field.placeholder}
-                maxLength={field.maxLength}
-                min={field.min}
-                max={field.max}
-                inputMode={field.type === 'number' ? 'numeric' : field.inputMode}
-                disabled={loading}
-              />
-            )}
+                {field.label} {field.required && <span className="text-red-500">*</span>}
+              </label>
 
-            {errors[field.name] && (
-              <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                {errors[field.name]}
-              </p>
-            )}
-          </motion.div>
-        ))}
+              {field.type === 'select' && field.options ? (
+                <select
+                  id={field.name}
+                  name={field.name}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    errors[field.name] ? 'border-red-500' : ''
+                  }`}
+                  value={(formData[field.name as keyof T] ?? '') as string | number}
+                  onChange={handleChange}
+                  required={field.required}
+                  disabled={loading}
+                >
+                  <option value="">Seleccione...</option>
+                  {field.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              ) : field.type === 'textarea' ? (
+                <textarea
+                  id={field.name}
+                  name={field.name}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    errors[field.name] ? 'border-red-500' : ''
+                  }`}
+                  value={(formData[field.name as keyof T] as string) || ''}
+                  onChange={handleChange}
+                  required={field.required}
+                  placeholder={field.placeholder}
+                  maxLength={field.maxLength}
+                  disabled={loading}
+                />
+              ) : (
+                <input
+                  type={field.type}
+                  id={field.name}
+                  name={field.name}
+                  className={`mt-1 block w-full pl-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    errors[field.name] ? 'border-red-500' : ''
+                  }`}
+                  value={
+                    field.type === 'number'
+                      ? formData[field.name as keyof T] !== null &&
+                        formData[field.name as keyof T] !== undefined
+                        ? String(formData[field.name as keyof T])
+                        : ''
+                      : (formData[field.name as keyof T] as string) || ''
+                  }
+                  onChange={handleChange}
+                  onInput={(e) => handleInput(e, field)}
+                  required={field.required}
+                  placeholder={field.placeholder}
+                  maxLength={field.maxLength}
+                  min={field.min}
+                  max={field.max}
+                  inputMode={field.type === 'number' ? 'numeric' : field.inputMode}
+                  disabled={loading}
+                />
+              )}
+
+              {errors[field.name] && (
+                <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+                  {errors[field.name]}
+                </p>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="flex gap-4 mt-6">

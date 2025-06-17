@@ -5,11 +5,32 @@ import { motion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
+import type { FormField } from './Form/form';
 
 import Form from './Form/form';
+import MatriculaAutocompleteInput from './Form/MatriculaAutocompleteInput';
+import CedulaAutocompleteInput from './Form/CedulaAutocompleteInput';
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton, { PdfColumn } from './pdfbutton';
+import {
+  validateConcepto,
+  validateDocEmpl,
+  validateFecha,
+  validateMatriculaEmb,
+  validatePrecio,
+} from './Form/formmanteniemiento';
+
+// Animaciones para campos individuales
+const fieldVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.3 },
+  }),
+  exit: { opacity: 0, y: 10, transition: { duration: 0.2 } },
+};
 
 // Tipos
 type Mantenimiento = Tables<'mantenimientos'> & { id: string; doc_empl: string };
@@ -33,9 +54,54 @@ type MantenimientoForPdf = Mantenimiento & {
   embarcacion: Embarcacion | null;
 };
 
+// Renderizador de campos personalizados
+const renderField = (
+  field: FormField,
+  value: string,
+  error: string | null,
+  handleChange: (value: string, name: string) => void,
+  disabled: boolean,
+  index?: number // <-- agrega el índice si lo necesitas para la animación
+): React.ReactNode => {
+  if (field.name === 'matricula_emb' && field.type === 'autocomplete') {
+    return (
+      <motion.div key={field.name} custom={index} variants={fieldVariants}>
+        <MatriculaAutocompleteInput
+          value={value || ''}
+          onChange={(val: string) => handleChange(val, field.name)}
+          label={field.label}
+          placeholder="ABC-1234"
+          disabled={disabled}
+          error={error}
+          required={field.required}
+          maxLength={field.maxLength}
+        />
+      </motion.div>
+    );
+  }
+  if (field.name === 'doc_empl') {
+    return (
+      <motion.div key={field.name} custom={index} variants={fieldVariants}>
+        <CedulaAutocompleteInput
+          value={value || ''}
+          onChange={(val: string) => handleChange(val, field.name)}
+          label={field.label}
+          placeholder={field.placeholder || 'Ej: V-12345678'}
+          disabled={disabled}
+          error={error}
+          required={field.required}
+          maxLength={field.maxLength}
+          tables={['personal']}
+        />
+      </motion.div>
+    );
+  }
+  return null;
+};
+
 // Campos del formulario
 const mantenimientoFormFields = [
-  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 8, uppercase: true },
+  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 7, uppercase: true },
   { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32, uppercase: true },
   { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
   { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 8 },
@@ -74,7 +140,11 @@ const mantenimientoTableColumns: TableColumn<Mantenimiento>[] = [
       }
     },
   },
-  { key: 'precio', label: 'Precio', render: (mantenimiento) => `$${mantenimiento.precio.toFixed(2)}` },
+  {
+    key: 'precio',
+    label: 'Precio',
+    render: (mantenimiento) => `$${mantenimiento.precio.toFixed(2)}`,
+  },
   {
     key: 'doc_empl',
     label: 'Doc. Ident. Empleado',
@@ -113,7 +183,11 @@ const pdfMantenimientoColumns: PdfColumn<MantenimientoForPdf>[] = [
     label: 'Fecha de Mantenimiento',
     format: (item) => new Date(item.fecha).toLocaleDateString('es-VE'),
   },
-  { key: 'precio', label: 'Precio', format: (item) => `$${item.precio.toFixed(2)}` },
+  {
+    key: 'precio',
+    label: 'Precio',
+    format: (item) => `$${item.precio.toFixed(2)}`,
+  },
   {
     key: 'doc_empl',
     label: 'Doc. Ident. Empleado',
@@ -122,7 +196,7 @@ const pdfMantenimientoColumns: PdfColumn<MantenimientoForPdf>[] = [
 ];
 
 // Componente principal
-const MantenimientoCRUD = () => {
+const MantenimientoCRUD: React.FC = () => {
   const {
     data: mantenimientos,
     loading,
@@ -194,6 +268,7 @@ const MantenimientoCRUD = () => {
           loading={loading}
           error={error}
           submitButtonText={editingMantenimiento ? 'Guardar Cambios' : 'Registrar Mantenimiento'}
+          renderField={renderField}
         />
       </motion.div>
 
@@ -209,10 +284,14 @@ const MantenimientoCRUD = () => {
           columns={pdfMantenimientoColumns}
           fileName="Reporte_Mantenimientos"
           queryBuilder={(query) =>
-            query.select(`
+            query
+              .select(
+                `
               *,
               embarcacion!mantenimientos_matricula_emb_fkey(matricula, nombre, tipo, marcmod)
-            `).order('fecha', { ascending: false })
+            `
+              )
+              .order('fecha', { ascending: false })
           }
         />
       </motion.h2>
