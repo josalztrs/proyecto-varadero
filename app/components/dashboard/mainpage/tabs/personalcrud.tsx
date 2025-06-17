@@ -119,18 +119,59 @@ const PersonalCRUD = () => {
 
   // Campos del formulario
   const personalFormFields = [
-    { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, maxLength: 32, uppercase: true },
-    { name: 'cedula', label: 'Cédula', type: 'text', required: true, maxLength: 9, uppercase: true, placeholder: 'V-12345678', pattern: '^[VEJPCG]-\\d{7,9}$' },
-    { name: 'email', label: 'Correo Electrónico', type: 'email', required: true, maxLength: 32, uppercase: true, placeholder: 'ejemplo@dominio.com', pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' },
-    { name: 'telefono', label: 'Teléfono', type: 'tel', required: true, maxLength: 13, uppercase: true, placeholder: '+0012345678901', pattern: '^\\+[0-9]{2}[0-9]{11}$' },
-    {
-      name: 'oficio_id',
-      label: 'Oficio / Servicio',
-      type: 'select',
-      required: true,
-      options: serviciosOptions,
-    },
-  ];
+  {
+    name: 'nombre',
+    label: 'Nombre Completo',
+    type: 'text',
+    required: true,
+    maxLength: 32,
+    uppercase: true,
+    placeholder: 'Ej: MARÍA PÉREZ',
+    pattern: '^[A-ZÁÉÍÓÚÑáéíóúñ -]{3,32}$',
+    inputMode: 'text' as const,
+  },
+  {
+    name: 'cedula',
+    label: 'Cédula',
+    type: 'text',
+    required: true,
+    maxLength: 11, // Para admitir V-123456789
+    uppercase: true,
+    placeholder: 'Ej: V-12345678',
+    pattern: '^[VEJPCG]-\\d{7,9}$',
+    inputMode: 'text' as const,
+  },
+  {
+    name: 'email',
+    label: 'Correo Electrónico',
+    type: 'email',
+    required: true,
+    maxLength: 32,
+    uppercase: true,
+    placeholder: 'Ej: ejemplo@dominio.com',
+    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+    inputMode: 'email' as const,
+  },
+  {
+    name: 'telefono',
+    label: 'Teléfono',
+    type: 'tel',
+    required: true,
+    maxLength: 16, // Para admitir +584121234567
+    uppercase: true,
+    placeholder: 'Ej: +584121234567',
+    pattern: '^\\+\\d{8,15}$',
+    inputMode: 'tel' as const,
+  },
+  {
+    name: 'oficio_id',
+    label: 'Oficio / Servicio',
+    type: 'select',
+    required: true,
+    options: serviciosOptions,
+    placeholder: 'Seleccione un oficio',
+  },
+];
 
   // Columnas de la tabla
   const personalTableColumns: TableColumn <Personal>  [] = [

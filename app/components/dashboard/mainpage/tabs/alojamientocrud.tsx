@@ -7,10 +7,51 @@ import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
 import { FaSignOutAlt, FaPlus, FaHouseUser } from 'react-icons/fa';
 import { FaHouse } from 'react-icons/fa6';
+import CedulaAutocompleteInput from './Form/CedulaAutocompleteInput';
 
 import Form from './Form/form';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';
+import { validateDocCliente, validateFecha } from './Form/formalojamiento';
+
+const fieldVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.3 },
+  }),
+  exit: { opacity: 0, y: 10, transition: { duration: 0.2 } },
+};
+
+const renderField = (
+  field: any,
+  value: string,
+  error: string | null,
+  handleChange: (value: string, name: string) => void,
+  disabled: boolean,
+  index?: number
+): React.ReactNode => {
+  if (field.name === 'doc_cliente') {
+    return (
+      <motion.div key={field.name} custom={index} variants={fieldVariants}>
+        <CedulaAutocompleteInput
+          value={value || ''}
+          onChange={(val: string) => handleChange(val, field.name)}
+          label={field.label}
+          placeholder={field.placeholder || 'V-12345678'}
+          disabled={disabled}
+          error={error}
+          required={field.required}
+          maxLength={field.maxLength}
+          tables={['cliente']} // Solo buscará en clientes
+        />
+      </motion.div>
+    );
+  }
+  return null;
+};
+
 
 // Tipos
 type Alojamiento = Tables<'alojamientos'>;
@@ -192,9 +233,26 @@ const AlojamientoCRUD = () => {
 
   // Campos del formulario
   const alojamientoFormFields = [
-    { name: 'fecha', label: 'Fecha de Ocupación', type: 'date', required: true, maxLength: 11 },
-    { name: 'doc_cliente', label: 'Doc. Ident. Cliente (VACIO para no ocupado)', type: 'text', maxLength: 16, placeholder: `Dejar vacío o escribir "${EMPTY_DOC_CLIENTE_STATUS}" para no ocupado` },
-  ];
+  {
+    name: 'fecha',
+    label: 'Fecha de Ocupación',
+    type: 'date',
+    required: true,
+    maxLength: 11,
+    customValidate: validateFecha,
+  },
+  {
+    name: 'doc_cliente',
+    label: 'Doc. Ident. Cliente (VACIO para no ocupado)',
+    type: 'text',
+    required: true,
+    maxLength: 11,
+    placeholder: 'Dejar vacío o escribir "VACIO" para no ocupado',
+    inputMode: 'text' as 'text',
+    pattern: '^(V|E|J|P|G)-\\d{7,9}$|^VACIO$',
+    customValidate: validateDocCliente,
+  },
+];
 
   // Columnas para PDF
   const pdfAlojamientoColumns: PdfColumn<AlojamientoForPdf>[] = [
@@ -280,6 +338,7 @@ const AlojamientoCRUD = () => {
               loading={loading}
               error={error}
               submitButtonText={selectedSlotForForm?.is_occupied_by_real_client ? 'Actualizar Ocupación' : 'Ocupar Alojamiento'}
+              renderField={renderField}
             />
           </motion.div>
         )}

@@ -99,6 +99,7 @@ const ClienteCRUD = () => {
     name: 'nacionalidad',
     label: 'Nacionalidad',
     type: 'text',
+    required: true,
     maxLength: 32,
     uppercase: true,
     inputMode: 'text' as 'text',

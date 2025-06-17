@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/app/lib/supabase/supabase';
 import type { Tables } from '@/app/lib/supabase/db_types';
+import CedulaAutocompleteInput from './Form/CedulaAutocompleteInput';
 
 import Form from './Form/form';
 import Table from './table';
@@ -17,6 +18,44 @@ import ExportPdfButton from './pdfbutton';
 // Usa el tipo PdfColumn importado desde pdfbutton para evitar incompatibilidades
 import type { PdfColumn } from './pdfbutton';
 import { validateAmarresAsign, validateCaracteristicas, validateCedCliente, validateCuadrAsign, validateMarcaModelo, validateMatricula, validateNombreEmbarcacion, validateTipo } from './Form/formembarcaciones';
+
+const fieldVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.3 },
+  }),
+  exit: { opacity: 0, y: 10, transition: { duration: 0.2 } },
+};
+
+const renderField = (
+  field: any,
+  value: string,
+  error: string | null,
+  handleChange: (value: string, name: string) => void,
+  disabled: boolean,
+  index?: number
+): React.ReactNode => {
+  if (field.name === 'ced_cliente') {
+    return (
+      <motion.div key={field.name} custom={index} variants={fieldVariants}>
+        <CedulaAutocompleteInput
+          value={value || ''}
+          onChange={(val: string) => handleChange(val, field.name)}
+          label={field.label}
+          placeholder={field.placeholder || 'V-12345678'}
+          disabled={disabled}
+          error={error}
+          required={field.required}
+          maxLength={field.maxLength}
+          tables={['cliente']} // Solo buscará en clientes
+        />
+      </motion.div>
+    );
+  }
+  return null;
+};
 
 const EmbarcacionCRUD = () => {
   type Embarcacion = Tables<'embarcacion'>;
@@ -195,6 +234,7 @@ const EmbarcacionCRUD = () => {
           loading={loading}
           error={error}
           submitButtonText={editingEmbarcacion ? 'Guardar Cambios' : 'Registrar Embarcación'}
+           renderField={renderField}
         />
       </motion.div>
 
