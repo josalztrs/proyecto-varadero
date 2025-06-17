@@ -19,7 +19,7 @@ export const validateMatricula = (value: string, allValues?: any) => {
       return 'La matrícula de un Yate debe tener el formato YAT-1234.';
     }
   } else if (tipoNorm === 'MOTO_ACUATICA') {
-    if (!/^MTA-\d{3}$/.test(trimmed)) {
+    if (!/^MTA-\d{4}$/.test(trimmed)) {
       return 'La matrícula de una Moto Acuática debe tener el formato MTA-123.';
     }
   } else {

@@ -62,7 +62,7 @@ const renderField = (
   error: string | null,
   handleChange: (value: string, name: string) => void,
   disabled: boolean,
-  index?: number // <-- agrega el índice si lo necesitas para la animación
+  index?: number
 ): React.ReactNode => {
   if (field.name === 'matricula_emb' && field.type === 'autocomplete') {
     return (
@@ -101,12 +101,60 @@ const renderField = (
 };
 
 // Campos del formulario
-const mantenimientoFormFields = [
-  { name: 'matricula_emb', label: 'Matrícula Embarcación', type: 'text', required: true, maxLength: 8, uppercase: true },
-  { name: 'concepto', label: 'Concepto de Mantenimiento', type: 'text', required: true, maxLength: 32, uppercase: true },
-  { name: 'fecha', label: 'Fecha de Mantenimiento', type: 'date', required: true },
-  { name: 'precio', label: 'Precio', type: 'number', required: true, maxLength: 8 },
-  { name: 'doc_empl', label: 'Documento del Empleado Responsable', type: 'text', required: true, maxLength: 16, placeholder: 'Doc. Ident. del personal' },
+const mantenimientoFormFields: FormField[] = [
+  {
+    name: 'matricula_emb',
+    label: 'Matrícula Embarcación',
+    type: 'text',
+    required: true,
+    maxLength: 8,
+    uppercase: true,
+    placeholder: 'Ej: ABC-1234',
+    pattern: '^[A-Z]{3}-\\d{4}$',
+    customValidate: validateMatriculaEmb,
+    inputMode: 'text',
+  },
+  {
+    name: 'concepto',
+    label: 'Concepto de Mantenimiento',
+    type: 'text',
+    required: true,
+    maxLength: 32,
+    uppercase: true,
+    placeholder: 'Ej: CAMBIO DE ACEITE',
+    pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$',
+    customValidate: validateConcepto,
+    inputMode: 'text',
+  },
+  {
+    name: 'fecha',
+    label: 'Fecha de Mantenimiento',
+    type: 'date',
+    required: true,
+    customValidate: validateFecha,
+  },
+  {
+    name: 'precio',
+    label: 'Precio',
+    type: 'text',
+    required: true,
+    maxLength: 4,
+    placeholder: 'Ej: 1500.00',
+    pattern: '^\\d{1,4}(\\.\\d{1,2})?$',
+    customValidate: validatePrecio,
+    inputMode: 'decimal',
+  },
+  {
+    name: 'doc_empl',
+    label: 'Documento del Empleado Responsable',
+    type: 'text',
+    required: true,
+    maxLength: 11,
+    placeholder: 'Ej: V-12345678',
+    pattern: '^[A-Z0-9-]{5,11}$',
+    customValidate: validateDocEmpl,
+    inputMode: 'text',
+  },
 ];
 
 // Columnas de la tabla
