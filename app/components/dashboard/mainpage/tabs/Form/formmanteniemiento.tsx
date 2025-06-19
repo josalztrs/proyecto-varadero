@@ -1,5 +1,3 @@
-import { supabase } from '@/app/lib/supabase/supabase';
-
 // Matrícula Embarcación: 3 letras mayúsculas, guion, 4 dígitos (ej: ABC-1234)
 export const validateMatriculaEmb = (value: string) => {
   const trimmed = value.trim().toUpperCase();

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import varadero from '../public/varadero.jpg';
 import { useState } from 'react';
 import ReservaModal from '@/app/components/Modal_reserva';
+import Waves from './ui/waves';
 
 const AtracaderoLanding = () => {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
@@ -52,6 +53,19 @@ const AtracaderoLanding = () => {
           fill
           className="object-cover"
           priority
+        />
+        <Waves
+          lineColor="#fff"
+          backgroundColor="rgba(255, 255, 255, 0.2)"
+          waveSpeedX={0.02}
+          waveSpeedY={0.01}
+          waveAmpX={40}
+          waveAmpY={20}
+          friction={0.4}
+          tension={0.01}
+          maxCursorMove={120}
+          xGap={12}
+          yGap={36}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 to-slate-900/90" />
       </div>
