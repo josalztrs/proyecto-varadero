@@ -79,7 +79,7 @@ function ExportPdfButton<T extends Record<string, any>>({
       if (showReportDateTime) {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        doc.text(` Rif: J-XXXXXXXXXXXXXX. Reporte generado el: ${reportDateTime}`, margin, currentY);
+        doc.text(` Rif: J-XXXXXXXXXXXXXX. Reporte generado el: ${reportDateTime} por el usuario ADMIN_VARAD`, margin, currentY);
         currentY += 10;
       }
 
