@@ -6,6 +6,9 @@ import { Toaster } from "sonner";
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="es">
+      <head>
+        <title>Atracadero Mar Serena</title>
+      </head>
       <body
         className={`${nunito.className} antialiased bg-white dark:bg-slate-900 transition-colors duration-300`}
       >

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEdit } from 'react-icons/fa';
 import { FaTrashCan } from 'react-icons/fa6';
+import { handleSupabaseError } from '@/app/lib/supabase/errorhandler';
 
 // --- New Interfaces for Related Data ---
 interface RelatedTableColumn<T> {
@@ -128,7 +129,7 @@ const Table = <T extends { id: number; [key: string]: any }>({
       {loading && !data.length ? (
         <p className="text-center text-gray-600 dark:text-gray-400">Cargando elementos...</p>
       ) : error && data.length === 0 && !loading ? (
-        <p className="text-center text-red-600 dark:text-red-400 text-lg">{error}</p>
+        handleSupabaseError("Verifique que el cliente no tenga embarcaciones enlazadas a la hora de eliminarlo.")
       ) : filteredData.length === 0 ? (
         <p className="text-center text-gray-600 dark:text-gray-400">
           {searchTerm ? 'No se encontraron elementos que coincidan con la búsqueda.' : emptyMessage}

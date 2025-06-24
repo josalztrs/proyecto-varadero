@@ -127,7 +127,7 @@ const Form = <T extends Record<string, unknown>>({
         return `${field.label} tiene un formato inválido.`;
       }
     }
-
+    error=error
     // Validación de email
     if (typeof value === 'string' && field.type === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -408,11 +408,7 @@ const Form = <T extends Record<string, unknown>>({
                 />
               )}
 
-              {errors[field.name] && (
-                <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                  {errors[field.name]}
-                </p>
-              )}
+              
             </motion.div>
           );
         })}
@@ -438,11 +434,7 @@ const Form = <T extends Record<string, unknown>>({
         )}
       </div>
 
-      {error && (
-        <p className="mt-4 text-red-600 dark:text-red-400 text-sm">
-          {error}
-        </p>
-      )}
+      
     </motion.form>
   );
 };
