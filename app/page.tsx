@@ -6,7 +6,6 @@ import Image from 'next/image';
 import varadero from '../public/varadero.jpg';
 import { useState } from 'react';
 import ReservaModal from "./components/dashboard/Reserva/ReservaModal";
-
 import Waves from './ui/waves';
 
 const AtracaderoLanding = () => {
