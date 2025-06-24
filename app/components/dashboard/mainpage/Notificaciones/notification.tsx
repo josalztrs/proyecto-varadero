@@ -1,5 +1,5 @@
-"use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaBell, FaBellSlash, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
