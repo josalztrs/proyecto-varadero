@@ -2,7 +2,7 @@
 import LocalTime from '@/app/lib/datetime';
 import React from 'react';
 import { IoExit } from 'react-icons/io5';
-import Notification from './mainpage/notification';
+import Notification from './mainpage/Notificaciones/notification';
 import { signOut } from '@/app/lib/auth';
 import Link from 'next/link';
 
@@ -21,7 +21,8 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <LocalTime className="text-sm md:text-base text-gray-600 dark:text-neutral-300 hover:text-amber-500 dark:hover:text-cyan-400 transition-colors duration-200 font-medium" />
             
-            <Notification />
+            {/* Notificaciones solo con panel, sin modal */}
+            <Notification onNotificationClick={() => {}} />
 
           </div>
   

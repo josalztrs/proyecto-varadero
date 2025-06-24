@@ -1,9 +1,10 @@
 import ExchangeCard from "@/app/components/dashboard/mainpage/exchcard";
 import Header from "@/app/components/dashboard/header";
 import DashSidebar from "@/app/components/dashboard/sidebar";
-import { DashboardCard } from "@/app/ui/card"; // Asumiendo que esta es la ruta correcta
+import { DashboardCard } from "@/app/ui/card";
 import PieChartExpenses from "@/app/components/dashboard/mainpage/PieChart";
 import LineChartTransactions from "@/app/components/dashboard/mainpage/LineChart";
+import NotificationReserva from "@/app/components/dashboard/mainpage/Notificaciones/notification_reserva"; // <-- Importa aquí
 
 const DashboardPage = () => {
   return (
@@ -12,6 +13,7 @@ const DashboardPage = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8">
           <Header />
+          <NotificationReserva /> {/* <-- Agrega aquí */}
 
           {/* Sección de los elementos superiores: Exchange Card y Distribución de Ingresos (PieChart) */}
           {/* Se usa un grid de 1 columna en móvil, y 2 columnas en pantallas medianas y superiores */}

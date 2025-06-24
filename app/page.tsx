@@ -5,7 +5,8 @@ import { FaTwitter, FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa'
 import Image from 'next/image';
 import varadero from '../public/varadero.jpg';
 import { useState } from 'react';
-import ReservaModal from '@/app/components/Modal_reserva';
+import ReservaModal from "./components/dashboard/Reserva/ReservaModal";
+
 
 const AtracaderoLanding = () => {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);

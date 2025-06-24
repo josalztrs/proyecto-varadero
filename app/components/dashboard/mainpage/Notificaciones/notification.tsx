@@ -1,41 +1,44 @@
-'use client';
+"use client";
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaBell, FaBellSlash, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/app/lib/supabase/supabase';
 import { Tables } from '@/app/lib/supabase/db_types';
 
-// Define el tipo de la notificación basándose en tu esquema de Supabase
-type NotificationItem = Tables<'notificaciones'> & {
+export type NotificationItem = Tables<'notificaciones'> & {
   type?: 'info' | 'warning' | 'error' | 'success';
   read?: boolean;
   timestamp?: Date;
   titulo?: string;
 };
 
-const Notification = () => {
+interface NotificationListProps {
+  onNotificationClick: (notification: NotificationItem) => void;
+}
+
+const mapSupabaseTypeToUIType = (supabaseType: string | null | undefined): NotificationItem['type'] => {
+  switch (supabaseType?.toLowerCase()) {
+    case 'confirmacion':
+    case 'success':
+      return 'success';
+    case 'advertencia':
+    case 'warning':
+      return 'warning';
+    case 'error':
+      return 'error';
+    case 'recordatorio':
+    case 'info':
+    default:
+      return 'info';
+  }
+};
+
+const NotificationList: React.FC<NotificationListProps> = ({ onNotificationClick }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
-
-  // Mapea el tipo de la base de datos a un tipo de UI
-  const mapSupabaseTypeToUIType = (supabaseType: string | null | undefined): NotificationItem['type'] => {
-    switch (supabaseType?.toLowerCase()) {
-      case 'confirmacion':
-      case 'success':
-        return 'success';
-      case 'advertencia':
-      case 'warning':
-        return 'warning';
-      case 'error':
-        return 'error';
-      case 'recordatorio':
-      case 'info':
-      default:
-        return 'info';
-    }
-  };
 
   // Cargar notificaciones iniciales
   useEffect(() => {
@@ -45,7 +48,7 @@ const Notification = () => {
         .from('notificaciones')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(10);
 
       if (error) {
         console.error('Error fetching notifications:', error);
@@ -64,7 +67,7 @@ const Notification = () => {
     fetchNotifications();
   }, []);
 
-  // Suscripción a cambios en tiempo real de Supabase
+  // Suscripción realtime
   useEffect(() => {
     const channel = supabase
       .channel('public:notificaciones')
@@ -82,7 +85,13 @@ const Notification = () => {
               : undefined,
             type: mapSupabaseTypeToUIType((payload.new as Tables<'notificaciones'>).tipo),
           };
-          setNotifications((prev) => [newNotification, ...prev].slice(0, 20));
+          setNotifications((prev) => {
+            if (prev.some(n => n.id === newNotification.id)) return prev;
+            const updated = [newNotification, ...prev]
+              .sort((a, b) => (b.timestamp?.getTime() ?? 0) - (a.timestamp?.getTime() ?? 0))
+              .slice(0, 10);
+            return updated;
+          });
         }
       )
       .on(
@@ -139,20 +148,6 @@ const Notification = () => {
     }
   }, [notifications, isOpen]);
 
-  // Marcar como leída
-  const markAsRead = useCallback(async (id: string) => {
-    const { error } = await supabase
-      .from('notificaciones')
-      .update({ leido: true })
-      .eq('id', parseInt(id));
-
-    if (error) {
-      console.error('Error marking notification as read:', error);
-    }
-    // El realtime listener actualizará el estado local
-  }, []);
-
-  // Marcar todas como leídas
   const markAllAsRead = useCallback(async () => {
     const { error } = await supabase
       .from('notificaciones')
@@ -162,20 +157,26 @@ const Notification = () => {
     if (error) {
       console.error('Error marking all notifications as read:', error);
     }
-    // El realtime listener actualizará el estado local
   }, []);
 
-  // Eliminar notificación
+  const markAsRead = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from('notificaciones')
+      .update({ leido: true })
+      .eq('id', parseInt(id));
+    if (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  }, []);
+
   const deleteNotification = useCallback(async (id: string) => {
     const { error } = await supabase
       .from('notificaciones')
       .delete()
       .eq('id', parseInt(id));
-
     if (error) {
       console.error('Error deleting notification:', error);
     }
-    // El realtime listener actualizará el estado local
   }, []);
 
   const toggleOpen = () => {
@@ -258,7 +259,11 @@ const Notification = () => {
                       className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 cursor-pointer ${
                         !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''
                       }`}
-                      onClick={() => markAsRead(String(notification.id))}
+                      onClick={() => {
+                        markAsRead(String(notification.id));
+                        console.log('Click notificación:', notification); // <-- Añadido para depuración
+                        onNotificationClick(notification); // <-- Esto es lo importante
+                      }}
                     >
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1">
@@ -333,4 +338,4 @@ const Notification = () => {
   );
 };
 
-export default Notification;
+export default NotificationList;
