@@ -1,9 +1,14 @@
+'use client'
 import { motion } from "framer-motion";
 import { MdPassword } from "react-icons/md";
 import { BiUser } from "react-icons/bi";
 import { LogIn } from "@/app/lib/auth";
 
+import { useState } from "react";
+import { GiBoatPropeller } from "react-icons/gi";
+
 export const LoginForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <motion.div
@@ -77,10 +82,16 @@ export const LoginForm = () => {
             whileTap={{ scale: 0.98 }}
           >
             <button
-            type="submit"
-            formAction={LogIn}
-            className="px-6 py-3 text-lg font-bold text-white bg-gradient-to-br from-blue-600 to-blue-500 dark:from-blue-700 dark:to-blue-600 shadow-md hover:shadow-lg shadow-blue-500/30 dark:shadow-blue-600/20">
-              Iniciar Sesion
+              type="submit"
+              formAction={LogIn}
+              className="px-6 py-3 text-lg font-bold text-white bg-gradient-to-br rounded-lg from-blue-600 to-blue-500 dark:from-blue-700 dark:to-blue-600 shadow-md hover:shadow-lg shadow-blue-500/30 dark:shadow-blue-600/20 flex items-center justify-center"
+              disabled={isLoading}
+              onClick={() => setIsLoading(true)}
+            >
+              {isLoading ? (
+                <GiBoatPropeller className="animate-spin gap-3 text-xl"/>
+              ) : null}
+              {isLoading ? "" : "Iniciar Sesion"}
             </button>
           </motion.div>
         </motion.div>

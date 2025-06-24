@@ -222,7 +222,6 @@ const AtracaderoLanding = () => {
 
         <div className='flex flex-row gap-4 p-4'>
           <a href="/dashboard/login" className='text-white text-sm'>ir a login</a>
-          <a href="/dashboard/main" className='text-white text-sm'>ir a dashboard</a>
         </div>
       </motion.main>
     </div>
