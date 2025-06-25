@@ -61,11 +61,8 @@ const HelpPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-center p-6 rounded-xl"
+              className="text-center"
             >
-              <h2 className="text-xl font-semibold text-amber-600 dark:text-cyan-400 mb-4">
-                Documentación del Sistema
-              </h2>
               <a
                 href="/help/Manual_Usuario_Varadero.pdf"
                 target="_blank"
@@ -144,6 +141,7 @@ const HelpPage = () => {
               <li>A) Los datos proporcionados en la grafica de &apos;Distribucion de Ingresos&apos; son producto de la suma total de las ganancias de cada sector.</li>
               <li>B) Los datos proporcionados en la grafica de &apos;Cantidad de Transacciones&apos; son producto de la suma total de la cantidad de transacciones segun la medida de tiempo escogida por el usuario.</li>
               <li>C) Los datos porporcionados en la seccion &apos;Estadisticas de Transacciones&apos; son producto de: 1- El total de transacciones realizadas. 2- La suma de todas las ganancias recibidas en transacciones. 3- La suma de todas las perdidas recibidas en transacciones. 4- La suma de todas las transacciones cuyo estado sea Pendiente 5- La suma de todas las transacciones cuyo estado sea Completado.</li>
+              <li>D) En los terminos &apos;Ganancias Brutas Globales&apos; y &apos;Perdidas Brutas Globales&apos;, &apos;Globales&apos; hace referencia a que esta basado en todas las transacciones registradas por el sistema.</li>
             </ul>
             <p className=''>El equipo no se hace responsable del mal uso o abandono del software por parte de su comprador.</p>
           </div>

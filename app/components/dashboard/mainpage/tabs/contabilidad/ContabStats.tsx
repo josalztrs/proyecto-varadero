@@ -151,7 +151,7 @@ export default function ContabStats() {
             valueColor="text-blue-800 dark:text-blue-100"
           />
           <StatCard
-            title="Monto Total Global"
+            title="Ganancias Brutas Globales"
             value={`$${montoTotalGlobal.toFixed(2)}`}
             icon={FaDollarSign}
             bgColor="bg-green-50 dark:bg-green-900/50"
@@ -159,7 +159,7 @@ export default function ContabStats() {
             valueColor="text-green-800 dark:text-green-100"
           />
           <StatCard
-            title="Pérdidas Totales Globales"
+            title="Pérdidas Brutas Globales"
             value={`$${perdidasTotalesGlobales.toFixed(2)}`}
             icon={FaCreditCard}
             bgColor="bg-red-50 dark:bg-red-900/50"
