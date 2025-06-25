@@ -324,10 +324,8 @@ const ContabTransactionsViewer: React.FC = () => {
   // --- Definición de las Columnas para el PDF (¡NUEVO!) ---
   const transactionPdfColumns: PdfColumn<TransaccionWithDetails>[] = [
     { key: 'fecha', label: 'Fecha', format: (item) => new Date(item.fecha).toLocaleDateString('es-VE') },
-    { key: 'cliente_nombre', label: 'Cliente', format: (item) => item.cliente?.nombre || 'N/A' },
     { key: 'ref', label: 'Referencia', format: (item) => item.ref || 'N/A' },
     { key: 'conc', label: 'Concepto', format: (item) => item.conc || 'N/A' },
-    { key: 'servicio_tipo', label: 'Servicio', format: (item) => item.servicios?.tipo || 'Sin Servicio' },
     { key: 'monto_total', label: 'Monto Total', format: (item) => `REF${parseFloat(item.monto_total).toLocaleString('es-VE', { minimumFractionDigits: 2 })}` },
     {
       key: 'servicio_perdidas',
