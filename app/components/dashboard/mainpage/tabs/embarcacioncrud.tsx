@@ -133,7 +133,7 @@ const EmbarcacionCRUD = () => {
       { value: 'MOTO_ACUATICA', label: 'Moto Acuática' },
     ],customValidate: validateTipo,
   },
-  { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 8, uppercase: true, placeholder: "LNC-1234 / YAT-1234 / MTA-123", inputMode: "text" as const, pattern: '^[A-Z]{3}-\\d{4}$', customValidate: (value: string, allValues?: Record<string, any>) => {
+  { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 8, uppercase: true, placeholder: "LNC-1234 / YAT-1234 / MTA-1234", inputMode: "text" as const, pattern: '^[A-Z]{3}-\\d{4}$', customValidate: (value: string, allValues?: Record<string, any>) => {
     // Usa el tipo más reciente, ya sea del evento o del formData
     const tipoActual = allValues?.tipo ?? '';
     return validateMatricula(value, { tipo: tipoActual });
@@ -143,7 +143,7 @@ const EmbarcacionCRUD = () => {
   { name: 'caracteristicas', label: 'Características', type: 'text', required: true, maxLength: 32, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$', placeholder: 'Características físicas', customValidate: validateCaracteristicas,  },
   { name: 'ced_cliente', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 11, uppercase: true, inputMode: "text" as const, pattern: '^[VEJPG]-\\d{7,9}$', placeholder: 'V-12345678', customValidate: validateCedCliente, },
   { name: 'amarres_asign', label: 'Amarres Asignados', type: 'text', required: true, maxLength: 2, inputMode: "numeric" as const, pattern: '^\\d{1,2}$', placeholder: 'Cantidad de amarres', customValidate: validateAmarresAsign, },
-  { name: 'cuadr_asign', label: 'Cuadrante', type: 'text', required: true, maxLength: 3, inputMode: "numeric" as const, pattern: '^\\d{1,6}$', placeholder: 'Número de cuadrante', customValidate: validateCuadrAsign, },
+  { name: 'cuadr_asign', label: 'Cuadrante', type: 'text', required: true, maxLength: 2, inputMode: "numeric" as const, pattern: '^\\d{1,6}$', placeholder: 'Número de cuadrante', customValidate: validateCuadrAsign, },
 ];
 
   interface TableColumn<T> {

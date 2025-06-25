@@ -20,7 +20,7 @@ export const validateMatricula = (value: string, allValues?: any) => {
     }
   } else if (tipoNorm === 'MOTO_ACUATICA') {
     if (!/^MTA-\d{4}$/.test(trimmed)) {
-      return 'La matrícula de una Moto Acuática debe tener el formato MTA-123.';
+      return 'La matrícula de una Moto Acuática debe tener el formato MTA-1234.';
     }
   } else {
     return 'Tipo de embarcación no válido.';
@@ -133,11 +133,11 @@ export const validateCuadrAsign = (value: string | number, allValues?: any) => {
   if (!tipoNorm) return 'Debe seleccionar el tipo de embarcación antes del cuadrante.';
 
   if (tipoNorm === 'LANCHA') {
-    if (num < 1 || num > 100) return 'Las lanchas pueden estar en cuadrantes del 1 al 100.';
+    if (num < 1 || num > 20) return 'Las lanchas pueden estar en cuadrantes del 1 al 20.';
   } else if (tipoNorm === 'YATE') {
-    if (num < 101 || num > 500) return 'Los yates pueden estar en cuadrantes del 101 al 500.';
+    if (num < 21 || num > 35) return 'Los yates pueden estar en cuadrantes del 21 al 35.';
   } else if (tipoNorm === 'MOTO_ACUATICA') {
-    if (num < 501 || num > 999) return 'Las motos acuáticas pueden estar en cuadrantes del 501 al 999.';
+    if (num < 36 || num > 45) return 'Las motos acuáticas pueden estar en cuadrantes del 36 al 45.';
   } else {
     return 'Tipo de embarcación no válido.';
   }

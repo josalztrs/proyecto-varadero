@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/app/lib/supabase/supabase';
 
@@ -25,9 +26,12 @@ const MatriculaAutocompleteInput: React.FC<Props> = ({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+    debounceTimeout.current = setTimeout(async () => {
       if (value.length >= 2) {
         const { data, error } = await supabase
           .from('embarcacion')
@@ -36,20 +40,22 @@ const MatriculaAutocompleteInput: React.FC<Props> = ({
           .limit(5);
 
         if (!error && data) {
-          setSuggestions(data.map((row) => row.matricula));
-          // Si el valor coincide exactamente con una sugerencia, no mostrar la lista
-          if (data.map((row) => row.matricula).includes(value)) {
-            setShowSuggestions(false);
-          } else {
-            setShowSuggestions(true);
-          }
+          const matriculas = data.map((row: { matricula: string }) => row.matricula);
+          setSuggestions(matriculas);
+          setShowSuggestions(!matriculas.includes(value));
+        } else {
+          setSuggestions([]);
+          setShowSuggestions(false);
         }
       } else {
         setSuggestions([]);
         setShowSuggestions(false);
       }
+    }, 300); // 300 ms debounce
+
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-    fetchSuggestions();
   }, [value]);
 
   const handleSelect = (matricula: string) => {
@@ -65,7 +71,7 @@ const MatriculaAutocompleteInput: React.FC<Props> = ({
   };
 
   const handleBlur = () => {
-    setShowSuggestions(false);
+    setTimeout(() => setShowSuggestions(false), 100); // Da tiempo a onMouseDown
   };
 
   return (
@@ -79,7 +85,7 @@ const MatriculaAutocompleteInput: React.FC<Props> = ({
         ref={inputRef}
         type="text"
         value={value}
-        onChange={e => onChange(e.target.value.toUpperCase())}
+        onChange={(e) => onChange(e.target.value.toUpperCase())}
         placeholder={placeholder}
         maxLength={maxLength}
         autoComplete="off"
@@ -89,17 +95,24 @@ const MatriculaAutocompleteInput: React.FC<Props> = ({
         disabled={disabled}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        aria-autocomplete="list"
+        aria-controls="matricula-suggestions"
+        aria-expanded={showSuggestions}
+        role="combobox"
       />
       {showSuggestions && suggestions.length > 0 && (
         <ul
+          id="matricula-suggestions"
+          role="listbox"
           className="absolute z-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 w-full mt-1 rounded shadow"
           style={{ maxHeight: 160, overflowY: 'auto', listStyle: 'none', padding: 0, margin: 0 }}
         >
           {suggestions.map((s) => (
             <li
               key={s}
+              role="option"
               className="px-3 py-2 hover:bg-cyan-100 dark:hover:bg-cyan-900 cursor-pointer"
-              onMouseDown={e => {
+              onMouseDown={(e) => {
                 e.preventDefault();
                 handleSelect(s);
               }}

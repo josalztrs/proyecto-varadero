@@ -104,7 +104,7 @@ const mantenimientoFormFields: FormField[] = [
   {
     name: 'matricula_emb',
     label: 'Matrícula Embarcación',
-    type: 'text',
+    type: 'autocomplete',
     required: true,
     maxLength: 8,
     uppercase: true,
@@ -263,21 +263,39 @@ const MantenimientoCRUD: React.FC = () => {
 
   const [editingMantenimiento, setEditingMantenimiento] = useState<Mantenimiento | null>(null);
 
-  const handleFormSubmit = async (formData: Partial<Mantenimiento>) => {
-    try {
-      if (editingMantenimiento) {
-        await updateItem(editingMantenimiento.id, formData);
-        toast.success('Mantenimiento actualizado exitosamente');
-        setEditingMantenimiento(null);
-      } else {
-        await createItem(formData);
-        toast.success('Mantenimiento registrado exitosamente');
+  function hasError(obj: any): obj is { error: { message?: string } } {
+  return obj && typeof obj === 'object' && 'error' in obj;
+}
+
+const handleFormSubmit = async (formData: Partial<Mantenimiento>) => {
+  try {
+    let result: unknown;
+
+    if (editingMantenimiento) {
+      result = await updateItem(editingMantenimiento.id, formData);
+
+      if (hasError(result) && result.error) {
+        toast.error(`Error al actualizar: ${result.error.message || 'Error desconocido'}`);
+        return;
       }
-    } catch (err) {
-      console.error('Form submission error caught in component:', err);
-      toast.error('Error al procesar el formulario. Revisa los campos e intenta de nuevo');
+
+      toast.success('Mantenimiento actualizado exitosamente');
+      setEditingMantenimiento(null);
+    } else {
+      result = await createItem(formData);
+
+      if (hasError(result) && result.error) {
+        toast.error(`Error al crear: ${result.error.message || 'Error desconocido'}`);
+        return;
+      }
+
+      toast.success('Mantenimiento registrado exitosamente');
     }
-  };
+  } catch (err) {
+    console.error('Form submission error caught in component:', err);
+    toast.error('Error al procesar el formulario. Revisa los campos e intenta de nuevo');
+  }
+};
 
   const handleDelete = async (id: number) => {
     try {
