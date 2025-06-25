@@ -120,12 +120,6 @@ const EmbarcacionCRUD = () => {
   };
 
   const embarcacionFormFields = [
-  { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 8, uppercase: true, placeholder: "LNC-1234 / YAT-1234 / MTA-123", inputMode: "text" as const, pattern: '^[A-Z]{3}-\\d{4}$', customValidate: (value: string, allValues?: Record<string, any>) => {
-    // Usa el tipo más reciente, ya sea del evento o del formData
-    const tipoActual = allValues?.tipo ?? '';
-    return validateMatricula(value, { tipo: tipoActual });
-  }  },
-  { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$', placeholder: 'Nombre de la embarcación', customValidate: validateNombreEmbarcacion, },
   {
     name: 'tipo',
     label: 'Tipo',
@@ -139,6 +133,12 @@ const EmbarcacionCRUD = () => {
       { value: 'MOTO_ACUATICA', label: 'Moto Acuática' },
     ],customValidate: validateTipo,
   },
+  { name: 'matricula', label: 'Matrícula', type: 'text', required: true, maxLength: 8, uppercase: true, placeholder: "LNC-1234 / YAT-1234 / MTA-123", inputMode: "text" as const, pattern: '^[A-Z]{3}-\\d{4}$', customValidate: (value: string, allValues?: Record<string, any>) => {
+    // Usa el tipo más reciente, ya sea del evento o del formData
+    const tipoActual = allValues?.tipo ?? '';
+    return validateMatricula(value, { tipo: tipoActual });
+  }  },
+  { name: 'nombre', label: 'Nombre Embarcación', type: 'text', required: true, maxLength: 32, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$', placeholder: 'Nombre de la embarcación', customValidate: validateNombreEmbarcacion, },
   { name: 'marcmod', label: 'Marca/Modelo', type: 'text', required: true, maxLength: 20, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{2,20}$', placeholder: 'Marca o modelo', customValidate: validateMarcaModelo, },
   { name: 'caracteristicas', label: 'Características', type: 'text', required: true, maxLength: 32, uppercase: true, inputMode: "text" as const, pattern: '^[A-ZÁÉÍÓÚÑ0-9 -]{3,32}$', placeholder: 'Características físicas', customValidate: validateCaracteristicas,  },
   { name: 'ced_cliente', label: 'Documento de Identidad', type: 'text', required: true, maxLength: 11, uppercase: true, inputMode: "text" as const, pattern: '^[VEJPG]-\\d{7,9}$', placeholder: 'V-12345678', customValidate: validateCedCliente, },
