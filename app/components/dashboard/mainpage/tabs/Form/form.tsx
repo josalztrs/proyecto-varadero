@@ -408,15 +408,21 @@ const Form = <T extends Record<string, unknown>>({
           {loading ? 'Procesando...' : submitButtonText}
         </button>
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700 transition-colors"
-            disabled={loading}
-          >
-            {cancelButtonText}
-          </button>
-        )}
+  <button
+    type="button"
+    onClick={() => {
+      setFormData(initialData || {});
+      setErrors({});
+      setShowGeneralError(false);
+      onCancel();
+    }}
+    className="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700 transition-colors"
+    disabled={loading}
+  >
+    {cancelButtonText}
+  </button>
+)}
+
       </div>
     </motion.form>
   );

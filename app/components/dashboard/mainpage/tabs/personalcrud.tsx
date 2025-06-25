@@ -247,7 +247,9 @@ const PersonalCRUD = () => {
           onCancel={() => setEditingPersonal(null)}
           loading={loading}
           error={error}
-          submitButtonText={editingPersonal ? 'Guardar Cambios' : 'Registrar Personal'}
+          submitButtonText={editingPersonal ? 'Guardar Cambios' : 'Registrar Personal'
+          
+          }
         />
       </motion.div>
 

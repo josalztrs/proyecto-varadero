@@ -10,6 +10,7 @@ import { validateCorreo, validateDocIdent, validateNacionalidad, validateNombre,
 import Table from './table';
 import useCrud from '@/app/lib/supabase/db_management/crud';
 import ExportPdfButton from './pdfbutton';
+import { platform } from 'os';
 
 const ClienteCRUD = () => {
   type Cliente = Tables<'cliente'>;
@@ -71,6 +72,7 @@ const ClienteCRUD = () => {
     inputMode: 'text' as const,
     pattern: '^[A-ZÁÉÍÓÚÑ ]{3,32}$',
     customValidate: validateNombre,
+    placeholder: 'Ejemplo: JUAN PÉREZ',
   },
   {
     name: 'doc_ident',
@@ -105,6 +107,7 @@ const ClienteCRUD = () => {
     inputMode: 'text' as const,
     pattern: '^[A-ZÁÉÍÓÚÑ ]{3,32}$',
     customValidate: validateNacionalidad,
+    placeholder: 'Ejemplo: VENEZOLANO',
   },
   {
     name: 'telefono',
