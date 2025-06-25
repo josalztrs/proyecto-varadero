@@ -74,6 +74,7 @@ const Form = <T extends Record<string, unknown>>({
   onSubmit,
   onCancel,
   loading = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   error = null,
   submitButtonText = 'Enviar',
   cancelButtonText = 'Cancelar',
@@ -200,7 +201,7 @@ const Form = <T extends Record<string, unknown>>({
         return newData;
       });
     },
-    [fields]
+    [fields, validateField]
   );
 
   const handleCustomChange = (value: string, name?: string) => {
