@@ -126,7 +126,6 @@ const ClienteCRUD = () => {
   }
 
   const clientTableColumns: TableColumn<Cliente>[] = [
-    { key: 'id', label: 'ID' },
     { key: 'nombre', label: 'Nombre' },
     { key: 'doc_ident', label: 'Doc ID' },
     { key: 'correo', label: 'Correo', render: (cliente) => cliente.correo || 'N/A' },
