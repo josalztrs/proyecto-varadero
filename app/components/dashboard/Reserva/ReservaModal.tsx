@@ -6,7 +6,6 @@ import {
   ReservaFormState,
   SERVICIOS,
   validarReserva,
-  useInputHandlers,
 } from "./ReservaForm";
 
 interface ReservaModalProps {
@@ -46,24 +45,27 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [errors, setErrors] = useState<Partial<Record<keyof ReservaFormState, string>>>({});
   const modalRef = useRef<HTMLDivElement>(null);
-
-  const {
-    handleDocIdentChange,
-    handleMatriculaChange,
-    handleNotasChange,
-  } = useInputHandlers(setFormData);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+
+    if (name !== "nombre") {
+      const error = validarReserva(name as keyof ReservaFormState, value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: error || "",
+      }));
+    }
   };
 
-  // Scroll al abrir el modal
   useEffect(() => {
     if (isOpen && modalRef.current) {
       setTimeout(() => {
@@ -77,17 +79,27 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
     setErrorMsg("");
     setSuccessMsg("");
 
-    // Quitar validación de nombre
-    const { nombre, ...rest } = formData;
-    const error = validarReserva({ ...rest, nombre: "" });
-    if (error && !error.toLowerCase().includes("nombre")) {
-      setErrorMsg(error);
+    // Validar todos los campos excepto nombre antes de enviar
+    const newErrors: Partial<Record<keyof ReservaFormState, string>> = {};
+    for (const key of Object.keys(formData) as (keyof ReservaFormState)[]) {
+      if (key === "nombre") continue;
+      const error = validarReserva(key, formData[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setErrorMsg("Por favor, corrige los errores antes de continuar.");
       return;
     }
 
+    setErrors({});
     setLoading(true);
 
     try {
+      // Verificar si cliente existe
       const { data: cliente, error: errorCliente } = await supabase
         .from("cliente")
         .select("doc_ident, nombre")
@@ -102,6 +114,28 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
         return;
       }
 
+      // Verificar si embarcación existe y pertenece al cliente
+      const { data: embarcacion, error: errorEmbarcacion } = await supabase
+        .from("embarcacion")
+        .select("matricula, doc_propietario")
+        .eq("matricula", formData.matric_emb)
+        .maybeSingle();
+
+      if (errorEmbarcacion) throw errorEmbarcacion;
+
+      if (!embarcacion) {
+        setErrorMsg("La embarcación no está registrada en el sistema.");
+        setLoading(false);
+        return;
+      }
+
+      if (embarcacion.doc_propietario !== cliente.doc_ident) {
+        setErrorMsg("La embarcación no pertenece al cliente con el documento de identidad proporcionado.");
+        setLoading(false);
+        return;
+      }
+
+      // Insertar reserva
       const { data: reservaData, error: errorReserva } = await supabase
         .from("reservaciones")
         .insert([
@@ -111,8 +145,8 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
             id_servicio: Number(formData.id_servicio),
             fecha_est: formData.fecha_llegada,
             estado: "pendiente",
-            notas: formData.notas,         // Guardar notas
-            tipo_pago: formData.tipo_pago, // Guardar tipo de pago
+            notas: formData.notas,
+            tipo_pago: formData.tipo_pago,
           },
         ])
         .select("id")
@@ -120,6 +154,7 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
 
       if (errorReserva) throw errorReserva;
 
+      // Insertar notificación
       const { error: errorNotificacion } = await supabase.from("notificaciones").insert([
         {
           titulo: "Nueva reserva pendiente",
@@ -170,7 +205,7 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
           initial="hidden"
           animate="visible"
           exit="exit"
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <button
             className="absolute top-4 right-4 text-amber-400 hover:text-amber-600 dark:hover:text-cyan-400 text-2xl font-bold"
@@ -191,7 +226,10 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
           >
             {/* Documento de Identidad */}
             <div className="flex flex-col">
-              <label htmlFor="doc_ident" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+              <label
+                htmlFor="doc_ident"
+                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+              >
                 Documento de Identidad{" "}
                 <span className="text-xs text-gray-400 block">
                   Ej: V-12345678 (V/J/E/P/G seguido de guion y 7-9 números)
@@ -207,13 +245,19 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 pattern="^[VEJPG]-\d{7,9}$"
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.doc_ident}
-                onChange={handleDocIdentChange}
+                onChange={handleChange}
               />
+              {errors.doc_ident && (
+                <span className="text-sm text-red-500 mt-1">{errors.doc_ident}</span>
+              )}
             </div>
 
             {/* Matrícula de Embarcación */}
             <div className="flex flex-col">
-              <label htmlFor="matric_emb" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+              <label
+                htmlFor="matric_emb"
+                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+              >
                 Matrícula de Embarcación{" "}
                 <span className="text-xs text-gray-400 block">
                   Ej: ABCD-1234 (letras, números y guion, 4-15 caracteres)
@@ -230,17 +274,21 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 pattern="^[A-Za-z0-9\-]{4,15}$"
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.matric_emb}
-                onChange={handleMatriculaChange}
+                onChange={handleChange}
               />
+              {errors.matric_emb && (
+                <span className="text-sm text-red-500 mt-1">{errors.matric_emb}</span>
+              )}
             </div>
 
             {/* Tipo de Servicio */}
             <div className="flex flex-col">
-              <label htmlFor="id_servicio" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+              <label
+                htmlFor="id_servicio"
+                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+              >
                 Tipo de Servicio{" "}
-                <span className="text-xs text-gray-400 block">
-                  Seleccione una opción
-                </span>
+                <span className="text-xs text-gray-400 block">Seleccione una opción</span>
               </label>
               <select
                 id="id_servicio"
@@ -257,15 +305,19 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                   </option>
                 ))}
               </select>
+              {errors.id_servicio && (
+                <span className="text-sm text-red-500 mt-1">{errors.id_servicio}</span>
+              )}
             </div>
 
             {/* Fecha de Llegada */}
             <div className="flex flex-col">
-              <label htmlFor="fecha_llegada" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+              <label
+                htmlFor="fecha_llegada"
+                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+              >
                 Fecha de Llegada{" "}
-                <span className="text-xs text-gray-400 block">
-                  Ej: 2025-07-01 (hoy o fecha futura)
-                </span>
+                <span className="text-xs text-gray-400 block">Ej: 2025-07-01 (hoy o fecha futura)</span>
               </label>
               <input
                 type="date"
@@ -276,15 +328,19 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 value={formData.fecha_llegada}
                 onChange={handleChange}
               />
+              {errors.fecha_llegada && (
+                <span className="text-sm text-red-500 mt-1">{errors.fecha_llegada}</span>
+              )}
             </div>
 
             {/* Tipo de Pago */}
             <div className="flex flex-col">
-              <label htmlFor="tipo_pago" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+              <label
+                htmlFor="tipo_pago"
+                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+              >
                 Tipo de Pago{" "}
-                <span className="text-xs text-gray-400 block">
-                  Seleccione una opción
-                </span>
+                <span className="text-xs text-gray-400 block">Seleccione una opción</span>
               </label>
               <select
                 id="tipo_pago"
@@ -299,11 +355,17 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 <option value="tarjeta">Tarjeta</option>
                 <option value="transferencia">Transferencia</option>
               </select>
+              {errors.tipo_pago && (
+                <span className="text-sm text-red-500 mt-1">{errors.tipo_pago}</span>
+              )}
             </div>
 
             {/* Notas */}
             <div className="flex flex-col md:col-span-2">
-              <label htmlFor="notas" className="mb-2 font-semibold text-amber-400 dark:text-cyan-400">
+              <label
+                htmlFor="notas"
+                className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+              >
                 Notas{" "}
                 <span className="text-xs text-gray-400 block">
                   Opcional. Máximo 200 caracteres. Solo letras, números y signos básicos.
@@ -317,11 +379,14 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 maxLength={200}
                 className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white resize-y focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
                 value={formData.notas}
-                onChange={handleNotasChange}
+                onChange={handleChange}
               />
+              {errors.notas && (
+                <span className="text-sm text-red-500 mt-1">{errors.notas}</span>
+              )}
             </div>
 
-            {/* Mensajes */}
+            {/* Mensajes generales */}
             {errorMsg && (
               <p className="md:col-span-2 text-red-500 font-semibold">{errorMsg}</p>
             )}

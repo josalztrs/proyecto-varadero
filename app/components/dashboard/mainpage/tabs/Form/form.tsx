@@ -35,11 +35,10 @@ interface GenericFormProps<T> {
     error: string | null,
     handleCustomChange: (value: string, name?: string) => void,
     disabled: boolean,
-    index?: number 
+    index?: number
   ) => React.ReactNode;
 }
 
-// Animaciones para campos individuales
 const fieldVariants = {
   hidden: { opacity: 0, y: 15 },
   visible: (i: number) => ({
@@ -50,7 +49,6 @@ const fieldVariants = {
   exit: { opacity: 0, y: 10, transition: { duration: 0.2 } },
 };
 
-// Animaciones para el formulario completo
 const formVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -93,9 +91,7 @@ const Form = <T extends Record<string, unknown>>({
 
   React.useEffect(() => {
     if (showGeneralError) {
-      const timeout = setTimeout(() => {
-        setShowGeneralError(false);
-      }, 3000);
+      const timeout = setTimeout(() => setShowGeneralError(false), 3000);
       return () => clearTimeout(timeout);
     }
   }, [showGeneralError]);
@@ -111,24 +107,17 @@ const Form = <T extends Record<string, unknown>>({
       return `${field.label} es obligatorio.`;
     }
 
-    // Validación de longitud máxima para todos los campos
-    if (
-      typeof value === 'string' &&
-      field.maxLength &&
-      value.length > field.maxLength
-    ) {
+    if (typeof value === 'string' && field.maxLength && value.length > field.maxLength) {
       return `${field.label} debe tener máximo ${field.maxLength} caracteres.`;
     }
 
-    // Validación de patrón para todos los campos
     if (typeof value === 'string' && field.pattern) {
       const regex = new RegExp(field.pattern);
       if (!regex.test(value)) {
         return `${field.label} tiene un formato inválido.`;
       }
     }
-    error=error
-    // Validación de email
+
     if (typeof value === 'string' && field.type === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (value && !emailRegex.test(value)) {
@@ -136,7 +125,6 @@ const Form = <T extends Record<string, unknown>>({
       }
     }
 
-    // Validación robusta para campos numéricos
     if (field.type === 'number') {
       const strValue = String(value);
       if (strValue && !/^\d+$/.test(strValue)) {
@@ -154,7 +142,6 @@ const Form = <T extends Record<string, unknown>>({
       }
     }
 
-    // Validación personalizada
     if (field.customValidate) {
       const customError = field.customValidate(String(value ?? ''), currentFormData);
       if (customError) return customError;
@@ -163,12 +150,11 @@ const Form = <T extends Record<string, unknown>>({
     return null;
   };
 
-  // handleChange para inputs estándar y para componentes personalizados
   const handleChange = useCallback(
     (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      > | { target: { name: string; value: any } }
+      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> | {
+        target: { name: string; value: any };
+      }
     ) => {
       const { name, value } = e.target;
       const field = fields.find((f) => f.name === name);
@@ -190,7 +176,6 @@ const Form = <T extends Record<string, unknown>>({
       setFormData((prev) => {
         const newData = { ...prev, [name]: processedValue };
 
-        // Si el campo cambiado es "tipo", revalida los campos dependientes
         if (name === 'tipo') {
           const dependientes = ['matricula', 'amarres_asign', 'cuadr_asign'];
           setErrors((prevErrors) => {
@@ -202,12 +187,10 @@ const Form = <T extends Record<string, unknown>>({
                 newErrors[dep] = validateField(depField, depValue, newData);
               }
             });
-            // También valida el propio campo tipo
             newErrors[name] = validateField(field, processedValue, newData);
             return newErrors;
           });
         } else {
-          // Valida solo el campo cambiado
           setErrors((prevErrors) => ({
             ...prevErrors,
             [name]: validateField(field, processedValue, newData),
@@ -217,11 +200,9 @@ const Form = <T extends Record<string, unknown>>({
         return newData;
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [fields]
   );
 
-  // Para componentes personalizados: cambia solo el valor de un campo
   const handleCustomChange = (value: string, name?: string) => {
     if (!name) return;
     const field = fields.find((f) => f.name === name);
@@ -332,10 +313,9 @@ const Form = <T extends Record<string, unknown>>({
           const value = formData[field.name as keyof T];
           const errorMsg = errors[field.name];
 
-          // Si hay renderField y retorna algo, úsalo
           if (typeof renderField === 'function') {
-    const custom = renderField(field, value, errorMsg, handleCustomChange, loading, index);
-    if (custom) return <React.Fragment key={field.name}>{custom}</React.Fragment>;
+            const custom = renderField(field, value, errorMsg, handleCustomChange, loading, index);
+            if (custom) return <React.Fragment key={field.name}>{custom}</React.Fragment>;
           }
 
           return (
@@ -352,7 +332,7 @@ const Form = <T extends Record<string, unknown>>({
                   id={field.name}
                   name={field.name}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors[field.name] ? 'border-red-500' : ''
+                    errorMsg ? 'border-red-500' : ''
                   }`}
                   value={(formData[field.name as keyof T] ?? '') as string | number}
                   onChange={handleChange}
@@ -371,7 +351,7 @@ const Form = <T extends Record<string, unknown>>({
                   id={field.name}
                   name={field.name}
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors[field.name] ? 'border-red-500' : ''
+                    errorMsg ? 'border-red-500' : ''
                   }`}
                   value={(formData[field.name as keyof T] as string) || ''}
                   onChange={handleChange}
@@ -386,7 +366,7 @@ const Form = <T extends Record<string, unknown>>({
                   id={field.name}
                   name={field.name}
                   className={`mt-1 block w-full pl-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors[field.name] ? 'border-red-500' : ''
+                    errorMsg ? 'border-red-500' : ''
                   }`}
                   value={
                     field.type === 'number'
@@ -408,7 +388,11 @@ const Form = <T extends Record<string, unknown>>({
                 />
               )}
 
-              
+              {errorMsg && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {errorMsg}
+                </p>
+              )}
             </motion.div>
           );
         })}
@@ -433,8 +417,6 @@ const Form = <T extends Record<string, unknown>>({
           </button>
         )}
       </div>
-
-      
     </motion.form>
   );
 };
