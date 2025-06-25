@@ -74,6 +74,20 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+  if (isOpen) {
+    // Bloquear scroll del body
+    document.body.style.overflow = "hidden";
+  } else {
+    // Restaurar scroll del body
+    document.body.style.overflow = "";
+  }
+  // Limpieza por si el componente se desmonta
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [isOpen]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -117,7 +131,7 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
       // Verificar si embarcación existe y pertenece al cliente
       const { data: embarcacion, error: errorEmbarcacion } = await supabase
         .from("embarcacion")
-        .select("matricula, doc_propietario")
+        .select("matricula, ced_cliente")
         .eq("matricula", formData.matric_emb)
         .maybeSingle();
 
@@ -129,7 +143,7 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
         return;
       }
 
-      if (embarcacion.doc_propietario !== cliente.doc_ident) {
+      if (embarcacion.ced_cliente !== cliente.doc_ident) {
         setErrorMsg("La embarcación no pertenece al cliente con el documento de identidad proporcionado.");
         setLoading(false);
         return;
