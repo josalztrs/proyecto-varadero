@@ -25,6 +25,7 @@ type ReservaDetalle = {
   matric_emb: string;
   id_servicio: number;
   fecha_est: string;
+  fecha_sal: string;
   estado: string;
   notas?: string | null;
   tipo_pago?: string | null;
@@ -45,7 +46,7 @@ const ReservaNotification = () => {
     const { data: reserva, error } = await supabase
       .from("reservaciones")
       .select(
-        "id, doc_cliente, matric_emb, id_servicio, fecha_est, estado, notas, tipo_pago"
+        "id, doc_cliente, matric_emb, id_servicio, fecha_est, fecha_sal, estado, notas, tipo_pago"
       )
       .eq("id", Number(notification.reserv_id))
       .maybeSingle();
@@ -151,6 +152,9 @@ const ReservaNotification = () => {
                 </div>
                 <div>
                   <span className="font-semibold">Fecha estimada:</span> {detalle.fecha_est}
+                </div>
+                <div>
+                  <span className="font-semibold">Fecha de salida:</span> {detalle.fecha_sal}
                 </div>
                 <div>
                   <span className="font-semibold">Tipo de pago:</span> {detalle.tipo_pago}

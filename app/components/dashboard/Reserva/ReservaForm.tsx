@@ -5,11 +5,12 @@ import { supabase } from '@/app/lib/supabase/supabase';
 import { toast } from 'sonner';
 
 export type ReservaFormState = {
-  nombre: string;
+
   doc_ident: string;
   matric_emb: string;
   id_servicio: string;
   fecha_llegada: string;
+  fecha_salida: string; 
   tipo_pago: string;
   notas: string;
 };
@@ -21,7 +22,11 @@ export const SERVICIOS = [
   { value: "10", label: "Mantenimiento" },
 ];
 
-export const validarReserva = (field: keyof ReservaFormState, value: string): string | null => {
+export const validarReserva = (
+  field: keyof ReservaFormState,
+  value: string,
+  form?: ReservaFormState
+): string | null => {
   switch (field) {
     case 'doc_ident': {
       const val = value.trim().toUpperCase();
@@ -69,6 +74,37 @@ export const validarReserva = (field: keyof ReservaFormState, value: string): st
       break;
     }
 
+    case 'fecha_salida': {
+      if (!value) return "Debe ingresar la fecha de salida.";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return "Formato inválido. Use el formato YYYY-MM-DD.";
+      }
+
+      const salida = new Date(value + "T00:00:00");
+      if (isNaN(salida.getTime())) {
+        return "La fecha de salida no es válida.";
+      }
+
+      // Validamos fecha llegada para comparar
+      if (form?.fecha_llegada) {
+        const llegada = new Date(form.fecha_llegada + "T00:00:00");
+        if (!isNaN(llegada.getTime())) {
+          if (salida < llegada) {
+            return "La fecha de salida no puede ser anterior a la fecha de llegada.";
+          }
+        }
+      }
+
+      // (Opcional) La fecha de salida no puede ser pasada (antes de hoy)
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      if (salida < hoy) {
+        return "La fecha de salida debe ser hoy o una fecha futura.";
+      }
+
+      break;
+    }
+
     case 'tipo_pago': {
       if (!value) return "Debe seleccionar un tipo de pago.";
       if (!["efectivo", "tarjeta", "transferencia"].includes(value)) {
@@ -96,13 +132,14 @@ export const validarReserva = (field: keyof ReservaFormState, value: string): st
 };
 
 
+
 const ReservaForm = () => {
   const [form, setForm] = useState<ReservaFormState>({
-    nombre: '',
     doc_ident: '',
     matric_emb: '',
     id_servicio: '',
     fecha_llegada: '',
+    fecha_salida: '', // Aunque no se usa, se mantiene para futuras expansiones
     tipo_pago: '',
     notas: '',
   });
@@ -111,10 +148,11 @@ const ReservaForm = () => {
   const [loading, setLoading] = useState(false);
 
   const handleFieldChange = (field: keyof ReservaFormState, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    const errorMsg = validarReserva(field, value);
-    setErrors((prev) => ({ ...prev, [field]: errorMsg || undefined }));
-  };
+  const updatedForm = { ...form, [field]: value };
+  setForm(updatedForm);
+  const errorMsg = validarReserva(field, value, updatedForm); // <-- pasa el form completo
+  setErrors((prev) => ({ ...prev, [field]: errorMsg || undefined }));
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,11 +220,11 @@ const ReservaForm = () => {
 
       toast.success("Reservación enviada correctamente.");
       setForm({
-        nombre: '',
         doc_ident: '',
         matric_emb: '',
         id_servicio: '',
         fecha_llegada: '',
+        fecha_salida: '', // Aunque no se usa, se mantiene para futuras expansiones
         tipo_pago: '',
         notas: '',
       });

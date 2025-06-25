@@ -14,11 +14,12 @@ interface ReservaModalProps {
 }
 
 const initialFormData: ReservaFormState = {
-  nombre: "",
+
   doc_ident: "",
   matric_emb: "",
   id_servicio: "",
   fecha_llegada: "",
+  fecha_salida: "",
   tipo_pago: "",
   notas: "",
 };
@@ -95,13 +96,7 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
 
     // Validar todos los campos excepto nombre antes de enviar
     const newErrors: Partial<Record<keyof ReservaFormState, string>> = {};
-    for (const key of Object.keys(formData) as (keyof ReservaFormState)[]) {
-      if (key === "nombre") continue;
-      const error = validarReserva(key, formData[key]);
-      if (error) {
-        newErrors[key] = error;
-      }
-    }
+    
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -158,6 +153,7 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
             matric_emb: formData.matric_emb,
             id_servicio: Number(formData.id_servicio),
             fecha_est: formData.fecha_llegada,
+            fecha_sal: formData.fecha_salida,
             estado: "pendiente",
             notas: formData.notas,
             tipo_pago: formData.tipo_pago,
@@ -346,6 +342,31 @@ const ReservaModal = ({ isOpen, onClose }: ReservaModalProps) => {
                 <span className="text-sm text-red-500 mt-1">{errors.fecha_llegada}</span>
               )}
             </div>
+            {/* Fecha de Salida */}
+<div className="flex flex-col">
+  <label
+    htmlFor="fecha_salida"
+    className="mb-2 font-semibold text-amber-400 dark:text-cyan-400"
+  >
+    Fecha de Salida{" "}
+    <span className="text-xs text-gray-400 block">
+      Debe ser igual o posterior a la fecha de llegada
+    </span>
+  </label>
+  <input
+    type="date"
+    id="fecha_salida"
+    name="fecha_salida"
+    required
+    className="rounded-md border border-amber-400/50 dark:border-cyan-400/50 bg-slate-800 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-cyan-400"
+    value={formData.fecha_salida}
+    onChange={handleChange}
+  />
+  {errors.fecha_salida && (
+    <span className="text-sm text-red-500 mt-1">{errors.fecha_salida}</span>
+  )}
+</div>
+
 
             {/* Tipo de Pago */}
             <div className="flex flex-col">
